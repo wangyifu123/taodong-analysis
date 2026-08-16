@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>财情双生智库 · Econ-Sentiment Twin Think Tank · 资产决策系统</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="财情双生智库 · Econ-Sentiment Twin Think Tank · 宏观监控 · 美林时钟 · 周金涛周期 · 股债汇 · 黄金 · 资金流向 · 一站式资产决策系统 | Macro Monitor · Merrill Clock · Kondratieff Cycle · Equities-Bonds-FX · Gold · Fund Flow">
+<style>
+  /* =============== 设计系统（与各子系统统一） =============== */
+  :root {
+    --bg:        #0D0D0F;
+    --bg2:       #0A1628;
+    --gold:      #D4AF37;
+    --gold-dim:  #8B7426;
+    --red:       #E53935;  /* 涨 */
+    --green:     #43A047;  /* 跌 */
+    --text:      #E8E8F0;
+    --text-dim:  #8A8AA0;
+    --text-mute: #5A5A70;
+    --border:    #2A2A3E;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  /* 背景纹路 */
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: -1;
+    background:
+      radial-gradient(circle at 20% 10%, rgba(212,175,55,0.06), transparent 40%),
+      radial-gradient(circle at 80% 90%, rgba(79,195,247,0.04), transparent 40%);
+  }
+  a { color: inherit; text-decoration: none; transition: all 0.2s; }
+  a:hover { color: var(--gold); }
+  .mono { font-family: 'JetBrains Mono', 'Courier New', monospace; font-feature-settings: 'tnum'; }
+  .gold-text { color: var(--gold); }
+  .gold-text-grad { background: linear-gradient(135deg, #D4AF37, #F4D03F, #D4AF37); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+  /* =============== 语言切换 =============== */
+  .lang-pair {
+    position: fixed; top: 16px; right: 20px; z-index: 100;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 12px; border-radius: 20px;
+    border: 1px solid var(--gold); background: rgba(13,13,15,0.85);
+    backdrop-filter: blur(6px); box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    font-size: 12px; font-weight: 600;
+  }
+  .lang-item { color: var(--text-dim); padding: 2px 9px; border-radius: 12px; transition: all .2s; }
+  .lang-item:hover { color: var(--gold); }
+  .lang-item.active { color: var(--bg); background: linear-gradient(135deg, var(--gold), #F4D03F); }
+  .lang-sep { color: var(--text-mute); font-size: 11px; }
+
+  /* =============== HERO =============== */
+  .hero {
+    max-width: 1400px; margin: 0 auto; padding: 80px 32px 50px;
+    text-align: center; position: relative;
+  }
+  .hero-logo {
+    width: 110px; height: 110px; margin: 0 auto 24px;
+    border-radius: 50%;
+    animation: float 5s ease-in-out infinite;
+    filter: drop-shadow(0 8px 30px rgba(212,175,55,0.25));
+  }
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  .hero h1 {
+    font-size: 52px; font-weight: 900; letter-spacing: -0.5px;
+    margin-bottom: 14px; line-height: 1.15;
+  }
+  .hero .subtitle {
+    font-size: 16px; color: var(--text-dim); max-width: 760px;
+    margin: 0 auto 30px; letter-spacing: 1px;
+  }
+  .hero-brand {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 14px; letter-spacing: 3px; color: var(--gold);
+    margin: -4px 0 12px; opacity: 0.85; font-style: italic;
+  }
+  .hero .badges {
+    display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+    margin-bottom: 28px;
+  }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 14px; border-radius: 20px;
+    font-size: 12px; font-weight: 500;
+    border: 1px solid var(--border); background: rgba(255,255,255,0.02);
+    color: var(--text-dim);
+  }
+  .badge.gold { color: var(--gold); border-color: rgba(212,175,55,0.4); background: rgba(212,175,55,0.08); }
+  .badge.live { color: var(--green); border-color: rgba(67,160,71,0.4); background: rgba(67,160,71,0.08); }
+  .badge.live::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green); box-shadow: 0 0 8px #43A047;
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.85); }
+  }
+  .hero-chinese {
+    font-family: 'Noto Serif SC', serif; font-size: 18px; color: var(--text-mute);
+    margin-top: 12px; letter-spacing: 4px;
+  }
+  .hero-chinese.en { font-family: 'Georgia', 'Times New Roman', serif; letter-spacing: 2px; font-style: italic; }
+
+  /* =============== 卡片网格 =============== */
+  .container { max-width: 1400px; margin: 0 auto; padding: 0 32px 80px; }
+  .section-title {
+    display: flex; align-items: center; gap: 12px;
+    margin: 50px 0 24px; font-size: 14px; letter-spacing: 2px;
+    color: var(--text-mute); font-weight: 500;
+  }
+  .section-title::before {
+    content: ''; width: 4px; height: 18px; background: var(--gold); border-radius: 2px;
+  }
+  .grid {
+    display: grid; gap: 22px;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  }
+  .card {
+    position: relative;
+    background: linear-gradient(135deg, rgba(20,20,28,0.95), rgba(10,22,40,0.6));
+    border: 1px solid var(--border); border-radius: 14px;
+    padding: 28px 26px; overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--accent, var(--gold)); opacity: 0.6;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent, var(--gold));
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4), 0 0 0 1px var(--accent, var(--gold));
+  }
+  .card-head { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 18px; }
+  .card-icon {
+    width: 52px; height: 52px; border-radius: 12px;
+    background: rgba(212,175,55,0.08);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; flex-shrink: 0;
+    border: 1px solid rgba(212,175,55,0.2);
+  }
+  .card-title { flex: 1; }
+  .card-title h3 {
+    font-size: 19px; font-weight: 700; margin-bottom: 4px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-title .tag {
+    font-size: 10px; padding: 2px 8px; border-radius: 6px;
+    font-weight: 500; letter-spacing: 0.5px;
+  }
+  .tag.live { color: var(--green); background: rgba(67,160,71,0.12); border: 1px solid rgba(67,160,71,0.3); }
+  .tag.macro { color: #FFB300; background: rgba(255,179,0,0.12); border: 1px solid rgba(255,179,0,0.3); }
+  .tag.alert { color: #BA68C8; background: rgba(186,104,200,0.12); border: 1px solid rgba(186,104,200,0.3); }
+  .card-title .sub { font-size: 11px; color: var(--text-mute); letter-spacing: 1px; }
+
+  .card-desc { color: var(--text-dim); font-size: 14px; margin-bottom: 16px; line-height: 1.7; }
+  .card-use {
+    background: rgba(212,175,55,0.04); border-left: 2px solid var(--gold);
+    padding: 10px 14px; margin-bottom: 16px;
+    font-size: 12px; color: var(--text); line-height: 1.7;
+  }
+  .card-use b { color: var(--gold); font-weight: 600; }
+  .card-features {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px;
+  }
+  .card-features span {
+    font-size: 11px; padding: 3px 9px; border-radius: 4px;
+    background: rgba(255,255,255,0.04); color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+  .card-cta {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--gold), #F4D03F);
+    color: var(--bg); font-weight: 600; font-size: 13px;
+    transition: all 0.2s;
+  }
+  .card-cta:hover { transform: translateX(2px); color: var(--bg); }
+  .card-cta::after { content: '→'; transition: transform 0.2s; }
+  .card-cta:hover::after { transform: translateX(3px); }
+
+  /* 卡片角标 */
+  .card-index {
+    position: absolute; top: 12px; right: 16px;
+    font-size: 10px; color: var(--text-mute); letter-spacing: 1px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* =============== 决策路径 =============== */
+  .decision-flow {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px; margin-top: 16px;
+  }
+  .step {
+    background: rgba(79,195,247,0.04); border: 1px solid rgba(79,195,247,0.2);
+    border-radius: 8px; padding: 14px 16px; position: relative;
+  }
+  .step-num {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: rgba(79,195,247,0.15); color: #4FC3F7;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; margin-bottom: 8px;
+  }
+  .step-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .step-desc { font-size: 11px; color: var(--text-dim); line-height: 1.6; }
+
+  /* =============== 章节标题 =============== */
+  .section-rule {
+    height: 1px; background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+    margin: 50px 0 24px; opacity: 0.4;
+  }
+
+  /* =============== FOOTER =============== */
+  footer {
+    border-top: 1px solid var(--border); margin-top: 60px;
+    padding: 36px 32px 24px; text-align: center;
+  }
+  .footer-text { font-size: 12px; color: var(--text-mute); }
+  .footer-text .gold-text { font-weight: 600; }
+  .footer-tech { font-size: 10px; color: var(--text-mute); margin-top: 10px; letter-spacing: 1px; }
+
+  /* =============== 响应式 =============== */
+  @media (max-width: 768px) {
+    .hero { padding: 60px 20px 30px; }
+    .hero h1 { font-size: 36px; }
+    .hero .subtitle { font-size: 14px; }
+    .grid { grid-template-columns: 1fr; }
+    .container { padding: 0 20px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- =============== 语言切换（中 | EN） =============== -->
+<nav class="lang-pair" aria-label="Language Switch">
+  <a href="index.html" class="lang-item">中</a>
+  <span class="lang-sep">|</span>
+  <a href="index-en.html" class="lang-item active">EN</a>
+</nav>
+
+<!-- =============== HERO =============== -->
+<section class="hero">
+  <img src="_assets/logo.png" alt="Econ-Sentiment Twin Think Tank" class="hero-logo">
+  <h1><span class="gold-text-grad" data-i18n="hero.title">财情双生智库</span></h1>
+  <div class="hero-brand" data-i18n="hero.brand">Econ-Sentiment Twin Think Tank</div>
+  <p class="subtitle" data-i18n="hero.subtitle">金融 × 情绪 · 对立统一 · 一站式资产决策系统</p>
+  <div class="hero-chinese" data-i18n="hero.motto">财 情 双 生 · 智 慧 有 温 度</div>
+  <div class="hero-chinese" style="font-size:14px;margin-top:6px;font-family:'Noto Serif SC',serif" data-i18n="hero.motto2">— 苦 难 变 智 慧 · 矛 盾 变 双 赢 · 烦 恼 变 成 长 —</div>
+
+  <div class="badges" style="margin-top:28px">
+    <span class="badge live" data-i18n="badge.fx">汇率实时</span>
+    <span class="badge live" data-i18n="badge.gold">金价实时</span>
+    <span class="badge live" data-i18n="badge.indices">6/8 国股指实时</span>
+    <span class="badge gold" data-i18n="badge.macro8">8 国宏观</span>
+    <span class="badge gold" data-i18n="badge.cycle3">3 国周期</span>
+    <span class="badge" data-i18n="badge.systems">6 套子系统</span>
+  </div>
+</section>
+
+<!-- =============== 6 大子系统 =============== -->
+<div class="container">
+
+  <div class="section-title" data-i18n="sec.systems">6 大子系统 · 点击进入</div>
+  <div class="grid">
+
+    <!-- 01. 宏观监控系统 -->
+    <a href="apps-en/01-macro-surveillance/index.html" class="card" style="--accent:#43A047">
+      <div class="card-index">01</div>
+      <div class="card-head">
+        <div class="card-icon">📊</div>
+        <div class="card-title">
+          <h3><span data-i18n="c1.title">宏观监控系统</span> <span class="tag live" data-i18n="c1.tag">实时</span></h3>
+          <div class="sub">Macro Surveillance</div>
+        </div>
+      </div>
+      <div class="card-desc" data-i18n="c1.desc">5 维度全球压力仪表（综合压力指数 + 5 张变量卡 + 4 情景研判），重点突出「市场传染」作为压力读数。</div>
+      <div class="card-use"><b data-i18n="c1.useLabel">用法举例：</b><span data-i18n="c1.use">开盘前看「综合压力指数」+「市场传染」色卡 → 判断今日风险偏好 → 决定仓位。</span></div>
+      <div class="card-features">
+        <span data-i18n="c1.f1">压力仪表</span><span data-i18n="c1.f2">5 变量</span><span data-i18n="c1.f3">4 情景</span><span data-i18n="c1.f4">5 秒刷新</span>
+      </div>
+      <span class="card-cta" data-i18n="cta">进入系统</span>
+    </a>
+
+    <!-- 02. 美林时钟 -->
+    <a href="apps-en/02-merrill-clock/index.html" class="card" style="--accent:#D4AF37">
+      <div class="card-index">02</div>
+      <div class="card-head">
+        <div class="card-icon">🕐</div>
+        <div class="card-title">
+          <h3><span data-i18n="c2.title">美林时钟</span> <span class="tag live" data-i18n="c2.tag">8 国</span></h3>
+          <div class="sub">Merrill Lynch Investment Clock</div>
+        </div>
+      </div>
+      <div class="card-desc" data-i18n="c2.desc">8 国（CN/US/JP/GB/DE/KR/IR/RU）同步美林时钟定位 + 10Y 国债利率对比 + 2010-2026 历史周期轨迹。</div>
+      <div class="card-use"><b data-i18n="c2.useLabel">用法举例：</b><span data-i18n="c2.use">勾选 3 国 → 看三国时钟象限位置 + 10Y 利差 → 找套利窗口（中国复苏 + 美国滞胀）。</span></div>
+      <div class="card-features">
+        <span data-i18n="c2.f1">8 国复选</span><span data-i18n="c2.f2">10Y 国债</span><span data-i18n="c2.f3">2010-2026 轨迹</span><span data-i18n="c2.f4">跨市场联动</span>
+      </div>
+      <span class="card-cta" data-i18n="cta">进入系统</span>
+    </a>
+
+    <!-- 03. 周金涛三国周期分析报告 -->
+    <a href="apps-en/03-zhoujintao-cycle/index.html" class="card" style="--accent:#BA68C8">
+      <div class="card-index">03</div>
+      <div class="card-head">
+        <div class="card-icon">📜</div>
+        <div class="card-title">
+          <h3><span data-i18n="c3.title">周金涛三国周期</span> <span class="tag alert" data-i18n="c3.tag">深度</span></h3>
+          <div class="sub">Kondratieff Cycle Analysis</div>
+        </div>
+      </div>
+      <div class="card-desc" data-i18n="c3.desc">用康波周期框架（50-60 年长波）系统分析中美日三国当前周期定位 + 9 章深度报告 + 情景推演。</div>
+      <div class="card-use"><b data-i18n="c3.useLabel">用法举例：</b><span data-i18n="c3.use">每月看一次「核心结论」章 → 校准宏观战略 → 决定大类资产久期（黄金/股票/债券的仓位）。</span></div>
+      <div class="card-features">
+        <span data-i18n="c3.f1">康波定位</span><span data-i18n="c3.f2">3 国深度</span><span data-i18n="c3.f3">9 章分析</span><span data-i18n="c3.f4">情景推演</span>
+      </div>
+      <span class="card-cta" data-i18n="cta">进入系统</span>
+    </a>
+
+    <!-- 04. 资金流向监测系统 -->
+    <a href="apps-en/04-fund-flow/index.html" class="card" style="--accent:#FFB300">
+      <div class="card-index">04</div>
+      <div class="card-head">
+        <div class="card-icon">💰</div>
+        <div class="card-title">
+          <h3><span data-i18n="c4.title">资金流向监测</span> <span class="tag macro" data-i18n="c4.tag">最新 v5</span></h3>
+          <div class="sub">Fund Flow Surveillance</div>
+        </div>
+      </div>
+      <div class="card-desc" data-i18n="c4.desc">8 国（CN/US/JP/GB/DE/KR/IR/RU）资金链全景 · 实时汇率/金价/6 国股指 · 央行资产负债表 + 黄金存量 + 美元计价 + 10 年趋势 + 数据源对照表。</div>
+      <div class="card-use"><b data-i18n="c4.useLabel">用法举例：</b><span data-i18n="c4.use">必看系统 → 顶部状态条（4 源实时状态）+ 实时行情条 → 央行资产负债 doughnut → 底部数据源对照表确认数据新旧。</span></div>
+      <div class="card-features">
+        <span data-i18n="c4.f1">实时 3 件套</span><span data-i18n="c4.f2">8 国央表</span><span data-i18n="c4.f3">USD 切换</span><span data-i18n="c4.f4">10 年趋势</span><span data-i18n="c4.f5">数据源对照表</span>
+      </div>
+      <span class="card-cta" data-i18n="cta">进入系统</span>
+    </a>
+
+    <!-- 05. 股债汇监测系统 -->
+    <a href="apps-en/05-stock-bond-fx/index.html" class="card" style="--accent:#4FC3F7">
+      <div class="card-index">05</div>
+      <div class="card-head">
+        <div class="card-icon">📈</div>
+        <div class="card-title">
+          <h3><span data-i18n="c5.title">股债汇监测</span> <span class="tag live" data-i18n="c5.tag">8 国</span></h3>
+          <div class="sub">Equity · Bond · FX Monitor</div>
+        </div>
+      </div>
+      <div class="card-desc" data-i18n="c5.desc">8 国（CN/US/JP/GB/DE/KR/IR/RU）三国市场（股票/债券/外汇）实时监测 + 年/月/周三维趋势判断引擎。</div>
+      <div class="card-use"><b data-i18n="c5.useLabel">用法举例：</b><span data-i18n="c5.use">勾选 5 国 → 看「年/月/周」三维趋势信号 → 找出「强势上行」国家（趋势确立）做多。</span></div>
+      <div class="card-features">
+        <span data-i18n="c5.f1">8 国 3 市场</span><span data-i18n="c5.f2">三维趋势</span><span data-i18n="c5.f3">风险偏好评分</span><span data-i18n="c5.f4">10 秒刷新</span>
+      </div>
+      <span class="card-cta" data-i18n="cta">进入系统</span>
+    </a>
+
+    <!-- 06. 黄金 XAUUSD 监控系统 -->
+    <a href="apps-en/06-gold-xauusd/index.html" class="card" style="--accent:#D4AF37">
+      <div class="card-index">06</div>
+      <div class="card-head">
+        <div class="card-icon">🥇</div>
+        <div class="card-title">
+          <h3><span data-i18n="c6.title">黄金 XAUUSD</span> <span class="tag live" data-i18n="c6.tag">实时</span></h3>
+          <div class="sub">Gold Quad-Dimension Monitor</div>
+        </div>
+      </div>
+      <div class="card-desc" data-i18n="c6.desc">黄金四维（年/月/周/日）监控 + 多品种（XAU/XAG/XPT/XCU/WTI）+ 金银比 + 相关性矩阵 + 可调权重判断引擎。</div>
+      <div class="card-use"><b data-i18n="c6.useLabel">用法举例：</b><span data-i18n="c6.use">日内看「日线判断」+ 蜡烛图 → 中期看「金银比 + 黄金月线」+ 调判断引擎权重 → 决定买卖时机。</span></div>
+      <div class="card-features">
+        <span data-i18n="c6.f1">4 维度</span><span data-i18n="c6.f2">5 品种</span><span data-i18n="c6.f3">金银比</span><span data-i18n="c6.f4">可调权重</span>
+      </div>
+      <span class="card-cta" data-i18n="cta">进入系统</span>
+    </a>
+
+    <!-- 07. 直盘货币对 四维分析（v5.1 财情方法论） -->
+    <a href="apps-en/07-fx-pairs/index.html" class="card" style="--accent:#4FC3F7">
+      <div class="card-index">07</div>
+      <div class="card-head">
+        <div class="card-icon">💱</div>
+        <div class="card-title">
+          <h3><span data-i18n="c7.title">直盘货币对</span> <span class="tag macro" data-i18n="c7.tag">财情方法论</span></h3>
+          <div class="sub">FX Major Pairs · Quad-Dimension Analysis</div>
+        </div>
+      </div>
+      <div class="card-desc" data-i18n="c7.desc">6 大直盘（EURUSD/USDJPY/GBPUSD/USDCHF/AUDUSD/USDCAD）月/周/日/时四维判断引擎 · 基本面（央行利率/利差）+ 技术面（MA/RSI/MACD）+ 情绪面（DXY/COT）+ 量化（波动率/相关性/动量）。</div>
+      <div class="card-use"><b data-i18n="c7.useLabel">用法举例：</b><span data-i18n="c7.use">交易前 5 分钟 → 看 EURUSD 月/周/日/时四维信号 → 若多维度共振做多 → 设证伪条件止损（财情方法论「可证伪性 > 可解释性」）。</span></div>
+      <div class="card-features">
+        <span data-i18n="c7.f1">6 对可复选</span><span data-i18n="c7.f2">四维判断</span><span data-i18n="c7.f3">财情证伪</span><span data-i18n="c7.f4">免费 API</span>
+      </div>
+      <span class="card-cta" data-i18n="cta">进入系统</span>
+    </a>
+
+  </div>
+
+  <!-- =============== 决策路径 =============== -->
+  <div class="section-rule"></div>
+  <div class="section-title" data-i18n="sec.path">典型决策路径 · 6 步法</div>
+  <div class="decision-flow">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-title" data-i18n="s1.t">看长周期</div>
+      <div class="step-desc" data-i18n="s1.d">月度 → 周金涛报告：康波定位 + 大类资产时钟</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-title" data-i18n="s2.t">看中美日周期</div>
+      <div class="step-desc" data-i18n="s2.d">月度 → 美林时钟：8 国象限 + 套利窗口</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-title" data-i18n="s3.t">看资金流向</div>
+      <div class="step-desc" data-i18n="s3.d">月度/周度 → 资金流向：M2/社融/央表 + 实时利率</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-title" data-i18n="s4.t">看股债汇</div>
+      <div class="step-desc" data-i18n="s4.d">周度 → 股债汇：8 国三维趋势判断</div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-title" data-i18n="s5.t">看宏观压力</div>
+      <div class="step-desc" data-i18n="s5.d">日度 → 宏观监控：综合压力 + 5 变量</div>
+    </div>
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-title" data-i18n="s6.t">看品种深探</div>
+      <div class="step-desc" data-i18n="s6.d">日内 → 黄金：四维 + 可调权重 + 蜡烛图</div>
+    </div>
+  </div>
+
+  <!-- =============== 数据更新时间 =============== -->
+  <div class="section-rule"></div>
+  <div class="section-title" data-i18n="sec.data">数据更新时间一览</div>
+  <div style="background:rgba(20,20,28,0.6); border:1px solid var(--border); border-radius:12px; padding:24px">
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:16px; font-size:13px">
+      <div>
+        <div style="color:var(--gold); font-weight:600; margin-bottom:6px" data-i18n="d.live">🔄 实时层</div>
+        <div style="color:var(--text-dim); line-height:1.8">
+          <span data-i18n="d.l1">汇率：每日 UTC 00:02</span><br>
+          <span data-i18n="d.l2">金价：秒级更新</span><br>
+          <span data-i18n="d.l3">A股/美股：盘中实时</span><br>
+          <span data-i18n="d.l4">日经/DAX/FTSE/KOSPI：盘中实时</span>
+        </div>
+      </div>
+      <div>
+        <div style="color:#FFB300; font-weight:600; margin-bottom:6px" data-i18n="d.official">📅 官方发布节奏</div>
+        <div style="color:var(--text-dim); line-height:1.8">
+          <span data-i18n="d.o1">M2（CN）：每月 10-15 日</span><br>
+          <span data-i18n="d.o2">M2（US）：每周四 H.6</span><br>
+          <span data-i18n="d.o3">社融：每月 10-15 日</span><br>
+          <span data-i18n="d.o4">央表：周/月频</span>
+        </div>
+      </div>
+      <div>
+        <div style="color:#43A047; font-weight:600; margin-bottom:6px" data-i18n="d.est">📊 估算层</div>
+        <div style="color:var(--text-dim); line-height:1.8">
+          <span data-i18n="d.e1">股票/房产市值：年度快照</span><br>
+          <span data-i18n="d.e2">TEDPIX/MOEX：无免费源·模型</span><br>
+          <span data-i18n="d.e3">GDP 校验：World Bank 年度</span><br>
+          <span data-i18n="d.e4">（详见各系统数据源对照表）</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-text">
+    © 2026 <span data-i18n="footer.brand">财情双生智库</span> · <span class="gold-text" data-i18n="footer.yizhonghe">易和中</span> · <span data-i18n="footer.slogan">让智慧有温度</span><br>
+    <span data-i18n="footer.disclaimer">本站所有数据仅供研究学习，不构成投资建议</span>
+  </div>
+  <div class="footer-tech" data-i18n="footer.tech">
+    6 套子系统 · 单文件 HTML · 客户端浏览器渲染 · GitHub Pages 部署就绪
+  </div>
+</footer>
+
+
+<script>
+/* 英文版 · 强制英文化 */
+(function(){
+  const DICT = {"hero.title": "Econ-Sentiment Twin Think Tank", "hero.brand": "财情双生智库", "hero.subtitle": "Finance × Emotion · Unity of Opposites · All-in-One Asset Decision System", "hero.motto": "WEALTH & WISDOM · WITH WARMTH", "hero.motto2": "— TRANSFORM SUFFERING INTO WISDOM · CONFLICT INTO WIN-WIN · WORRY INTO GROWTH —", "badge.fx": "Live FX", "badge.gold": "Live Gold", "badge.indices": "6/8 Live Indices", "badge.macro8": "8-Nation Macro", "badge.cycle3": "3-Nation Cycles", "badge.systems": "6 Subsystems", "sec.systems": "6 SUBSYSTEMS · CLICK TO ENTER", "c1.title": "Macro Surveillance", "c1.tag": "Live", "c1.desc": "5-dimension global stress dashboard: composite stress index, 5 variable cards and 4 scenario gauges, with \"market contagion\" as the key stress reading.", "c1.useLabel": "Example: ", "c1.use": "Before the open, check the Composite Stress Index + \"Market Contagion\" gauge → judge today risk appetite → set position size.", "c1.f1": "Stress Gauge", "c1.f2": "5 Variables", "c1.f3": "4 Scenarios", "c1.f4": "5s Auto-refresh", "c2.title": "Merrill Clock", "c2.tag": "8 Nations", "c2.desc": "8 nations (CN/US/JP/GB/DE/KR/IR/RU) synchronized Merrill Lynch investment clock positioning + 10Y treasury comparison + 2010-2026 cycle trajectory.", "c2.useLabel": "Example: ", "c2.use": "Select 3 nations → view clock quadrants + 10Y spreads → find arbitrage windows (China recovery vs US stagflation).", "c2.f1": "8-Nation Select", "c2.f2": "10Y Treasury", "c2.f3": "2010-2026 Path", "c2.f4": "Cross-market Linkage", "c3.title": "Zhou Jintao Cycles", "c3.tag": "Deep", "c3.desc": "Kondratieff long-wave (50-60y) framework systematically analyzing CN/US/JP cycle positioning + 9-chapter deep report + scenario projection.", "c3.useLabel": "Example: ", "c3.use": "Read the \"Core Conclusions\" chapter monthly → calibrate macro strategy → set asset-class duration (gold/stocks/bonds).", "c3.f1": "Kondratieff Map", "c3.f2": "3-Nation Deep", "c3.f3": "9 Chapters", "c3.f4": "Scenario Projection", "c4.title": "Fund Flow", "c4.tag": "Latest v5", "c4.desc": "8-nation capital chain panorama: live FX/gold/6 indices, central bank balance sheets + gold reserves, USD pricing, 10-year trends and a data-source schedule.", "c4.useLabel": "Example: ", "c4.use": "The must-see system: top status bar (4 live sources) + live quote strip → central bank balance-sheet doughnuts → bottom data-source table to verify freshness.", "c4.f1": "Live Trio", "c4.f2": "8 CB Sheets", "c4.f3": "USD Toggle", "c4.f4": "10Y Trends", "c4.f5": "Source Table", "c5.title": "Stocks·Bonds·FX", "c5.tag": "8 Nations", "c5.desc": "8 nations (CN/US/JP/GB/DE/KR/IR/RU) × 3 markets with a Year/Month/Week 3D trend-decision engine.", "c5.useLabel": "Example: ", "c5.use": "Select 5 nations → check Y/M/W 3D trend signals → long the \"strong uptrend\" nations (trend confirmed).", "c5.f1": "8N × 3 Markets", "c5.f2": "3D Trends", "c5.f3": "Risk Score", "c5.f4": "10s Auto-refresh", "c6.title": "Gold XAUUSD", "c6.tag": "Live", "c6.desc": "4-dimension (Y/M/W/D) gold monitor + multi-asset (XAU/XAG/XPT/XCU/WTI) + gold-silver ratio + correlation matrix + tunable-weight decision engine.", "c6.useLabel": "Example: ", "c6.use": "Intraday: \"Daily Signal\" + candlesticks → mid-term: \"Gold/Silver Ratio + Monthly\" + tune engine weights → time your trades.", "c6.f1": "4 Dimensions", "c6.f2": "5 Assets", "c6.f3": "Au/Ag Ratio", "c6.f4": "Tunable Weights", "c7.title": "FX Major Pairs", "c7.tag": "Finance-Emotion Method", "c7.desc": "6 majors (EURUSD/USDJPY/GBPUSD/USDCHF/AUDUSD/USDCAD) with Year/Week/Day/Hour 4D judgment engine · Fundamentals (CB rates/spreads) + Technicals (MA/RSI/MACD) + Sentiment (DXY/COT) + Quant (vol/correlation/momentum).", "c7.useLabel": "Example: ", "c7.use": "5 min before trading → check EURUSD Y/W/D/H 4D signals → if multi-dimension resonance, go long → set falsification stop (Finance-Emotion: \"falsifiability > interpretability\").", "c7.f1": "6-Pair Select", "c7.f2": "4D Engine", "c7.f3": "Falsifiable", "c7.f4": "Free API", "cta": "Enter System", "sec.path": "TYPICAL DECISION PATH · 6 STEPS", "s1.t": "Long Cycles", "s1.d": "Monthly → Zhou Jintao: Kondratieff + asset clock", "s2.t": "CN/US/JP Cycles", "s2.d": "Monthly → Merrill Clock: 8-nation quadrants + arbitrage", "s3.t": "Fund Flow", "s3.d": "Monthly/Weekly → Fund Flow: M2/social financing/CB + live rates", "s4.t": "S·B·FX Markets", "s4.d": "Weekly → Stocks/Bonds/FX: 8-nation 3D trend signals", "s5.t": "Macro Stress", "s5.d": "Daily → Macro Surveillance: composite stress + 5 variables", "s6.t": "Asset Deep-dive", "s6.d": "Intraday → Gold: 4D + tunable weights + candlesticks", "sec.data": "DATA UPDATE SCHEDULE", "d.live": "🔄 LIVE LAYER", "d.l1": "FX rates: daily UTC 00:02", "d.l2": "Gold: second-level updates", "d.l3": "CN/US indices: intraday", "d.l4": "Nikkei/DAX/FTSE/KOSPI: intraday", "d.official": "📅 OFFICIAL RELEASE", "d.o1": "M2 (CN): monthly, 10-15th", "d.o2": "M2 (US): weekly Thu H.6", "d.o3": "Social financing: monthly 10-15th", "d.o4": "CB sheets: weekly/monthly", "d.est": "📊 ESTIMATES", "d.e1": "Equity/Real-estate mkt cap: annual snapshot", "d.e2": "TEDPIX/MOEX: no free source · model", "d.e3": "GDP check: World Bank annual", "d.e4": "(See each system data-source table)", "footer.brand": "Econ-Sentiment Twin Think Tank", "footer.yizhonghe": "Yi He Zhong", "footer.slogan": "Wisdom with Warmth", "footer.disclaimer": "All data on this site is for research only and is not investment advice.", "footer.tech": "6 Subsystems · Single-file HTML · Client-side Rendering · GitHub Pages Ready"};
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (DICT[key]) el.textContent = DICT[key];
+  });
+  document.querySelectorAll('.hero-chinese').forEach(el => el.classList.add('en'));
+})();
+</script>
+</body>
+</html>

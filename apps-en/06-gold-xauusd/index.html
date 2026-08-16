@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Econ-Sentiment Twin Think Tank · Precious Metals Multi-Asset Monitor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Noto+Serif+SC:wght@500;700;900&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg-primary:#0D0D0F; --bg-secondary:#0A1628; --bg-deep:#060D18; --border:#2A2A3E;
+    --gold:#D4AF37; --gold-light:#E6C65C; --gold-dark:#8B6914;
+    --text-primary:#E8E8F0; --text-secondary:#8A8AA0; --text-muted:#5A5A70;
+    --up:#E53935; --down:#43A047; --warn:#FFB300;
+  }
+  * { -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+  html,body { background:var(--bg-primary); color:var(--text-primary); font-family:'Noto Sans SC','Inter',sans-serif; scroll-behavior:smooth; }
+  body {
+    background:
+      radial-gradient(ellipse 90% 55% at 50% -15%, rgba(212,175,55,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 35% at 85% 30%, rgba(212,175,55,0.05) 0%, transparent 60%),
+      linear-gradient(180deg,#0D0D0F 0%,#060D18 100%);
+    min-height:100vh; overflow-x:hidden;
+  }
+  .gold-text { background:linear-gradient(135deg,#D4AF37 0%,#E6C65C 50%,#D4AF37 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .glass { background:rgba(26,26,46,0.5); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(212,175,55,0.15); }
+  .card-base { background:linear-gradient(135deg,rgba(10,22,40,0.9) 0%,rgba(6,13,24,0.9) 100%);
+    border:1px solid var(--border); border-radius:16px; position:relative; overflow:hidden; transition:all .4s cubic-bezier(.4,0,.2,1); }
+  .card-base::before { content:''; position:absolute; top:0; left:0; right:0; height:2px;
+    background:linear-gradient(90deg,transparent 0%,var(--accent,#D4AF37) 50%,transparent 100%); opacity:.85; }
+  .card-base:hover { transform:translateY(-2px); border-color:var(--accent,#D4AF37); }
+  .mono { font-family:'JetBrains Mono',monospace; font-feature-settings:'tnum'; }
+  .num-up{color:var(--up)} .num-down{color:var(--down)} .num-gold{color:var(--gold)}
+
+  .taiji { width:24px; height:24px; border-radius:50%;
+    background:conic-gradient(from 0deg,#0D0D0F 0deg 180deg,#D4AF37 180deg 360deg); position:relative; overflow:hidden; }
+  .taiji::before,.taiji::after { content:''; position:absolute; width:12px; height:12px; border-radius:50%; }
+  .taiji::before { top:0; left:50%; transform:translateX(-50%); background:#D4AF37; }
+  .taiji::after { bottom:0; left:50%; transform:translateX(-50%); background:#0D0D0F; }
+  .taiji-dot-light,.taiji-dot-dark { position:absolute; width:4px; height:4px; border-radius:50%; z-index:2; }
+  .taiji-dot-light { top:4px; left:50%; transform:translateX(-50%); background:#0D0D0F; }
+  .taiji-dot-dark { bottom:4px; left:50%; transform:translateX(-50%); background:#D4AF37; }
+
+  .grid-bg { background-image:
+    linear-gradient(rgba(212,175,55,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(212,175,55,0.04) 1px, transparent 1px);
+    background-size:40px 40px; }
+  .top-edge { height:1px; background:linear-gradient(90deg,transparent 0%,var(--gold) 50%,transparent 100%); }
+  .signal-light { width:8px; height:8px; border-radius:50%; box-shadow:0 0 8px currentColor; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+  .live-dot { animation:blink 1.5s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .badge-dot { width:6px; height:6px; border-radius:50%; background:currentColor; box-shadow:0 0 8px currentColor; animation:pulse 2s ease-in-out infinite; }
+  .badge { display:inline-flex; align-items:center; gap:6px; padding:3px 10px; border-radius:4px;
+    font-size:11px; font-weight:500; letter-spacing:.5px; border:1px solid currentColor; background:rgba(255,255,255,.02); }
+
+  .bar { height:5px; border-radius:3px; background:rgba(255,255,255,.06); overflow:hidden; }
+  .bar-fill { height:100%; border-radius:3px; transition:width .3s ease; }
+
+  /* 品种 Tab */
+  .asset-tab { display:flex; flex-direction:column; align-items:center; gap:2px; padding:10px 12px;
+    border-radius:12px; cursor:pointer; border:1px solid var(--border); background:rgba(255,255,255,.02);
+    transition:all .3s; flex:1; min-width:0; }
+  .asset-tab:hover { border-color:var(--gold-dark); }
+  .asset-tab.active { border-color:var(--accent,#D4AF37); background:rgba(212,175,55,.08); box-shadow:0 0 20px rgba(212,175,55,.12) inset; }
+  .asset-tab .a-sym { font-size:11px; font-weight:700; letter-spacing:.5px; }
+  .asset-tab .a-val { font-size:15px; font-weight:800; font-family:'JetBrains Mono',monospace; }
+  .asset-tab .a-chg { font-size:10px; }
+
+  /* 四维窗口 */
+  .win-4 { display:flex; flex-direction:column; align-items:center; padding:10px 14px; border-radius:12px;
+    background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07); flex:1; cursor:pointer; transition:all .3s; }
+  .win-4:hover { border-color:var(--gold); }
+  .win-4 .w-label { font-size:9px; color:var(--text-muted); letter-spacing:2px; }
+  .win-4 .w-val { font-size:16px; font-weight:800; font-family:'JetBrains Mono',monospace; margin-top:3px; }
+
+  /* 相关性矩阵单元格 */
+  .corr-cell { display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:10px 6px; border-radius:10px; text-align:center; transition:all .3s; cursor:default; }
+  .corr-cell:hover { transform:scale(1.06); }
+  .corr-cell .c-name { font-size:9px; color:var(--text-secondary); }
+  .corr-cell .c-val { font-size:14px; font-weight:800; font-family:'JetBrains Mono',monospace; }
+
+  /* 因子卡 */
+  .factor-card { padding:14px; border-radius:12px; border:1px solid var(--border);
+    background:rgba(255,255,255,.02); transition:all .3s; }
+  .factor-card:hover { border-color:var(--gold-dark); }
+  .factor-card.off { opacity:.45; }
+  .dir-btn { width:26px; height:26px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:700; cursor:pointer; border:1px solid var(--border); transition:all .2s; background:rgba(255,255,255,.03); }
+  .dir-btn.active-bull { background:rgba(229,57,53,.25); border-color:#E53935; color:#E53935; }
+  .dir-btn.active-neutral { background:rgba(138,138,160,.2); border-color:#8A8AA0; color:#8A8AA0; }
+  .dir-btn.active-bear { background:rgba(67,160,71,.25); border-color:#43A047; color:#43A047; }
+  input[type=range].wslider { -webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:2px;
+    background:linear-gradient(90deg,#D4AF37 var(--fill,50%),rgba(255,255,255,.1) var(--fill,50%)); outline:none; }
+  input[type=range].wslider::-webkit-slider-thumb { -webkit-appearance:none; appearance:none; width:14px; height:14px;
+    border-radius:50%; background:#D4AF37; cursor:pointer; box-shadow:0 0 8px rgba(212,175,55,.5); border:2px solid #0D0D0F; }
+  input[type=range].wslider::-moz-range-thumb { width:14px; height:14px; border-radius:50%; background:#D4AF37; cursor:pointer; border:2px solid #0D0D0F; }
+
+  /* 仪表 */
+  .score-ring { transform:rotate(-90deg); }
+
+  ::-webkit-scrollbar { width:8px; height:8px; }
+  ::-webkit-scrollbar-track { background:var(--bg-primary); }
+  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
+  ::-webkit-scrollbar-thumb:hover { background:var(--gold-dark); }
+  .no-scrollbar::-webkit-scrollbar { display:none; }
+  .no-scrollbar { -ms-overflow-style:none; scrollbar-width:none; }
+
+  @keyframes scrollX { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+  .ticker-track { animation:scrollX 80s linear infinite; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  .fade-up { animation:fadeUp .6s ease-out backwards; }
+  section[id] { scroll-margin-top:64px; }
+
+  .candle-tip { position:fixed; z-index:100; pointer-events:none; background:rgba(13,13,15,.97);
+    border:1px solid var(--gold); border-radius:8px; padding:8px 12px; font-size:11px; color:var(--text-primary);
+    box-shadow:0 8px 24px rgba(0,0,0,.6); display:none; line-height:1.6; }
+
+  /* 财情双生 logo + 导航 */
+  .logo-img { width:36px; height:36px; border-radius:50%; transition: transform 0.6s ease; display:inline-block; }
+  .logo-img:hover { transform: rotate(360deg); }
+  .logo-img-wrap { line-height:0; display:inline-block; }
+  .home-btn { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; margin-right:6px; font-size:11px; border:1px solid #D4AF37; color:#D4AF37; border-radius:6px; transition: all 0.2s; }
+  .home-btn:hover { background:rgba(212,175,55,0.12); color:#D4AF37; }
+
+  .en-brand-sm { font-size: 9px; opacity: .6; letter-spacing: 1px; font-weight: 400; margin-left: 4px; color: var(--gold, #D4AF37); }
+  @media (max-width: 640px) { .en-brand-sm { display: none; } }
+
+  .lang-pair-sub { display:inline-flex; align-items:center; gap:4px; padding:3px 8px; border:1px solid rgba(212,175,55,.4); border-radius:6px; font-size:10px; margin-right:6px; vertical-align:middle; }
+  .lang-pair-sub a { padding:1px 7px; border-radius:4px; color:#8A8AA0; text-decoration:none; }
+  .lang-pair-sub a:hover { color:#D4AF37; }
+  .lang-pair-sub a.active { color:#0D0D0F; background:#D4AF37; font-weight:600; }
+  .lang-pair-sub .sep { color:#5A5A70; }
+</style>
+</head>
+<body class="grid-bg">
+
+<!-- ============ TOP NAV ============ -->
+<header class="sticky top-0 z-50 glass border-b border-[#2A2A3E]">
+  <div class="max-w-[1500px] mx-auto px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="../../index-en.html" class="logo-img-wrap" title="Back to Main"><img src="../../_assets/logo.png" alt="Econ-Sentiment" class="logo-img"/></a>
+      <div>
+        <div class="text-base font-semibold tracking-wide">Econ-Sentiment Twin Think Tank · <span class="gold-text">Precious Metals Multi-Asset Monitor v2.0</span> <span class="en-brand-sm">· Econ-Sentiment Twin Think Tank</span></div>
+        <div class="text-[10px] text-[#5A5A70] tracking-widest uppercase">XAU · XAG · XPT · XCU · WTI · Corr Matrix · Tunable Engine</div>
+      </div>
+    </div>
+    <a href="../../index-en.html" class="home-btn">🏠 Main Nav</a><span class="lang-pair-sub"><a href="../../apps/06-gold-xauusd/index.html">中</a><span class="sep">|</span><a href="index.html" class="active">EN</a></span><nav class="hidden lg:flex items-center gap-1">
+      <a class="px-3 py-1.5 text-xs text-[#D4AF37] border-b-2 border-[#D4AF37]" href="#multi">Multi-Asset Overview</a>
+      <a class="px-3 py-1.5 text-xs text-[#8A8AA0] hover:text-[#D4AF37] transition" href="#chart">Price Chart</a>
+      <a class="px-3 py-1.5 text-xs text-[#8A8AA0] hover:text-[#D4AF37] transition" href="#corr">Correlation Matrix</a>
+      <a class="px-3 py-1.5 text-xs text-[#8A8AA0] hover:text-[#D4AF37] transition" href="#ratio">Au/Ag Ratio</a>
+      <a class="px-3 py-1.5 text-xs text-[#8A8AA0] hover:text-[#D4AF37] transition" href="#engine">Decision Engine</a>
+    </nav>
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 text-xs">
+        <span class="signal-light text-[#D4AF37] live-dot"></span>
+        <span class="text-[#8A8AA0] hidden sm:inline">COMEX</span>
+        <span class="mono text-[#D4AF37] font-semibold">LIVE</span>
+      </div>
+      <div class="text-xs text-[#8A8AA0] mono" id="now">--:--:--</div>
+    </div>
+  </div>
+  <div class="top-edge"></div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="max-w-[1500px] mx-auto px-6 pt-10 pb-8" id="multi">
+  <div class="flex flex-col lg:flex-row gap-6">
+    <!-- 主品种价格 -->
+    <div class="lg:col-span-2 card-base p-6 relative flex-1" style="--accent:#D4AF37;">
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-2xl" id="heroIcon">🥇</span>
+            <h1 class="text-2xl font-black">Spot <span class="gold-text" id="heroSym">XAUUSD</span></h1>
+            <span class="badge text-[#D4AF37] ml-2"><span class="badge-dot"></span><span id="heroName">Gold</span></span>
+          </div>
+          <div class="text-[10px] text-[#5A5A70] mt-1 mono" id="heroSub">COMEX GOLD · 2026-08-05 11:58 Beijing Time</div>
+        </div>
+      </div>
+      <div class="flex items-end gap-4 mb-4">
+        <div class="text-5xl md:text-6xl font-black gold-text mono tracking-tight" id="priceMain">4,134.2</div>
+        <div class="pb-2">
+          <div class="text-sm font-bold num-up" id="priceChg">+43.8 (+1.07%)</div>
+          <div class="text-[10px] text-[#8A8AA0]">Today · USD/oz</div>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="win4"></div>
+    </div>
+
+    <!-- Multi-Asset Overview -->
+    <div class="w-full lg:w-[380px] flex-shrink-0 card-base p-5" style="--accent:#D4AF37;">
+      <h2 class="text-sm font-bold mb-3 flex items-center gap-2"><span class="w-1 h-4 bg-[#D4AF37] rounded"></span>Multi-Asset Monitor <span class="text-[10px] text-[#5A5A70] font-normal">click to switch</span></h2>
+      <div class="space-y-2" id="assetList"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Price Chart ============ -->
+<section class="max-w-[1500px] mx-auto px-6 mb-8" id="chart">
+  <div class="card-base p-5" style="--accent:#D4AF37;">
+    <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+      <div>
+        <h3 class="text-sm font-bold flex items-center gap-2"><span class="w-1 h-4 bg-[#D4AF37] rounded"></span><span id="chartTitle">Gold XAUUSD</span> · 近 60 trading days</h3>
+        <p class="text-[10px] text-[#5A5A70] mt-0.5">K 线 + MA20 / MA60 · Simulated data，with real price anchors</p>
+      </div>
+      <div class="flex items-center gap-3 text-[10px]">
+        <span class="flex items-center gap-1"><span class="w-2 h-2 inline-block bg-[#E53935]"></span>Bull bar</span>
+        <span class="flex items-center gap-1"><span class="w-2 h-2 inline-block bg-[#43A047]"></span>Bear bar</span>
+        <span class="flex items-center gap-1"><span class="w-3 h-0.5 inline-block bg-[#D4AF37]"></span>MA20</span>
+        <span class="flex items-center gap-1"><span class="w-3 h-0.5 inline-block bg-[#4FC3F7]"></span>MA60</span>
+      </div>
+    </div>
+    <div class="overflow-x-auto no-scrollbar">
+      <svg id="candleChart" viewBox="0 0 1400 360" class="w-full min-w-[900px] h-auto"></svg>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Correlation Matrix ============ -->
+<section class="max-w-[1500px] mx-auto px-6 mb-8" id="corr">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-lg font-bold flex items-center gap-2">
+      <span class="w-1 h-5 bg-[#4FC3F7] rounded"></span>
+      Correlation Matrix · Gold vs Asset classes
+    </h2>
+    <div class="text-[10px] text-[#5A5A70] tracking-wider mono">CORRELATION · 90D ROLLING</div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-5 gap-5">
+    <!-- Correlation Heatmap -->
+    <div class="lg:col-span-3 card-base p-5" style="--accent:#4FC3F7;">
+      <h3 class="text-sm font-bold mb-3">Correlation Heatmap · Gold × 6 Asset</h3>
+      <div class="grid grid-cols-3 gap-2" id="corrGrid"></div>
+      <div class="flex items-center justify-between mt-3 text-[10px] text-[#5A5A70]">
+        <span>红 = Strong positive（Move together）</span>
+        <span>蓝 = Negative correlation（See-saw）</span>
+        <span>Value = 90 rolling correlation</span>
+      </div>
+    </div>
+    <!-- Correlation折线 -->
+    <div class="lg:col-span-2 card-base p-5" style="--accent:#4FC3F7;">
+      <h3 class="text-sm font-bold mb-3">90 Rolling correlation trend</h3>
+      <div style="height:260px"><canvas id="corrLineChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card-base p-5 mt-5" style="--accent:#4FC3F7;">
+    <h3 class="text-sm font-bold mb-3">Correlation Read</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-[#8A8AA0] leading-relaxed">
+      <div>
+        <span class="text-[10px] text-[#4FC3F7] font-semibold block mb-1">📉 Gold vs USD · Strong negative -0.55</span>
+        USD weak cycle（DXY 100.9 and H2 97-103 Range expectation）Bullish gold。Historical pattern：DXY-gold negative correlation holds 70%+ of the time，the #1 external gold driver。
+      </div>
+      <div>
+        <span class="text-[10px] text-[#4FC3F7] font-semibold block mb-1">📈 Gold vs Bitcoin · Correlation turned positive +0.48</span>
+        2024 years later"Digital gold"Narrative strengthened，Correlation flipped from negative to positive。Note：If a liquidity crisis（2027-28 Risk），BTC drop may drag gold briefly——"Rise together, but not fall together"is the current trait。
+      </div>
+      <div>
+        <span class="text-[10px] text-[#4FC3F7] font-semibold block mb-1">⚖️ Gold vs UST Real Yield · -0.42</span>
+        Real yield is gold's core counterparty。Current 1.80% in neutral zone，If Fed re-hikes pushing real yields up，gold's biggest headwind；while easing is the strongest tailwind。
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Au/Ag Ratio ============ -->
+<section class="max-w-[1500px] mx-auto px-6 mb-8" id="ratio">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-lg font-bold flex items-center gap-2">
+      <span class="w-1 h-5 bg-[#E53935] rounded"></span>
+      Au/Ag Ratio Monitor · Mean-Reversion Signal
+    </h2>
+    <div class="text-[10px] text-[#5A5A70] tracking-wider mono">GOLD/SILVER RATIO · MEAN REVERSION</div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+    <div class="card-base p-5" style="--accent:#E53935;">
+      <div class="text-[10px] text-[#5A5A70] mono mb-1">CURRENT RATIO</div>
+      <div class="text-4xl font-black gold-text mono" id="gsRatio">69.2</div>
+      <div class="text-xs text-[#8A8AA0] mt-2">1 oz Gold = 69.2 oz Silver</div>
+      <div class="mt-3 pt-3 border-t border-[#2A2A3E]">
+        <span class="badge text-[#E53935]"><span class="badge-dot"></span>Silver relatively strong · Below mean</span>
+      </div>
+    </div>
+    <div class="card-base p-5" style="--accent:#E53935;">
+      <div class="text-[10px] text-[#5A5A70] mono mb-1">HISTORICAL Z-SCORE</div>
+      <div class="flex items-end gap-2 mb-2">
+        <span class="text-3xl font-black text-[#E53935] mono">-0.8σ</span>
+        <span class="text-[10px] text-[#8A8AA0] mb-1">vs Historical mean 70</span>
+      </div>
+      <div class="relative h-4 bg-gradient-to-r from-[#43A047] via-[#D4AF37] to-[#E53935] rounded-full overflow-hidden">
+        <div class="absolute top-0 bottom-0 w-0.5 bg-white shadow-[0_0_6px_#fff]" style="left:49%;"></div>
+        <div class="absolute top-0 bottom-0 w-1 bg-black border border-[#D4AF37]" style="left:48%;"></div>
+      </div>
+      <div class="flex justify-between text-[9px] text-[#5A5A70] mt-1 mono">
+        <span>40 Silver strong</span><span>70 Mean</span><span>100+ Gold strong</span>
+      </div>
+    </div>
+    <div class="card-base p-5" style="--accent:#E53935;">
+      <div class="text-[10px] text-[#5A5A70] mono mb-1">STRATEGY</div>
+      <div class="text-sm font-bold mb-2">Mean-reversion strategy</div>
+      <div class="text-xs text-[#8A8AA0] leading-relaxed space-y-1.5">
+        <p>· Au/Ag Ratio <strong class="text-[#E8E8F0]">&lt; 65</strong> → Silver overheated，Long gold/Short silver</p>
+        <p>· Au/Ag Ratio <strong class="text-[#E8E8F0]">65-80</strong> → Neutral zone，Trade trend individually</p>
+        <p>· Au/Ag Ratio <strong class="text-[#E8E8F0]">&gt; 80</strong> → Silver undervalued，Long silver/Short gold</p>
+        <p class="pt-1">Current 69.2 Slightly below neutral，Silver elasticity remains，but watch mean-reversion risk。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 金/银/铂/铜 12月走势对比 -->
+  <div class="card-base p-5 mt-5" style="--accent:#E53935;">
+    <h3 class="text-sm font-bold mb-3">Precious Metals 12 -month comparison（rebase 100）</h3>
+    <div style="height:280px"><canvas id="metalChart"></canvas></div>
+  </div>
+</section>
+
+<!-- ============ Decision Engine ============ -->
+<section class="max-w-[1500px] mx-auto px-6 mb-12" id="engine">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-lg font-bold flex items-center gap-2">
+      <span class="w-1 h-5 bg-[#BA68C8] rounded"></span>
+      Tunable-Weight Engine · Gold
+    </h2>
+    <div class="flex items-center gap-2">
+      <span class="text-[10px] text-[#5A5A70]">Drag sliders to set factor weights → Recompute signal live</span>
+      <button class="px-3 py-1.5 text-[10px] border border-[#2A2A3E] text-[#8A8AA0] rounded-lg hover:border-[#D4AF37] hover:text-[#D4AF37] transition" onclick="resetWeights()">↺ Reset Weights</button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+    <!-- 得分仪表 -->
+    <div class="card-base p-6" style="--accent:#BA68C8;">
+      <h3 class="text-sm font-bold mb-4 flex items-center gap-2"><span class="w-1 h-4 bg-[#BA68C8] rounded"></span>Live Composite Score</h3>
+      <div class="flex items-center justify-center mb-4">
+        <div class="relative w-40 h-40">
+          <svg viewBox="0 0 160 160" class="score-ring">
+            <circle cx="80" cy="80" r="65" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="12"/>
+            <circle cx="80" cy="80" r="65" fill="none" stroke="#D4AF37" stroke-width="12" stroke-linecap="round"
+              stroke-dasharray="408.4" stroke-dashoffset="204" id="scoreArc" style="transition:stroke-dashoffset .5s ease, stroke .5s ease"/>
+          </svg>
+          <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <span class="text-[10px] text-[#5A5A70] tracking-widest">SCORE</span>
+            <span class="text-4xl font-black mono gold-text" id="scoreNum">+26</span>
+            <span class="text-[11px] font-bold text-[#43A047]" id="scoreLabel">Bullish</span>
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-4 gap-2 mb-4" id="dimScore"></div>
+      <div class="bg-[rgba(67,160,71,0.06)] border border-[rgba(67,160,71,0.25)] rounded-lg p-3">
+        <div class="text-[10px] text-[#43A047] font-semibold mb-1">📌 Engine Verdict</div>
+        <div class="text-xs text-[#8A8AA0] leading-relaxed" id="engineNote"></div>
+      </div>
+    </div>
+
+    <!-- 因子列表 -->
+    <div class="lg:col-span-2 card-base p-6" style="--accent:#BA68C8;">
+      <h3 class="text-sm font-bold mb-1 flex items-center gap-2"><span class="w-1 h-4 bg-[#BA68C8] rounded"></span>Bull/Bear Factor Pool · 12 项</h3>
+      <div class="text-[10px] text-[#5A5A70] mb-4">Click to flip direction/Neutral/空 · Drag sliders to adjust (0-200%) · 年/月/周/日 Badge = factor hierarchy</div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="factorList"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="border-t border-[#2A2A3E] mt-8">
+  <div class="bg-[#060D18] py-3 overflow-hidden">
+    <div class="flex ticker-track whitespace-nowrap text-xs">
+      <div class="flex gap-8 px-4 text-[#8A8AA0] mono" id="ticker1"></div>
+      <div class="flex gap-8 px-4 text-[#8A8AA0] mono" id="ticker2"></div>
+    </div>
+  </div>
+  <div class="max-w-[1500px] mx-auto px-6 py-6 flex flex-col md:flex-row items-center justify-between text-[10px] text-[#5A5A70]">
+    <div>© 2026 Econ-Sentiment Twin Think Tank · Precious Metals Monitor v2.0</div>
+    <div class="flex gap-4 mt-2 md:mt-0">
+      <span>Data Source · COMEX · CFTC · WGC · SPDR · FRED</span>
+      <span>·</span>
+      <span class="mono">BUILD 2026.08.05 · V2.0</span>
+    </div>
+  </div>
+</footer>
+
+<div class="candle-tip" id="candleTip"></div>
+
+<script>
+/* ================================================================
+   多品种数据模型
+================================================================ */
+const ASSETS = {
+  xau:{ key:'xau', name:'黄金', icon:'🥇', sym:'XAUUSD', color:'#D4AF37', unit:'USD/oz',
+    value:4134.2, yoy:28.4, mom:2.6, wow:1.2, dod:1.07,
+    trend:[ [0,10,-55],[10,20,-40],[20,30,-25],[30,40,-12],[40,48,-3],[48,60,7] ], start:5300, min:3980 },
+  xag:{ key:'xag', name:'白银', icon:'🥈', sym:'XAGUSD', color:'#CFD8DC', unit:'USD/oz',
+    value:59.75, yoy:55.0, mom:5.8, wow:3.3, dod:3.27,
+    trend:[ [0,8,-0.9],[8,18,-0.7],[18,28,-0.5],[28,38,-0.2],[38,46,-0.1],[46,60,0.4] ], start:68, min:44 },
+  xpt:{ key:'xpt', name:'铂金', icon:'🪙', sym:'XPTUSD', color:'#E0E0E0', unit:'USD/oz',
+    value:1720, yoy:12.0, mom:1.5, wow:0.8, dod:0.5,
+    trend:[ [0,10,-8],[10,20,-6],[20,30,-3],[30,40,-1],[40,48,0],[48,60,3] ], start:1950, min:1580 },
+  xcu:{ key:'xcu', name:'铜', icon:'🔶', sym:'XCUUSD', color:'#FF8A65', unit:'USD/lb',
+    value:4.68, yoy:18.0, mom:2.2, wow:0.9, dod:0.8,
+    trend:[ [0,10,-0.06],[10,20,-0.04],[20,30,-0.02],[30,40,-0.01],[40,48,0],[48,60,0.02] ], start:5.1, min:4.3 },
+  wti:{ key:'wti', name:'原油', icon:'🛢️', sym:'WTI', color:'#5C6BC0', unit:'USD/bbl',
+    value:75.8, yoy:5.0, mom:-4.2, wow:-5.7, dod:-5.69,
+    trend:[ [0,10,1.5],[10,20,1.2],[20,30,0.8],[30,40,0.3],[40,48,-0.4],[48,60,-0.9] ], start:62, min:55 },
+};
+const ASSET_KEYS = Object.keys(ASSETS);
+let activeAsset = 'xau';
+let auto = true;
+
+/* 相关性数据 */
+const CORR_DATA = [
+  { name:'美债实际利率', key:'tips', corr:-0.42 },
+  { name:'美元指数', key:'dxy', corr:-0.55 },
+  { name:'比特币', key:'btc', corr:0.48 },
+  { name:'白银', key:'xag', corr:0.85 },
+  { name:'铜', key:'xcu', corr:0.62 },
+  { name:'原油', key:'wti', corr:0.28 },
+];
+/* 90 日相关性历史（模拟） */
+const CORR_HIST = {
+  tips:[ -0.62,-0.58,-0.61,-0.55,-0.57,-0.50,-0.52,-0.47,-0.45,-0.42,-0.44,-0.40,-0.38,-0.43,-0.42 ],
+  dxy: [ -0.72,-0.70,-0.68,-0.65,-0.66,-0.61,-0.63,-0.58,-0.60,-0.55,-0.57,-0.53,-0.51,-0.54,-0.55 ],
+  btc: [ 0.12,0.18,0.22,0.28,0.25,0.32,0.30,0.36,0.40,0.38,0.42,0.45,0.43,0.47,0.48 ],
+  xag: [ 0.88,0.87,0.89,0.86,0.88,0.85,0.87,0.84,0.86,0.83,0.85,0.82,0.84,0.85,0.85 ],
+  xcu: [ 0.55,0.57,0.54,0.59,0.56,0.60,0.58,0.62,0.60,0.63,0.61,0.64,0.62,0.63,0.62 ],
+  wti: [ 0.45,0.42,0.40,0.38,0.36,0.34,0.33,0.31,0.30,0.29,0.28,0.30,0.28,0.27,0.28 ],
+};
+const CORR_LABELS = ['8月','9月','10月','11月','12月','1月','2月','3月','4月','5月','6月','7月'].slice(-15).map((m,i)=>m+'');
+const CORR_LABELS_FULL = ['4月','5月','6月','7月','8月','9月','10月','11月','12月','1月','2月','3月','4月','5月','6月'];
+
+/* 判断引擎因子 */
+const FACTORS = [
+  { key:'cb',    name:'央行购金',     dim:'y', dir:1, str:90, weight:100, note:'连续3年>1000吨 · 定价核心' },
+  { key:'credit',name:'美元信用',     dim:'y', dir:1, str:85, weight:100, note:'美债利息超国防 1.08x' },
+  { key:'gol',   name:'金油比',       dim:'y', dir:1, str:75, weight:80,  note:'52.3 · 历史高位' },
+  { key:'rate',  name:'实际利率',     dim:'m', dir:-1,str:45, weight:100, note:'1.80% · 中性偏空' },
+  { key:'dxy',   name:'美元指数',     dim:'m', dir:-1,str:55, weight:100, note:'100.9 · 弱周期' },
+  { key:'etf',   name:'ETF资金流',    dim:'m', dir:1, str:78, weight:100, note:'SPDR 4月连增' },
+  { key:'ma',    name:'均线趋势',     dim:'w', dir:1, str:70, weight:90,  note:'MA20上穿MA60 待确认' },
+  { key:'rsi',   name:'RSI动量',      dim:'w', dir:1, str:58, weight:70,  note:'58.2 · 中性偏多' },
+  { key:'cot',   name:'CFTC持仓',     dim:'w', dir:1, str:62, weight:80,  note:'28.4万手' },
+  { key:'lv',    name:'支撑阻力',     dim:'d', dir:1, str:65, weight:60,  note:'4050双底' },
+  { key:'vix',   name:'恐慌指数',     dim:'d', dir:0, str:50, weight:40,  note:'22.4 · 中性' },
+  { key:'ratio', name:'金银比',       dim:'d', dir:1, str:60, weight:50,  note:'69.2 · 偏低' },
+];
+const DIM_META = { y:{name:'年度',label:'LONG',color:'#43A047'}, m:{name:'月度',label:'MID',color:'#43A047'}, w:{name:'周度',label:'SHORT',color:'#FFB300'}, d:{name:'日内',label:'DAY',color:'#8A8AA0'} };
+
+/* =============== 工具 =============== */
+function pad(n){return String(n).padStart(2,'0')}
+function tickNow(){const d=new Date();document.getElementById('now').textContent=`${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`}
+setInterval(tickNow,1000);tickNow();
+function fmt(v){ return v>=100000 ? v.toLocaleString('en-US') : (v>=1000 ? v.toLocaleString('en-US') : String(Math.round(v*100)/100)); }
+function pct(v,s=true){ return (s&&v>0?'+':'')+v.toFixed(2)+'%'; }
+function chgCls(v){ return v>=0?'num-up':'num-down'; }
+
+/* =============== K线生成 =============== */
+function genOHLC(a){
+  const ohlc=[]; let price=a.start;
+  for(let i=0;i<60;i++){
+    let drift=0;
+    a.trend.forEach(t=>{ if(i>=t[0]&&i<t[1]) drift=t[2]; });
+    const o=price+(Math.random()-0.5)*0.02*price;
+    let c=o+drift+(Math.random()-0.5)*0.02*price;
+    c=Math.max(c,a.min);
+    const h=Math.max(o,c)+Math.random()*0.008*price;
+    const l=Math.min(o,c)-Math.random()*0.008*price;
+    ohlc.push({o,c,h,l}); price=c;
+  }
+  return ohlc;
+}
+function calcMA(arr,p){ return arr.map((_,i)=>{ if(i<p-1) return null; let s=0; for(let j=i-p+1;j<=i;j++)s+=arr[j]; return s/p; }); }
+
+/* =============== 品种渲染 =============== */
+function renderAssetList(){
+  document.getElementById('assetList').innerHTML = ASSET_KEYS.map(k=>{
+    const a=ASSETS[k];
+    return `<div class="asset-tab ${k===activeAsset?'active':''}" style="--accent:${a.color}" onclick="switchAsset('${k}')">
+      <span class="a-sym" style="color:${a.color}">${a.icon} ${a.sym}</span>
+      <span class="a-val">${fmt(a.value)}</span>
+      <span class="a-chg ${chgCls(a.yoy)}">YoY ${pct(a.yoy)}</span>
+    </div>`;
+  }).join('');
+}
+function renderHero(){
+  const a=ASSETS[activeAsset];
+  document.getElementById('heroIcon').textContent=a.icon;
+  document.getElementById('heroSym').textContent=a.sym;
+  document.getElementById('heroName').textContent=a.name;
+  document.getElementById('heroSub').textContent=`${a.sym} · ${a.unit} · 2026-08-05 11:58 北京时间`;
+  document.getElementById('priceMain').textContent=fmt(a.value);
+  const chg=a.value*(a.dod/100);
+  const el=document.getElementById('priceChg');
+  el.textContent=`${chg>0?'+':''}${chg.toFixed(1)} (${pct(a.dod)})`;
+  el.className='text-sm font-bold '+chgCls(a.dod);
+  document.getElementById('chartTitle').textContent=`${a.name} ${a.sym}`;
+  document.getElementById('win4').innerHTML=[
+    ['年度','YoY',pct(a.yoy),chgCls(a.yoy)],['月度','MoM',pct(a.mom),chgCls(a.mom)],
+    ['周度','WoW',pct(a.wow),chgCls(a.wow)],['日内','DoD',pct(a.dod),chgCls(a.dod)],
+  ].map(w=>`<div class="win-4"><span class="w-label">${w[0]}</span><span class="w-val ${w[3]}">${w[2]}</span><span class="text-[9px] text-[#5A5A70]">${w[1]}</span></div>`).join('');
+}
+function switchAsset(k){ activeAsset=k; renderAssetList(); renderHero(); renderCandles(); }
+
+/* =============== SVG 蜡烛图 =============== */
+function renderCandles(){
+  const a=ASSETS[activeAsset];
+  const OHLC=genOHLC(a);
+  const closes=OHLC.map(k=>k.c);
+  const MA20=calcMA(closes,20), MA60=calcMA(closes,60);
+  const W=1400,H=360,padL=60,padR=20,padT=15,padB=30;
+  const n=OHLC.length;
+  const all=[...closes,...OHLC.map(k=>k.h),...OHLC.map(k=>k.l)];
+  const minV=Math.min(...all)*0.995, maxV=Math.max(...all)*1.005;
+  const xOf=i=>padL+i*(W-padL-padR)/n;
+  const yOf=v=>padT+(maxV-v)/(maxV-minV)*(H-padT-padB);
+  const cw=(W-padL-padR)/n*0.62;
+  let svg='';
+  for(let g=0;g<=4;g++){ const v=maxV-(maxV-minV)*g/4, y=yOf(v);
+    svg+=`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="rgba(212,175,55,0.07)" stroke-width="1"/>`;
+    svg+=`<text x="${padL-8}" y="${y+4}" fill="#5A5A70" font-size="10" text-anchor="end" font-family="JetBrains Mono">${Math.round(v).toLocaleString('en-US')}</text>`; }
+  let p20='',p60='';
+  MA20.forEach((v,i)=>{if(v!==null)p20+=(p20?'L':'M')+xOf(i)+','+yOf(v)});
+  MA60.forEach((v,i)=>{if(v!==null)p60+=(p60?'L':'M')+xOf(i)+','+yOf(v)});
+  OHLC.forEach((k,i)=>{ const x=xOf(i),up=k.c>=k.o,color=up?'#E53935':'#43A047';
+    svg+=`<line x1="${x}" y1="${yOf(k.h)}" x2="${x}" y2="${yOf(k.l)}" stroke="${color}" stroke-width="1" opacity="0.7"/>`;
+    const top=Math.min(yOf(k.o),yOf(k.c)),hgt=Math.max(Math.abs(yOf(k.c)-yOf(k.o)),2);
+    svg+=`<rect x="${x-cw/2}" y="${top}" width="${cw}" height="${hgt}" fill="${up?color:'transparent'}" stroke="${color}" stroke-width="1" rx="1" data-o="${k.o}" data-h="${k.h}" data-l="${k.l}" data-c="${k.c}" class="candle"/>`; });
+  svg+=`<path d="${p60}" fill="none" stroke="#4FC3F7" stroke-width="1.8" opacity="0.9"/>`;
+  svg+=`<path d="${p20}" fill="none" stroke="#D4AF37" stroke-width="1.8"/>`;
+  svg+=`<text x="${W-120}" y="${padT+10}" fill="#D4AF37" font-size="10">MA20</text>`;
+  svg+=`<text x="${W-80}" y="${padT+10}" fill="#4FC3F7" font-size="10">MA60</text>`;
+  const labels=['6/1','6/15','7/1','7/15','8/1','8/4'], idxs=[0,10,20,34,50,59];
+  idxs.forEach((li,i)=>{ svg+=`<text x="${xOf(li)}" y="${H-10}" fill="#5A5A70" font-size="10" text-anchor="middle" font-family="JetBrains Mono">${labels[i]}</text>`; });
+  document.getElementById('candleChart').innerHTML=svg;
+  const tip=document.getElementById('candleTip');
+  document.querySelectorAll('.candle').forEach(rect=>{
+    rect.addEventListener('mousemove',e=>{
+      tip.innerHTML=`<span class="mono text-[#D4AF37]">${a.sym}</span><br/>开 ${Number(rect.dataset.o).toLocaleString('en-US')} · 高 ${Number(rect.dataset.h).toLocaleString('en-US')}<br/>低 ${Number(rect.dataset.l).toLocaleString('en-US')} · 收 <span class="${rect.dataset.c>=rect.dataset.o?'text-[#E53935]':'text-[#43A047]'}">${Number(rect.dataset.c).toLocaleString('en-US')}</span>`;
+      tip.style.display='block'; tip.style.left=(e.clientX+14)+'px'; tip.style.top=(e.clientY+14)+'px';
+    });
+    rect.addEventListener('mouseleave',()=>{tip.style.display='none'});
+  });
+}
+
+/* =============== 相关性矩阵 =============== */
+function corrColor(c){
+  if(c>=0.6) return '#E53935';
+  if(c>=0.3) return '#FF8A65';
+  if(c>=0)   return '#FFD54F';
+  if(c>=-0.3)return '#4FC3F7';
+  return '#29B6F6';
+}
+function renderCorr(){
+  document.getElementById('corrGrid').innerHTML = CORR_DATA.map(c=>`
+    <div class="corr-cell" style="background:${corrColor(c.corr)}22; border:1px solid ${corrColor(c.corr)}55">
+      <span class="c-name">${c.name}</span>
+      <span class="c-val" style="color:${corrColor(c.corr)}">${c.corr>0?'+':''}${c.corr.toFixed(2)}</span>
+      <span class="text-[8px]" style="color:${corrColor(c.corr)}">${c.corr>=0.6?'强正相关':c.corr>=0.3?'正相关':c.corr>=0?'弱正相关':'负相关'}</span>
+    </div>`).join('');
+}
+let corrChart=null;
+function renderCorrLine(){
+  if(corrChart) corrChart.destroy();
+  corrChart=new Chart(document.getElementById('corrLineChart'),{
+    type:'line',
+    data:{ labels:CORR_LABELS_FULL, datasets:CORR_DATA.map(c=>({
+      label:c.name, data:CORR_HIST[c.key],
+      borderColor:corrColor(c.corr), backgroundColor:corrColor(c.corr)+'22',
+      borderWidth:2, tension:.3, pointRadius:0, pointHoverRadius:4, fill:false
+    }))},
+    options:{ responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false},
+      plugins:{ legend:{position:'top',labels:{color:'#8A8AA0',font:{size:9,family:'JetBrains Mono'},boxWidth:10,boxHeight:3}},
+        tooltip:{backgroundColor:'rgba(13,13,15,.95)',borderColor:'#D4AF37',borderWidth:1,titleColor:'#D4AF37',bodyColor:'#E8E8F0',padding:10} },
+      scales:{ x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#5A5A70',font:{size:9},maxTicksLimit:8}},
+        y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#8A8AA0',font:{size:9}},min:-1,max:1} } }
+  });
+}
+
+/* =============== 金属走势对比 =============== */
+let metalChart=null;
+function renderMetal(){
+  const months=['T-54d','T-48d','T-42d','T-36d','T-30d','T-24d','T-18d','T-12d','T-6d','T-0d'];
+  const ds=['xau','xag','xpt','xcu','wti'].map(k=>{
+    const a=ASSETS[k];
+    const ohlc=genOHLC(a);
+    // 每 6 根取一个，对应 10 个 labels
+    const data=Array.from({length:10},(_,i)=>{
+      const idx=Math.min(i*6, 59);
+      return +(ohlc[idx].c/ohlc[0].c*100).toFixed(1);
+    });
+    return { label:`${a.icon} ${a.sym}`, data, borderColor:a.color, borderWidth:2, tension:.3, pointRadius:0, fill:false };
+  });
+  if(metalChart) metalChart.destroy();
+  metalChart=new Chart(document.getElementById('metalChart'),{
+    type:'line',
+    data:{ labels:months, datasets:ds },
+    options:{ responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false},
+      plugins:{ legend:{position:'top',labels:{color:'#8A8AA0',font:{size:10},boxWidth:12,boxHeight:4}},
+        tooltip:{backgroundColor:'rgba(13,13,15,.95)',borderColor:'#D4AF37',borderWidth:1,titleColor:'#D4AF37',bodyColor:'#E8E8F0',padding:10} },
+      scales:{ x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#8A8AA0',font:{size:10}}},
+        y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#8A8AA0',font:{size:10}}} } }
+  });
+}
+
+/* =============== 金银比 =============== */
+function renderRatio(){
+  const g=ASSETS.xau.value, s=ASSETS.xag.value;
+  const ratio=Math.round(g/s*10)/10;
+  document.getElementById('gsRatio').textContent=ratio.toFixed(1);
+}
+
+/* =============== 判断引擎 =============== */
+function renderFactors(){
+  document.getElementById('factorList').innerHTML = FACTORS.map((f,idx)=>{
+    const dim=DIM_META[f.dim];
+    const dirBtn = f.dir===1
+      ? `<span class="dir-btn active-bull" onclick="cycleDir(${idx})">多</span>`
+      : f.dir===0
+      ? `<span class="dir-btn active-neutral" onclick="cycleDir(${idx})">中</span>`
+      : `<span class="dir-btn active-bear" onclick="cycleDir(${idx})">空</span>`;
+    return `
+    <div class="factor-card" id="fc_${f.key}">
+      <div class="flex items-center justify-between gap-2 mb-2">
+        <div class="flex items-center gap-2">
+          ${dirBtn}
+          <div>
+            <div class="text-xs font-bold text-[#E8E8F0]">${f.name}</div>
+            <div class="text-[9px] text-[#5A5A70]"><span style="color:${dim.color}">${dim.name}</span> · ${f.note}</div>
+          </div>
+        </div>
+        <span class="mono text-sm font-bold ${f.dir===1?'num-up':f.dir===0?'text-[#8A8AA0]':'num-down'}">${f.dir===1?'+':f.dir===0?'0':'-'}${f.str}</span>
+      </div>
+      <div class="flex items-center gap-2 mb-1">
+        <span class="text-[9px] text-[#5A5A70] w-7">强度</span>
+        <div class="bar flex-1"><div class="bar-fill" style="width:${f.str}%; background:${f.dir===1?'linear-gradient(90deg,#43A047,#E53935)':f.dir===0?'#8A8AA0':'linear-gradient(90deg,#43A047,#E53935)'}"></div></div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-[9px] text-[#5A5A70] w-7">权重</span>
+        <input type="range" class="wslider flex-1" min="0" max="200" value="${f.weight}" oninput="setWeight(${idx},this.value)" style="--fill:${f.weight/2}%"/>
+        <span class="mono text-[10px] text-[#D4AF37] w-10 text-right" id="wt_${f.key}">${f.weight}%</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+function cycleDir(idx){
+  FACTORS[idx].dir = (FACTORS[idx].dir+2)%3-1; // 1→0→-1→1
+  renderFactors(); calcScore();
+}
+function setWeight(idx,v){
+  FACTORS[idx].weight=+v;
+  document.getElementById('wt_'+FACTORS[idx].key).textContent=v+'%';
+  const input=document.querySelectorAll('.wslider')[idx];
+  if(input) input.style.setProperty('--fill', v/2+'%');
+  calcScore();
+}
+function resetWeights(){ FACTORS.forEach(f=>f.weight=100); renderFactors(); calcScore(); }
+
+function scoreOf(factors){
+  let sum=0,wsum=0;
+  factors.forEach(f=>{ const w=f.weight/100; sum += f.dir*f.str*w; wsum += w; });
+  return wsum? sum/wsum : 0;
+}
+function scoreMeta(score){
+  if(score>=30) return {label:'强烈看多', color:'#E53935', cls:'text-[#E53935]', note:'多头共振，趋势主升浪。可顺势加仓，回踩关键支撑继续做多。'};
+  if(score>=10) return {label:'看多', color:'#43A047', cls:'text-[#43A047]', note:'多方占优，回调即布局机会。分批低吸，止损设在关键支撑下方。'};
+  if(score>-10) return {label:'中性', color:'#8A8AA0', cls:'text-[#8A8AA0]', note:'多空分歧，区间震荡。高抛低吸或观望，等待方向选择。'};
+  if(score>-30) return {label:'看空', color:'#43A047', cls:'text-[#43A047]', note:'空方占优，反弹即减仓机会。控制仓位，等待企稳信号。'};
+  return {label:'强烈看空', color:'#E53935', cls:'text-[#E53935]', note:'空头共振，趋势向下。空仓观望，切勿盲目抄底。'};
+}
+function calcScore(){
+  const total=Math.round(scoreOf(FACTORS));
+  const meta=scoreMeta(total);
+  document.getElementById('scoreNum').textContent=(total>0?'+':'')+total;
+  document.getElementById('scoreNum').style.color=meta.color;
+  document.getElementById('scoreLabel').textContent=meta.label;
+  document.getElementById('scoreLabel').style.color=meta.color;
+  const arc=document.getElementById('scoreArc');
+  const max=408.4;
+  arc.setAttribute('stroke-dashoffset', max-(total+100)/200*max);
+  arc.setAttribute('stroke', meta.color);
+  document.getElementById('engineNote').innerHTML=`综合评分 <span class="mono font-bold" style="color:${meta.color}">${meta.label} (${total>0?'+':''}${total})</span><br/>${meta.note}`;
+  // 四维
+  const dims=['y','m','w','d'];
+  document.getElementById('dimScore').innerHTML = dims.map(d=>{
+    const fs=FACTORS.filter(f=>f.dim===d);
+    const s=Math.round(scoreOf(fs));
+    const m2=scoreMeta(s);
+    return `<div class="win-4" style="padding:8px 4px">
+      <span class="w-label" style="color:${DIM_META[d].color}">${DIM_META[d].label}</span>
+      <span class="w-val ${m2.cls}" style="font-size:13px">${s>0?'+':''}${s}</span>
+      <span class="text-[8px] text-[#5A5A70]">${m2.label}</span>
+    </div>`;
+  }).join('');
+}
+
+/* =============== Ticker =============== */
+function renderTicker(){
+  const items=[
+    ['XAUUSD','4,134','+1.07%',1],['XAGUSD','59.75','+3.27%',1],['XPTUSD','1,720','+0.5%',1],
+    ['铜','4.68','+0.8%',1],['WTI','75.8','-5.7%',-1],['金银比','69.2','-0.8',-1],
+    ['DXY','100.9','+0.2%',1],['10Y TIPS','1.80%','-2bp',-1],['BTC','64,210','+1.8%',1],
+    ['SPDR','880t','+15t',1],['COMEX净多','28.4万','-1.2万',-1],['央行购金','1080t','+8%',1],
+  ];
+  const html=items.map(i=>`<span><span class="text-[#D4AF37]">${i[0]}</span> ${i[1]} <span class="${i[3]>0?'text-[#E53935]':'text-[#43A047]'}">${i[2]}</span></span>`).join('');
+  document.getElementById('ticker1').innerHTML=html;
+  document.getElementById('ticker2').innerHTML=html;
+}
+
+/* =============== 价格扰动 =============== */
+function refreshPrices(){
+  ASSET_KEYS.forEach(k=>{
+    const a=ASSETS[k];
+    const d=(Math.random()-0.5)*a.value*0.001;
+    a.value=Math.max(a.min, Math.round((a.value+d)*100)/100);
+  });
+  renderHero(); renderRatio();
+}
+setInterval(()=>{ if(auto) refreshPrices(); }, 4000);
+
+/* =============== 初始化 =============== */
+function init(){ renderAssetList(); renderHero(); renderCandles(); renderCorr(); renderCorrLine(); renderMetal(); renderRatio(); renderFactors(); calcScore(); renderTicker(); }
+init();
+</script>
+
+
+<script>
+/* 英文版 · 强制英文化（框架文本） */
+(function(){
+  const DICT = {"多品种总览": "Multi-Asset Overview", "行情图": "Price Chart", "相关性矩阵": "Correlation Matrix", "金银比": "Au/Ag Ratio", "判断引擎": "Decision Engine", "多品种横向监控": "Multi-Asset Monitor", "点击切换": "tap to switch", "相关性矩阵 · 黄金 vs 各大类": "Correlation Matrix · Gold vs Asset Classes", "金银比监控 · 均值回归信号": "Gold/Silver Ratio · Mean-Reversion Signal", "可调权重判断引擎 · 黄金": "Tunable-Weight Decision Engine · Gold"};
+  function applyEn(){
+    document.querySelectorAll('h2, h3, nav a').forEach(el => {
+      el.childNodes.forEach(node => {
+        if (node.nodeType === 3) {
+          const zh = node.textContent.trim();
+          if (zh && DICT[zh] !== undefined) node.textContent = DICT[zh];
+        }
+      });
+    });
+  }
+  try {
+    if (typeof window.renderAll === 'function') { const _r = window.renderAll; window.renderAll = function(){ _r(); applyEn(); }; }
+    if (typeof window.refreshAll === 'function') { const _r = window.refreshAll; window.refreshAll = function(){ _r(); applyEn(); }; }
+  } catch(e) {}
+  setTimeout(applyEn, 120);
+  setInterval(applyEn, 5000);
+})();
+</script>
+<script>
+(function(){
+  const EXTRA = {"财情双生智库": "Econ-Sentiment Twin Think Tank", "财情双生": "Econ-Sentiment", "返回主导航": "Back to Main", "主导航": "Main Nav", "数据流": "Data Flow", "实时刷新": "Live Refresh", "实时同步": "Live Sync", "立即刷新": "Refresh Now", "暂停自动": "Pause Auto", "启动自动": "Start Auto", "数据更新": "Data Update", "低风险": "Low Risk", "温和": "Moderate", "中等": "Medium", "中等偏高": "Moderately High", "高危": "High Risk", "黄金": "Gold", "相关性": "Correlation", "阈值": "Threshold", "判断": "Judgment", "行动": "Action", "信号": "Signal", "预期": "Expectation", "当前": "Current", "切换": "Switch", "模拟": "Simulated", "综合": "Composite", "易和中": "Yi He Zhong", "联合诊断": "Joint Diagnosis", "行动清单": "Action List", "让智慧有温度": "Wisdom with Warmth", "本读数为模型推断": "Model inference", "仅供研究": "For research only", "不构成投资建议": "Not investment advice", "数据源": "Data Source", "全选": "Select All", "清空": "Clear", "中性": "Neutral", "看多": "Bullish", "看空": "Bearish", "初始化": "Initialize", "工具": "Tools", "多品种数据模型": "Multi-Asset Data Model", "白银": "Silver", "铂金": "Platinum", "原油": "Crude Oil", "相关性数据": "Correlation data", "美债实际利率": "UST Real Yield", "美元指数": "DXY", "比特币": "Bitcoin", "日相关性历史": "Rolling correlation history", "判断引擎因子": "Engine Factors", "央行购金": "Central bank gold buying", "连续": "consecutive", "定价核心": "Pricing core", "美元信用": "USD credibility", "美债利息超国防": "UST interest > defense", "金油比": "Gold/Oil Ratio", "历史高位": "Historical high", "实际利率": "Real Yield", "中性偏空": "Slightly bearish", "弱周期": "Weak cycle", "资金流": "Flows", "月连增": "months of inflows", "均线趋势": "MA trend", "上穿": "crossing above", "待确认": "unconfirmed", "动量": "Momentum", "中性偏多": "Slightly bullish", "持仓": "Positioning", "万手": "10k lots", "支撑阻力": "Support/Resistance", "双底": "Double bottom", "恐慌指数": "VIX", "金银比": "Au/Ag Ratio", "偏低": "Below average", "年度": "Yearly", "月度": "Monthly", "周度": "Weekly", "日内": "Intraday", "线生成": "line generation", "品种渲染": "Asset render", "北京时间": "Beijing Time", "蜡烛图": "Candlesticks", "相关性矩阵": "Correlation Matrix", "强正相关": "Strong positive", "正相关": "Positive", "弱正相关": "Weak positive", "负相关": "Negative", "金属走势对比": "Metals comparison", "根取一个": "sample every", "对应": "corresponding", "判断引擎": "Decision Engine", "强度": "Strength", "权重": "Weight", "强烈看多": "Strongly Bullish", "多头共振": "Bull resonance", "趋势主升浪": "Main uptrend wave", "可顺势加仓": "Add on strength", "回踩关键支撑继续做多": "Buy pullbacks to key support", "多方占优": "Bulls in control", "回调即布局机会": "Dips are entry opportunities", "分批低吸": "Scale in gradually", "止损设在关键支撑下方": "Stop below key support", "多空分歧": "Bull/Bear split", "区间震荡": "Range-bound", "高抛低吸或观望": "Trade the range or wait", "等待方向选择": "Wait for breakout", "空方占优": "Bears in control", "反弹即减仓机会": "Rallies are exit opportunities", "控制仓位": "Control size", "等待企稳信号": "Wait for stabilization", "强烈看空": "Strongly Bearish", "空头共振": "Bear resonance", "趋势向下": "Downtrend", "空仓观望": "Stay in cash", "切勿盲目抄底": "No blind bottom-fishing", "综合评分": "Composite Score", "四维": "4D", "净多": "Net Long", "价格扰动": "Price noise"};
+  function applyExtra(){
+    document.querySelectorAll('h1,h2,h3,h4,span,div,p,td,th,li,button,a,b,label').forEach(el => {
+      el.childNodes.forEach(node => {
+        if (node.nodeType === 3) {
+          const zh = node.textContent.trim();
+          if (zh && EXTRA[zh] !== undefined) node.textContent = EXTRA[zh];
+        }
+      });
+    });
+  }
+  try {
+    if (typeof window.renderAll === 'function') { const _r = window.renderAll; window.renderAll = function(){ _r(); applyExtra(); }; }
+    if (typeof window.refreshAll === 'function') { const _r = window.refreshAll; window.refreshAll = function(){ _r(); applyExtra(); }; }
+  } catch(e) {}
+  setTimeout(applyExtra, 120);
+  setInterval(applyExtra, 5000);
+})();
+</script>
+</body>
+</html>

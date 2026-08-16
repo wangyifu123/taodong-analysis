@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Econ-Sentiment Twin Think Tank · Macro Surveillance System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Noto+Serif+SC:wght@500;700;900&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg-primary: #0D0D0F;
+    --bg-secondary: #0A1628;
+    --bg-card: #1A1A2E;
+    --bg-deep: #060D18;
+    --border: #2A2A3E;
+    --gold: #D4AF37;
+    --gold-light: #E6C65C;
+    --gold-dark: #8B6914;
+    --text-primary: #E8E8F0;
+    --text-secondary: #8A8AA0;
+    --text-muted: #5A5A70;
+    --up: #E53935;
+    --down: #43A047;
+    --warn: #FFB300;
+    /* 五组变量主题色 */
+    --c1: #E53935; /* 通胀二阶导 - 红 */
+    --c2: #FFB300; /* 财政与期限 - 黄 */
+    --c3: #4FC3F7; /* 流动性走廊 - 蓝 */
+    --c4: #66BB6A; /* AI与R星 - 绿 */
+    --c5: #BA68C8; /* 市场传染 - 紫 */
+  }
+  * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  html, body { background: var(--bg-primary); color: var(--text-primary); font-family: 'Noto Sans SC', 'Inter', sans-serif; }
+  body {
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(212,175,55,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 90% 20%, rgba(186,104,200,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 10% 80%, rgba(79,195,247,0.04) 0%, transparent 60%),
+      linear-gradient(180deg, #0D0D0F 0%, #060D18 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  .gold-text {
+    background: linear-gradient(135deg, #D4AF37 0%, #E6C65C 50%, #D4AF37 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .glass {
+    background: rgba(26,26,46,0.5);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(212,175,55,0.15);
+  }
+  .card-base {
+    background: linear-gradient(135deg, rgba(10,22,40,0.85) 0%, rgba(6,13,24,0.85) 100%);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .card-base::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, var(--accent, #D4AF37) 50%, transparent 100%);
+    opacity: 0.8;
+  }
+  .card-base:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent, #D4AF37);
+    box-shadow: 0 16px 48px rgba(0,0,0,0.4), 0 0 32px rgba(212,175,55,0.1);
+  }
+  .card-base:focus-within,
+  .card-base.active {
+    border-color: var(--accent, #D4AF37);
+    box-shadow: 0 0 0 1px var(--accent, #D4AF37), 0 16px 48px rgba(0,0,0,0.4);
+  }
+  .mono { font-family: 'JetBrains Mono', monospace; font-feature-settings: 'tnum'; }
+  .num-up { color: var(--up); }
+  .num-down { color: var(--down); }
+  .num-warn { color: var(--warn); }
+
+  /* 状态徽章 */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    border: 1px solid currentColor;
+    background: rgba(255,255,255,0.02);
+  }
+  .badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 8px currentColor;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  .live-dot { animation: blink 1.5s ease-in-out infinite; }
+
+  /* 压力仪表盘 */
+  .gauge-ring { transform: rotate(-90deg); }
+  .gauge-track { stroke: rgba(255,255,255,0.05); }
+  .gauge-progress { transition: stroke-dashoffset 1s ease, stroke 1s ease; }
+
+  /* Sparkline */
+  .spark-area { display: block; width: 100%; height: 100%; }
+
+  /* 顶部光晕 */
+  .top-glow {
+    position: absolute;
+    top: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 400px;
+    background: radial-gradient(ellipse, rgba(212,175,55,0.15) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* 滚动条 */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: var(--bg-primary); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--gold-dark); }
+
+  /* 隐藏滚动条但保留功能 */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* 数字滚动 */
+  .num-tick { display: inline-block; transition: all 0.6s ease; }
+
+  /* 闪烁高亮 */
+  @keyframes flash {
+    0% { background: rgba(212,175,55,0.2); }
+    100% { background: transparent; }
+  }
+  .flash { animation: flash 1s ease-out; }
+
+  /* 计时器倒数 */
+  .countdown { font-variant-numeric: tabular-nums; }
+
+  /* 风险等级色阶 */
+  .risk-low { color: #43A047; }
+  .risk-mid { color: #FFB300; }
+  .risk-high { color: #E53935; }
+  .risk-extreme { color: #BA68C8; }
+
+  /* 卡片选中态 */
+  .card-c1 { --accent: #E53935; }
+  .card-c2 { --accent: #FFB300; }
+  .card-c3 { --accent: #4FC3F7; }
+  .card-c4 { --accent: #66BB6A; }
+  .card-c5 { --accent: #BA68C8; }
+
+  /* 数字塔 */
+  .data-pill {
+    background: rgba(212,175,55,0.08);
+    border: 1px solid rgba(212,175,55,0.2);
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 12px;
+    color: var(--gold);
+  }
+
+  /* 渐变进度条 */
+  .progress-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.8s ease;
+    background: linear-gradient(90deg, var(--gold-dark) 0%, var(--gold) 50%, var(--gold-light) 100%);
+  }
+
+  /* 微章 */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 500;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  /* 状态条 */
+  .status-line {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--accent);
+  }
+
+  /* 太极标识 */
+  .taiji {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, #0D0D0F 0deg 180deg, #D4AF37 180deg 360deg);
+    position: relative;
+    overflow: hidden;
+  }
+  .taiji::before, .taiji::after {
+    content: '';
+    position: absolute;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+  }
+  .taiji::before {
+    top: 0; left: 50%; transform: translateX(-50%);
+    background: #D4AF37;
+  }
+  .taiji::after {
+    bottom: 0; left: 50%; transform: translateX(-50%);
+    background: #0D0D0F;
+  }
+
+  /* 太极小点 */
+  .taiji-dot-light, .taiji-dot-dark {
+    position: absolute;
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    z-index: 2;
+  }
+  .taiji-dot-light { top: 4px; left: 50%; transform: translateX(-50%); background: #0D0D0F; }
+  .taiji-dot-dark { bottom: 4px; left: 50%; transform: translateX(-50%); background: #D4AF37; }
+
+  /* 网格背景 */
+  .grid-bg {
+    background-image:
+      linear-gradient(rgba(212,175,55,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(212,175,55,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: -1px -1px;
+  }
+
+  /* 顶部边线 */
+  .top-edge {
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, var(--gold) 50%, transparent 100%);
+  }
+
+  /* 信号小灯 */
+  .signal-light {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    box-shadow: 0 0 8px currentColor;
+  }
+
+  /* 滚动消息 */
+  @keyframes scrollX {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .ticker-track { animation: scrollX 60s linear infinite; }
+
+  /* 渐入动画 */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .fade-up { animation: fadeUp 0.6s ease-out backwards; }
+
+  /* 雷达扫描 */
+  @keyframes radar {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .radar { animation: radar 4s linear infinite; transform-origin: center; }
+
+  /* 弹窗 */
+  .modal-backdrop {
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+  }
+
+  /* 财情双生 logo + 导航 */
+  .logo-img { width:36px; height:36px; border-radius:50%; transition: transform 0.6s ease; display:inline-block; }
+  .logo-img:hover { transform: rotate(360deg); }
+  .logo-img-wrap { line-height:0; display:inline-block; }
+  .home-btn { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; margin-right:6px; font-size:11px; border:1px solid #D4AF37; color:#D4AF37; border-radius:6px; transition: all 0.2s; }
+  .home-btn:hover { background:rgba(212,175,55,0.12); color:#D4AF37; }
+
+  .en-brand-sm { font-size: 9px; opacity: .6; letter-spacing: 1px; font-weight: 400; margin-left: 4px; color: var(--gold, #D4AF37); }
+  @media (max-width: 640px) { .en-brand-sm { display: none; } }
+
+  .lang-pair-sub { display:inline-flex; align-items:center; gap:4px; padding:3px 8px; border:1px solid rgba(212,175,55,.4); border-radius:6px; font-size:10px; margin-right:6px; vertical-align:middle; }
+  .lang-pair-sub a { padding:1px 7px; border-radius:4px; color:#8A8AA0; text-decoration:none; }
+  .lang-pair-sub a:hover { color:#D4AF37; }
+  .lang-pair-sub a.active { color:#0D0D0F; background:#D4AF37; font-weight:600; }
+  .lang-pair-sub .sep { color:#5A5A70; }
+</style>
+</head>
+<body class="grid-bg">
+
+<!-- =============== TOP NAV =============== -->
+<header class="sticky top-0 z-50 glass border-b border-[#2A2A3E]">
+  <div class="max-w-[1400px] mx-auto px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="../../index-en.html" class="logo-img-wrap" title="Back to Main"><img src="../../_assets/logo.png" alt="Econ-Sentiment" class="logo-img"/></a>
+      <div>
+        <div class="text-base font-semibold tracking-wide">Econ-Sentiment Twin Think Tank · <span class="gold-text">Macro Surveillance System</span> <span class="en-brand-sm">· Econ-Sentiment Twin Think Tank</span></div>
+        <div class="text-[10px] text-[#5A5A70] tracking-widest uppercase">Macro Surveillance Dashboard · v1.0</div>
+      </div>
+    </div>
+    <a href="../../index-en.html" class="home-btn">🏠 Main Nav</a><span class="lang-pair-sub"><a href="../../apps/01-macro-surveillance/index.html">中</a><span class="sep">|</span><a href="index.html" class="active">EN</a></span><nav class="hidden md:flex items-center gap-1">
+      <a class="px-3 py-1.5 text-xs text-[#D4AF37] border-b-2 border-[#D4AF37]" href="#dashboard">Dashboard</a>
+      <a class="px-3 py-1.5 text-xs text-[#8A8AA0] hover:text-[#D4AF37] transition" href="#scenarios">Scenario Engine</a>
+      <a class="px-3 py-1.5 text-xs text-[#8A8AA0] hover:text-[#D4AF37] transition" href="#contagion">Market Contagion</a>
+      <a class="px-3 py-1.5 text-xs text-[#8A8AA0] hover:text-[#D4AF37] transition" href="#alerts">Alerts</a>
+    </nav>
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 text-xs">
+        <span class="signal-light text-[#43A047] live-dot"></span>
+        <span class="text-[#8A8AA0]">Data Flow</span>
+        <span class="mono text-[#43A047] font-semibold" id="dataStatus">LIVE</span>
+      </div>
+      <div class="text-xs text-[#8A8AA0] mono" id="now">--:--:--</div>
+    </div>
+  </div>
+  <div class="top-edge"></div>
+</header>
+
+<!-- =============== HERO =============== -->
+<section class="relative">
+  <div class="top-glow"></div>
+  <div class="max-w-[1400px] mx-auto px-6 pt-12 pb-8 relative z-10">
+    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <span class="badge text-[#D4AF37]">
+            <span class="badge-dot"></span>
+            Live Refresh · 5s
+          </span>
+          <span class="pill text-[#8A8AA0]">5-Dimension Decision Model</span>
+          <span class="pill text-[#8A8AA0]">Scenario Switcher</span>
+        </div>
+        <h1 class="text-4xl md:text-5xl font-black tracking-tight leading-tight">
+          Surveillance Dashboard · <span class="gold-text">Watch these 5 variable groups daily</span>
+        </h1>
+        <p class="text-[#8A8AA0] text-sm md:text-base mt-3 max-w-2xl leading-relaxed">
+          Compress abstract logic into readable gauges；5 groups jointly determine<span class="text-[#D4AF37]">Scenario switch</span>，Not just a headline。
+          <br/>It tells you——<span class="text-[#E53935]">whether stress exists</span>。
+        </p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="px-4 py-2 text-xs border border-[#D4AF37] text-[#D4AF37] rounded-lg hover:bg-[#D4AF37] hover:text-[#0D0D0F] transition" onclick="refreshAll()">⟳ Refresh Now</button>
+        <button class="px-4 py-2 text-xs border border-[#2A2A3E] text-[#E8E8F0] rounded-lg hover:border-[#D4AF37] transition" onclick="toggleAutoRefresh()" id="autoBtn">⏸ Pause Auto</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== OVERALL PRESSURE GAUGE =============== -->
+<section class="max-w-[1400px] mx-auto px-6 mb-8">
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+    <!-- Composite压力Dashboard -->
+    <div class="lg:col-span-1 card-base p-6 relative" style="--accent: #D4AF37;">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-sm font-semibold tracking-wide flex items-center gap-2">
+          <span class="signal-light text-[#D4AF37] live-dot"></span>
+          Composite Stress Index
+        </h2>
+        <span class="text-[10px] text-[#5A5A70] mono">COMPOSITE</span>
+      </div>
+      <div class="flex items-center justify-center">
+        <svg width="200" height="200" viewBox="0 0 200 200" class="gauge-ring">
+          <!-- 背景环 -->
+          <circle cx="100" cy="100" r="80" fill="none" stroke-width="14" class="gauge-track" />
+          <!-- 进度环 -->
+          <circle cx="100" cy="100" r="80" fill="none" stroke-width="14"
+            stroke="url(#gaugeGrad)" stroke-linecap="round"
+            stroke-dasharray="502.4" stroke-dashoffset="180"
+            class="gauge-progress" id="gaugeArc" />
+          <defs>
+            <linearGradient id="gaugeGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#43A047"/>
+              <stop offset="40%" stop-color="#D4AF37"/>
+              <stop offset="75%" stop-color="#FFB300"/>
+              <stop offset="100%" stop-color="#E53935"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="absolute text-center" style="pointer-events:none;">
+          <div class="text-[10px] text-[#8A8AA0] tracking-widest mb-1">PRESSURE</div>
+          <div class="text-5xl font-black gold-text mono" id="pressureScore">64</div>
+          <div class="text-xs text-[#FFB300] mt-1 font-semibold" id="pressureLabel">Moderately High</div>
+        </div>
+      </div>
+      <div class="grid grid-cols-5 gap-1 mt-4">
+        <div class="text-center">
+          <div class="text-[10px] text-[#5A5A70]">① Inflation</div>
+          <div class="mono text-xs text-[#E53935] font-bold" id="sub1">72</div>
+        </div>
+        <div class="text-center">
+          <div class="text-[10px] text-[#5A5A70]">② Fiscal</div>
+          <div class="mono text-xs text-[#FFB300] font-bold" id="sub2">58</div>
+        </div>
+        <div class="text-center">
+          <div class="text-[10px] text-[#5A5A70]">③ Liquidity</div>
+          <div class="mono text-xs text-[#4FC3F7] font-bold" id="sub3">45</div>
+        </div>
+        <div class="text-center">
+          <div class="text-[10px] text-[#5A5A70]">④ AI</div>
+          <div class="mono text-xs text-[#66BB6A] font-bold" id="sub4">61</div>
+        </div>
+        <div class="text-center">
+          <div class="text-[10px] text-[#5A5A70]">⑤ Contagion</div>
+          <div class="mono text-xs text-[#BA68C8] font-bold" id="sub5">83</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CurrentscenarioJudgment -->
+    <div class="lg:col-span-2 card-base p-6 relative" style="--accent: #BA68C8;">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-sm font-semibold tracking-wide flex items-center gap-2">
+          <span class="signal-light text-[#BA68C8] live-dot"></span>
+          Scenario Engine · Scenario Engine
+        </h2>
+        <span class="text-[10px] text-[#5A5A70] mono">Last Switch 2h 14m 前</span>
+      </div>
+      <div class="grid grid-cols-4 gap-2 mb-4">
+        <div class="scenario-card p-3 rounded-lg border border-[#2A2A3E] opacity-40 hover:opacity-100 transition cursor-pointer" data-scenario="goldilocks">
+          <div class="text-[10px] text-[#43A047] font-bold tracking-wider">S1</div>
+          <div class="text-xs font-semibold mt-1">Goldilocks</div>
+          <div class="text-[10px] text-[#5A5A70] mt-1">Soft Landing</div>
+        </div>
+        <div class="scenario-card p-3 rounded-lg border border-[#2A2A3E] opacity-40 hover:opacity-100 transition cursor-pointer" data-scenario="reflation">
+          <div class="text-[10px] text-[#66BB6A] font-bold tracking-wider">S2</div>
+          <div class="text-xs font-semibold mt-1">Reflation</div>
+          <div class="text-[10px] text-[#5A5A70] mt-1">Overheat Trade</div>
+        </div>
+        <div class="scenario-card p-3 rounded-lg border-2 border-[#FFB300] bg-[rgba(255,179,0,0.08)] cursor-pointer" data-scenario="stagflation" id="activeScenario">
+          <div class="text-[10px] text-[#FFB300] font-bold tracking-wider">S3 · Current</div>
+          <div class="text-xs font-semibold mt-1">Stagflation Shadow</div>
+          <div class="text-[10px] text-[#FFB300] mt-1 font-semibold">Scenario Probability 38%</div>
+        </div>
+        <div class="scenario-card p-3 rounded-lg border border-[#2A2A3E] opacity-40 hover:opacity-100 transition cursor-pointer" data-scenario="contagion">
+          <div class="text-[10px] text-[#BA68C8] font-bold tracking-wider">S4</div>
+          <div class="text-xs font-semibold mt-1">Liquidity Contagion</div>
+          <div class="text-[10px] text-[#5A5A70] mt-1">Deleveraging</div>
+        </div>
+      </div>
+      <div class="bg-[rgba(255,179,0,0.04)] border border-[rgba(255,179,0,0.2)] rounded-lg p-4">
+        <div class="flex items-start gap-3">
+          <div class="text-2xl">⚠️</div>
+          <div class="flex-1">
+            <div class="text-sm font-semibold text-[#FFB300] mb-1">Stagflation Shadow · Alert</div>
+            <div class="text-xs text-[#8A8AA0] leading-relaxed">
+              <span class="text-[#E8E8F0]">ECI Wage momentum rising for3months</span> + 
+              <span class="text-[#E8E8F0]">FRA Term premium widening</span> + 
+              <span class="text-[#E53935]">Contagion index breaks threshold 80</span> →
+              Trigger scenario from「Reflation」<span class="gold-text">Switch</span>至「Stagflation Shadow」。
+              <br/>
+              <span class="text-[#FFB300] font-semibold">Suggested Actions：</span>Trim long-duration tech，Add short-duration bonds+Gold+Value stocks，Watch closelyVIX-MOVECorrelation。
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 5 CARDS =============== -->
+<section class="max-w-[1400px] mx-auto px-6 mb-8" id="dashboard">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-lg font-bold flex items-center gap-2">
+      <span class="w-1 h-5 bg-[#D4AF37] rounded"></span>
+      Five Key Monitoring Variables
+    </h2>
+    <div class="text-[10px] text-[#5A5A70] tracking-wider mono">SOURCE: BLOOMBERG · FRED · CHRIS · INTERNAL</div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
+
+    <!-- 卡片 1: Inflation 2nd Derivative -->
+    <div class="card-base card-c1 p-5 fade-up" style="animation-delay:.05s">
+      <div class="status-line" style="background:#E53935;"></div>
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2">
+          <div class="text-2xl">①</div>
+          <div>
+            <div class="text-[10px] text-[#5A5A70] tracking-wider">MODULE 01</div>
+            <div class="text-base font-bold">Inflation 2nd Derivative</div>
+          </div>
+        </div>
+        <span class="badge text-[#E53935]">
+          <span class="badge-dot"></span>Alert
+        </span>
+      </div>
+      <div class="space-y-2 mb-3">
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-[#8A8AA0]">Supercore PCE</span>
+          <span class="mono text-[#E8E8F0] font-semibold">3.42% <span class="num-up text-[10px]">▲</span></span>
+        </div>
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-[#8A8AA0]">ECI Wage Momentum</span>
+          <span class="mono text-[#E53935] font-semibold">+4.8% <span class="text-[10px]">▲▲</span></span>
+        </div>
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-[#8A8AA0]">Energy Core Pass-through</span>
+          <span class="mono text-[#FFB300] font-semibold">0.62</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width:72%; background: linear-gradient(90deg, #43A047, #FFB300 50%, #E53935);"></div>
+        </div>
+      </div>
+      <div class="h-16 -mx-1">
+        <svg class="spark-area" viewBox="0 0 200 60" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="sparkGrad1" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#E53935" stop-opacity="0.4"/>
+              <stop offset="100%" stop-color="#E53935" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path d="M0,45 L20,42 L40,38 L60,40 L80,35 L100,30 L120,28 L140,22 L160,18 L180,15 L200,12 L200,60 L0,60 Z" fill="url(#sparkGrad1)"/>
+          <path d="M0,45 L20,42 L40,38 L60,40 L80,35 L100,30 L120,28 L140,22 L160,18 L180,15 L200,12" fill="none" stroke="#E53935" stroke-width="1.5"/>
+          <circle cx="200" cy="12" r="3" fill="#E53935"/>
+        </svg>
+      </div>
+      <div class="mt-3 pt-3 border-t border-[#2A2A3E] text-[10px] text-[#5A5A70] flex justify-between">
+        <span>Threshold: 3.0%</span>
+        <span class="text-[#E53935]">Above Threshold 0.42pp</span>
+      </div>
+    </div>
+
+    <!-- 卡片 2: Fiscal & Term Premium -->
+    <div class="card-base card-c2 p-5 fade-up" style="animation-delay:.1s">
+      <div class="status-line" style="background:#FFB300;"></div>
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2">
+          <div class="text-2xl">②</div>
+          <div>
+            <div class="text-[10px] text-[#5A5A70] tracking-wider">MODULE 02</div>
+            <div class="text-base font-bold">Fiscal & Term Premium</div>
+          </div>
+        </div>
+        <span class="badge text-[#FFB300]">
+          <span class="badge-dot"></span>Watch
+        </span>
+      </div>
+      <div class="space-y-2 mb-3">
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-[#8A8AA0]">FRA Net Exposure (10y)</span>
+          <span class="mono text-[#FFB300] font-semibold">+62bp <span class="text-[10px]">▲</span></span>
+        </div>
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-[#8A8AA0]">Auction Tail (bid-cover)</span>
+          <span class="mono text-[#E8E8F0] font-semibold">2.34 <span class="num-down text-[10px]">▼</span></span>
+        </div>
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-[#8A8AA0]">ACM Term Premium</span>
+          <span class="mono text-[#FFB300] font-semibold">+0.45σ</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width:58%; background: linear-gradient(90deg, #43A047, #FFB300 50%, #E53935);"></div>
+        </div>
+      </div>
+      <div class="h-16 -mx-1">
+        <svg class="spark-area" viewBox="0 0 200 60" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="sparkGrad2" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#FFB300" stop-opacity="0.4"/>
+              <stop offset="100%" stop-color="#FFB300" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path d="M0,30 L20,32 L40,28 L60,34 L80,30 L100,36 L120,32 L140,38 L160,40 L180,42 L200,45 L200,60 L0,60 Z" fill="url(#sparkGrad2)"/>
+          <path d="M0,30 L20,32 L40,28 L60,34 L80,30 L100,36 L120,32 L140,38 L160,40 L180,42 L200,45" fill="none" stroke="#FFB300" stroke-width="1.5"/>
+          <circle cx="200" cy="45" r="3" fill="#FFB300"/>
+        </svg>
+      </div>
+      <div class="mt-3 pt-3 border-t border-[#2A2A3E] text-[10px] text-[#5A5A70] flex justify-between">
+        <span>Term Premium σ</span>
+        <span class="text-[#FFB300]">+0.5 Range</span>
+      </div>
+    </div>
+
+    <!-- 卡片 3: Liquidity Corridor -->
+    <div class="card-base card-c3 p-5 fade-up" style="animation-delay:.15s">
+      <div class="status-line" style="background:#4FC3F7;"></div>
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2">
+          <div class="text-2xl">③</div>
+          <div>
+            <div class="text-[10px] text-[#5A5A70] tracking-wider">MODULE 03</div>
+            <div class="text-base font-bold">Liquidity Corridor</div>
+          </div>
+        </div>
+        <span class="badge text-[#43A047]">
+          <span class="badge-dot"></span>Stable
+        </span>
+      </div>
+      <div class="space-y-2 mb-3">
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-[#8A8AA0]">ON RRP Usage</span>
+          <span class="mono text-[#E8E8F0] font-semibold">$186B <span class="text-[10px]">▼</span></span>
+        </div>
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-[#8A8AA0]">Reserves</span>
+          <span class="mono text-[#43A047] font-semibold">$3.21T <span class="text-[10px]">▲</span></span>
+        </div>
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-[#8A8AA0]">SOFR-IORB Spreads</span>
+          <span class="mono text-[#E8E8F0] font-semibold">-2bp</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width:45%; background: linear-gradient(90deg, #43A047, #FFB300 50%, #E53935);"></div>
+        </div>
+      </div>
+      <div class="h-16 -mx-1">
+        <svg class="spark-area" viewBox="0 0 200 60" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="sparkGrad3" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#4FC3F7" stop-opacity="0.4"/>
+              <stop offset="100%" stop-color="#4FC3F7" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path d="M0,20 L20,22 L40,18 L60,25 L80,28 L100,24 L120,30 L140,28 L160,32 L180,30 L200,32 L200,60 L0,60 Z" fill="url(#sparkGrad3)"/>
+          <path d="M0,20 L20,22 L40,18 L60,25 L80,28 L100,24 L120,30 L140,28 L160,32 L180,30 L200,32" fill="none" stroke="#4FC3F7" stroke-width="1.5"/>
+          <circle cx="200" cy="32" r="3" fill="#4FC3F7"/>
+        </svg>
+      </div>
+      <div class="mt-3 pt-3 border-t border-[#2A2A3E] text-[10px] text-[#5A5A70] flex justify-between">
+        <span>Corridor Width</span>
+        <span class="text-[#43A047]">Controlled</span>
+      </div>
+    </div>
+
+    <!-- 卡片 4: AI 与 R 星 -->
+    <div class="card-base card-c4 p-5 fade-up" style="animation-delay:.2s">
+      <div class="status-line" style="background:#66BB6A;"></div>
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2">
+          <div class="text-2xl">④</div>
+          <div>
+            <div class="text-[10px] text-[#5A5AA0] tracking-wider">MODULE 04</div>
+            <div class="text-base font-bold">AI 与 R<sup>★</sup> 星</div>
+          </div>
+        </div>
+        <span class="badge text-[#66BB6A]">
+          <span class="badge-dot"></span>Trend
+        </span>
+      </div>
+      <div class="space-y-2 mb-3">
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-[#8A8AA0]">Hyperscaler Capex</span>
+          <span class="mono text-[#66BB6A] font-semibold">$312B <span class="text-[10px]">▲▲</span></span>
+        </div>
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-[#8A8AA0]">铜 / Transformer Prices</span>
+          <span class="mono text-[#FFB300] font-semibold">+18% YoY</span>
+        </div>
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-[#8A8AA0]">AI Corporate Debt Leverage</span>
+          <span class="mono text-[#E8E8F0] font-semibold">2.8x</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width:61%; background: linear-gradient(90deg, #43A047, #FFB300 50%, #E53935);"></div>
+        </div>
+      </div>
+      <div class="h-16 -mx-1">
+        <svg class="spark-area" viewBox="0 0 200 60" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="sparkGrad4" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#66BB6A" stop-opacity="0.4"/>
+              <stop offset="100%" stop-color="#66BB6A" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path d="M0,50 L20,45 L40,42 L60,38 L80,35 L100,30 L120,25 L140,22 L160,18 L180,15 L200,12 L200,60 L0,60 Z" fill="url(#sparkGrad4)"/>
+          <path d="M0,50 L20,45 L40,42 L60,38 L80,35 L100,30 L120,25 L140,22 L160,18 L180,15 L200,12" fill="none" stroke="#66BB6A" stroke-width="1.5"/>
+          <circle cx="200" cy="12" r="3" fill="#66BB6A"/>
+        </svg>
+      </div>
+      <div class="mt-3 pt-3 border-t border-[#2A2A3E] text-[10px] text-[#5A5A70] flex justify-between">
+        <span>R<sup>★</sup> = Real Rate</span>
+        <span class="text-[#66BB6A]">Positive</span>
+      </div>
+    </div>
+
+    <!-- 卡片 5: Market Contagion (Key突出) -->
+    <div class="card-base card-c5 p-5 fade-up relative" style="animation-delay:.25s; --accent: #BA68C8; box-shadow: 0 0 0 1.5px #BA68C8, 0 8px 32px rgba(186,104,200,0.2);" id="contagion">
+      <div class="status-line" style="background:#BA68C8;"></div>
+      <div class="absolute -top-2 -right-2 bg-[#BA68C8] text-[#0D0D0F] text-[9px] font-bold px-2 py-0.5 rounded-full tracking-wider">★ Key</div>
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2">
+          <div class="text-2xl">⑤</div>
+          <div>
+            <div class="text-[10px] text-[#BA68C8] tracking-wider font-semibold">MODULE 05 · FOCUS</div>
+            <div class="text-base font-bold text-[#E8E8F0]">Market Contagion</div>
+          </div>
+        </div>
+        <span class="badge text-[#BA68C8]">
+          <span class="badge-dot"></span>High Risk
+        </span>
+      </div>
+      <div class="space-y-2 mb-3">
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-[#8A8AA0]">MOVE Index</span>
+          <span class="mono text-[#BA68C8] font-bold">118.4 <span class="text-[10px]">▲▲</span></span>
+        </div>
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-[#8A8AA0]">VIX-MOVE Correlation</span>
+          <span class="mono text-[#E53935] font-bold">+0.78 <span class="text-[10px]">▲</span></span>
+        </div>
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-[#8A8AA0]">Risk Parity Leverage</span>
+          <span class="mono text-[#FFB300] font-semibold">3.2x</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width:83%; background: linear-gradient(90deg, #43A047, #FFB300 50%, #E53935);"></div>
+        </div>
+      </div>
+      <div class="h-16 -mx-1">
+        <svg class="spark-area" viewBox="0 0 200 60" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="sparkGrad5" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#BA68C8" stop-opacity="0.5"/>
+              <stop offset="100%" stop-color="#BA68C8" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path d="M0,40 L20,38 L40,42 L60,35 L80,40 L100,30 L120,32 L140,22 L160,18 L180,12 L200,8 L200,60 L0,60 Z" fill="url(#sparkGrad5)"/>
+          <path d="M0,40 L20,38 L40,42 L60,35 L80,40 L100,30 L120,32 L140,22 L160,18 L180,12 L200,8" fill="none" stroke="#BA68C8" stroke-width="2"/>
+          <circle cx="200" cy="8" r="3.5" fill="#BA68C8"/>
+          <circle cx="200" cy="8" r="6" fill="none" stroke="#BA68C8" stroke-opacity="0.3" stroke-width="1">
+            <animate attributeName="r" from="3" to="10" dur="1.5s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" from="0.8" to="0" dur="1.5s" repeatCount="indefinite"/>
+          </circle>
+        </svg>
+      </div>
+      <div class="mt-3 pt-3 border-t border-[rgba(186,104,200,0.3)] text-[10px] flex justify-between">
+        <span class="text-[#BA68C8] font-semibold">⚠ Above Threshold 80</span>
+        <span class="text-[#BA68C8] font-semibold">+0.3σ / 日</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== DEEP DIVE: Market Contagion (Key模块详细) =============== -->
+<section class="max-w-[1400px] mx-auto px-6 mb-8" id="contagion-detail">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-lg font-bold flex items-center gap-2">
+      <span class="w-1 h-5 bg-[#BA68C8] rounded"></span>
+      Market Contagion · Deep Diagnosis
+      <span class="text-xs text-[#5A5A70] font-normal ml-2">This is「whether stress」final reading</span>
+    </h2>
+    <div class="text-[10px] text-[#5A5A70] tracking-wider mono">FOCUS MODULE · ⑤</div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+    <!-- VIX / MOVE 双轴 -->
+    <div class="lg:col-span-2 card-base p-5" style="--accent: #BA68C8;">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h3 class="text-sm font-semibold">VIX × MOVE Joint Moves</h3>
+          <p class="text-[10px] text-[#5A5A70] mt-0.5">Equity-Bond Vol Divergence → Cross-market arb collapse → Forced deleveraging</p>
+        </div>
+        <div class="flex items-center gap-2 text-[10px]">
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#E53935"></span>VIX</span>
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#BA68C8"></span>MOVE</span>
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#D4AF37"></span>Correlation</span>
+        </div>
+      </div>
+      <div style="height:280px"><canvas id="contagionChart"></canvas></div>
+    </div>
+
+    <!-- Contagion等级评分卡 -->
+    <div class="card-base p-5" style="--accent: #BA68C8;">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-sm font-semibold">Contagion Sub-score</h3>
+        <span class="text-[10px] text-[#5A5A70] mono">5/5 BREAK</span>
+      </div>
+      <div class="space-y-3">
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-[#8A8AA0]">MOVE Absolute Level</span>
+            <span class="mono text-[#BA68C8] font-bold">88 / 100</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:88%; background:linear-gradient(90deg,#FFB300,#BA68C8,#E53935)"></div></div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-[#8A8AA0]">VIX-MOVE Correlation</span>
+            <span class="mono text-[#BA68C8] font-bold">92 / 100</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:92%; background:linear-gradient(90deg,#FFB300,#BA68C8,#E53935)"></div></div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-[#8A8AA0]">Risk Parity Leverage</span>
+            <span class="mono text-[#FFB300] font-bold">76 / 100</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:76%; background:linear-gradient(90deg,#43A047,#FFB300,#E53935)"></div></div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-[#8A8AA0]">Deleveraging Speed (Δ)</span>
+            <span class="mono text-[#E53935] font-bold">85 / 100</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:85%; background:linear-gradient(90deg,#43A047,#FFB300,#E53935)"></div></div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-[#8A8AA0]">Credit Spread Widening</span>
+            <span class="mono text-[#FFB300] font-bold">68 / 100</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:68%; background:linear-gradient(90deg,#43A047,#FFB300,#E53935)"></div></div>
+        </div>
+      </div>
+      <div class="mt-4 pt-4 border-t border-[#2A2A3E] text-[11px] text-[#8A8AA0] leading-relaxed">
+        <span class="text-[#BA68C8] font-semibold">Composite Reading：83 / 100</span> · Above historical 95% percentile。
+        <br/>Once <span class="text-[#E8E8F0] font-semibold">5of items3项</span>simultaneously break out，Enter<span class="text-[#BA68C8] font-semibold">「Forced deleveraging」</span>phase。
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 时间线 / 倒计时 =============== -->
+<section class="max-w-[1400px] mx-auto px-6 mb-8">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+    <div class="card-base p-5" style="--accent: #4FC3F7;">
+      <div class="text-[10px] text-[#5A5A70] tracking-widest mb-1">NEXT CATALYST</div>
+      <div class="text-base font-bold mb-2">Next FOMC decision</div>
+      <div class="flex items-baseline gap-2">
+        <div class="text-3xl font-black gold-text mono countdown" id="cd1">--:--:--</div>
+      </div>
+      <div class="text-[10px] text-[#8A8AA0] mt-2">Market-implied probability · rate cut 25bp = 78%</div>
+    </div>
+    <div class="card-base p-5" style="--accent: #E53935;">
+      <div class="text-[10px] text-[#5A5A70] tracking-widest mb-1">NEXT CATALYST</div>
+      <div class="text-base font-bold mb-2">Nonfarm Payrolls (NFP)</div>
+      <div class="flex items-baseline gap-2">
+        <div class="text-3xl font-black gold-text mono countdown" id="cd2">--:--:--</div>
+      </div>
+      <div class="text-[10px] text-[#8A8AA0] mt-2">Expectation +180k · Core is wage MoM</div>
+    </div>
+    <div class="card-base p-5" style="--accent: #D4AF37;">
+      <div class="text-[10px] text-[#5A5A70] tracking-widest mb-1">NEXT CATALYST</div>
+      <div class="text-base font-bold mb-2">10Y Auction</div>
+      <div class="flex items-baseline gap-2">
+        <div class="text-3xl font-black gold-text mono countdown" id="cd3">--:--:--</div>
+      </div>
+      <div class="text-[10px] text-[#8A8AA0] mt-2">Tail gap (tail) is key · Watch term premium directly</div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== BOTTOM: AI 解读 / Action建议 =============== -->
+<section class="max-w-[1400px] mx-auto px-6 mb-12" id="alerts">
+  <div class="card-base p-6" style="--accent: #D4AF37;">
+    <div class="flex items-center justify-between mb-5">
+      <h2 class="text-lg font-bold flex items-center gap-2">
+        <span class="w-1 h-5 bg-[#D4AF37] rounded"></span>
+        Yi He Zhong · Joint Diagnosis & Action List
+      </h2>
+      <div class="text-[10px] text-[#5A5A70] tracking-wider mono">Econ-Sentiment Twin Think Tank · 2026-08-04 11:54</div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <!-- Signal -->
+      <div>
+        <div class="text-[10px] text-[#D4AF37] tracking-widest mb-2 font-semibold">SIGNAL · Signal</div>
+        <ul class="space-y-2 text-xs text-[#E8E8F0] leading-relaxed">
+          <li class="flex gap-2"><span class="text-[#E53935]">●</span>ECI Wages rising3months accelerating，<span class="mono text-[#E53935]">+4.8%</span>，Stay away from 3% Target</li>
+          <li class="flex gap-2"><span class="text-[#BA68C8]">●</span>Contagion index broke 80，<span class="text-[#BA68C8]">VIX×MOVE Divergence</span></li>
+          <li class="flex gap-2"><span class="text-[#FFB300]">●</span>FRA Term Premium +62bp，<span class="text-[#FFB300]">Fiscal Premium</span>Returning</li>
+          <li class="flex gap-2"><span class="text-[#66BB6A]">●</span>AI Capex Beating expectations，铜/Power Bottleneck</li>
+          <li class="flex gap-2"><span class="text-[#4FC3F7]">●</span>Corridor still wide，<span class="text-[#43A047]">Adequate capacity</span></li>
+        </ul>
+      </div>
+      <!-- Judgment -->
+      <div>
+        <div class="text-[10px] text-[#D4AF37] tracking-widest mb-2 font-semibold">JUDGMENT · Judgment</div>
+        <div class="text-xs text-[#E8E8F0] leading-relaxed space-y-2">
+          <p>5of variables <span class="text-[#E53935] font-semibold">3breached</span>（Inflation、Contagion、Fiscal），point to <span class="text-[#FFB300] font-bold">Stagflation Shadow</span> scenario。</p>
+          <p>AI×R<sup>★</sup> Provide<span class="text-[#66BB6A]">Structural longs</span>（Power/铜/Transformers），但 <span class="text-[#BA68C8]">Market Contagion</span>tail risk prices before fundamentals。</p>
+          <p>Liquidity currently<span class="text-[#43A047]">Sufficient</span>，但「<span class="text-[#D4AF37]">whether stress</span>」answer is written：<span class="text-[#E53935] font-bold">有</span>。</p>
+        </div>
+      </div>
+      <!-- Action -->
+      <div>
+        <div class="text-[10px] text-[#D4AF37] tracking-widest mb-2 font-semibold">ACTION · Action</div>
+        <ul class="space-y-2 text-xs text-[#E8E8F0] leading-relaxed">
+          <li class="flex gap-2"><span class="text-[#D4AF37]">①</span><span class="flex-1"><span class="font-semibold">Trim</span>long-duration tech，Avoid「rate-sensitive × high-valuation」overlap</span></li>
+          <li class="flex gap-2"><span class="text-[#D4AF37]">②</span><span class="flex-1"><span class="font-semibold">Add</span>short-duration treasuries + Gold + Value stocks</span></li>
+          <li class="flex gap-2"><span class="text-[#D4AF37]">③</span><span class="flex-1"><span class="font-semibold">Hedge</span>：Long VIX + Sell SPX put spread</span></li>
+          <li class="flex gap-2"><span class="text-[#D4AF37]">④</span><span class="flex-1"><span class="font-semibold">Keep</span>AI Structural longs（铜、Power、Transformers）as standalone theme</span></li>
+          <li class="flex gap-2"><span class="text-[#D4AF37]">⑤</span><span class="flex-1"><span class="font-semibold">Monitor</span>：Check daily ⑤Contagion column——fastest scenario-change indicator</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="mt-6 pt-5 border-t border-[#2A2A3E] flex items-center justify-between text-[10px] text-[#5A5A70]">
+      <div class="flex items-center gap-2">
+        <span class="taiji relative" style="width:14px;height:14px">
+          <div class="taiji-dot-light" style="width:2px;height:2px;top:1px"></div>
+          <div class="taiji-dot-dark" style="width:2px;height:2px;bottom:1px"></div>
+        </span>
+        <span>Econ-Sentiment · Wisdom with Warmth</span>
+      </div>
+      <div class="mono">Model inference，For research only，Not investment advice</div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== FOOTER TICKER =============== -->
+<footer class="border-t border-[#2A2A3E] mt-8">
+  <div class="bg-[#060D18] py-3 overflow-hidden">
+    <div class="flex ticker-track whitespace-nowrap text-xs">
+      <div class="flex gap-8 px-4 text-[#8A8AA0] mono">
+        <span><span class="text-[#E53935]">DXY</span> 105.32 <span class="text-[#E53935]">+0.18%</span></span>
+        <span><span class="text-[#E53935]">10Y</span> 4.412% <span class="text-[#E53935]">+3.2bp</span></span>
+        <span><span class="text-[#43A047]">DXY</span> 105.32 <span class="text-[#43A047]">-0.12%</span></span>
+        <span><span class="text-[#E53935]">WTI</span> 78.4 <span class="text-[#E53935]">+1.2%</span></span>
+        <span><span class="text-[#43A047]">GOLD</span> 2412.3 <span class="text-[#43A047]">+0.6%</span></span>
+        <span><span class="text-[#E53935]">SPX</span> 5642.1 <span class="text-[#E53935]">-0.34%</span></span>
+        <span><span class="text-[#E53935]">VIX</span> 18.4 <span class="text-[#E53935]">+4.1%</span></span>
+        <span><span class="text-[#E53935]">MOVE</span> 118.4 <span class="text-[#E53935]">+2.3%</span></span>
+        <span><span class="text-[#43A047]">BTC</span> 64,210 <span class="text-[#43A047]">+1.8%</span></span>
+        <span><span class="text-[#E53935]">铜</span> 4.62 <span class="text-[#E53935]">+0.8%</span></span>
+      </div>
+      <div class="flex gap-8 px-4 text-[#8A8AA0] mono">
+        <span><span class="text-[#E53935]">DXY</span> 105.32 <span class="text-[#E53935]">+0.18%</span></span>
+        <span><span class="text-[#E53935]">10Y</span> 4.412% <span class="text-[#E53935]">+3.2bp</span></span>
+        <span><span class="text-[#43A047]">DXY</span> 105.32 <span class="text-[#43A047]">-0.12%</span></span>
+        <span><span class="text-[#E53935]">WTI</span> 78.4 <span class="text-[#E53935]">+1.2%</span></span>
+        <span><span class="text-[#43A047]">GOLD</span> 2412.3 <span class="text-[#43A047]">+0.6%</span></span>
+        <span><span class="text-[#E53935]">SPX</span> 5642.1 <span class="text-[#E53935]">-0.34%</span></span>
+        <span><span class="text-[#E53935]">VIX</span> 18.4 <span class="text-[#E53935]">+4.1%</span></span>
+        <span><span class="text-[#E53935]">MOVE</span> 118.4 <span class="text-[#E53935]">+2.3%</span></span>
+        <span><span class="text-[#43A047]">BTC</span> 64,210 <span class="text-[#43A047]">+1.8%</span></span>
+        <span><span class="text-[#E53935]">铜</span> 4.62 <span class="text-[#E53935]">+0.8%</span></span>
+      </div>
+    </div>
+  </div>
+  <div class="max-w-[1400px] mx-auto px-6 py-6 flex flex-col md:flex-row items-center justify-between text-[10px] text-[#5A5A70]">
+    <div>© 2026 Econ-Sentiment Twin Think Tank · Macro Surveillance System v1.0</div>
+    <div class="flex gap-4 mt-2 md:mt-0">
+      <span>Data Source · Bloomberg / FRED / CHRIS</span>
+      <span>·</span>
+      <span class="mono">BUILD 2026.08.04</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* =============== 时钟与倒计时 =============== */
+function pad(n){ return String(n).padStart(2,'0'); }
+function updateNow() {
+  const d = new Date();
+  const s = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  document.getElementById('now').textContent = s;
+}
+function updateCountdown(id, target) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const tick = () => {
+    const diff = target - new Date();
+    if (diff < 0) { el.textContent = '已发布'; return; }
+    const d = Math.floor(diff/86400000);
+    const h = Math.floor((diff%86400000)/3600000);
+    const m = Math.floor((diff%3600000)/60000);
+    const s = Math.floor((diff%60000)/1000);
+    el.textContent = (d>0?d+'d ':'') + `${pad(h)}:${pad(m)}:${pad(s)}`;
+  };
+  tick();
+  setInterval(tick, 1000);
+}
+// 模拟下次事件时间（基于当前时间）
+const now = new Date();
+const f = new Date(now.getTime() + 1000*60*60*38 + 1000*60*22);
+const n = new Date(now.getTime() + 1000*60*60*96 + 1000*60*15);
+const a = new Date(now.getTime() + 1000*60*60*12 + 1000*60*40);
+updateCountdown('cd1', f);
+updateCountdown('cd2', n);
+updateCountdown('cd3', a);
+setInterval(updateNow, 1000);
+updateNow();
+
+/* =============== 综合压力仪表盘更新 =============== */
+function updateGauge(score) {
+  const arc = document.getElementById('gaugeArc');
+  const max = 502.4;
+  const offset = max - (score/100) * max;
+  arc.setAttribute('stroke-dashoffset', offset);
+  // 颜色根据分数变化
+  let color = '#43A047';
+  if (score >= 80) color = '#BA68C8';
+  else if (score >= 65) color = '#E53935';
+  else if (score >= 45) color = '#FFB300';
+  arc.setAttribute('stroke', color);
+  document.getElementById('pressureScore').textContent = score;
+  const label = document.getElementById('pressureLabel');
+  if (score < 30) { label.textContent = '低风险'; label.style.color = '#43A047'; }
+  else if (score < 50) { label.textContent = '温和'; label.style.color = '#D4AF37'; }
+  else if (score < 65) { label.textContent = '中等'; label.style.color = '#FFB300'; }
+  else if (score < 80) { label.textContent = '中等偏高'; label.style.color = '#FFB300'; }
+  else { label.textContent = '高危'; label.style.color = '#BA68C8'; }
+}
+
+/* =============== 数据更新（模拟实时） =============== */
+let autoRefresh = true;
+let pressure = 64;
+function refreshAll() {
+  // 随机扰动 5 个子项
+  const sub1 = Math.max(40, Math.min(95, 72 + (Math.random()-0.5)*4));
+  const sub2 = Math.max(30, Math.min(85, 58 + (Math.random()-0.5)*3));
+  const sub3 = Math.max(20, Math.min(70, 45 + (Math.random()-0.5)*3));
+  const sub4 = Math.max(40, Math.min(85, 61 + (Math.random()-0.5)*3));
+  const sub5 = Math.max(50, Math.min(98, 83 + (Math.random()-0.5)*4));
+  document.getElementById('sub1').textContent = Math.round(sub1);
+  document.getElementById('sub2').textContent = Math.round(sub2);
+  document.getElementById('sub3').textContent = Math.round(sub3);
+  document.getElementById('sub4').textContent = Math.round(sub4);
+  document.getElementById('sub5').textContent = Math.round(sub5);
+  // 综合 = 加权
+  pressure = Math.round((sub1*0.22 + sub2*0.18 + sub3*0.18 + sub4*0.17 + sub5*0.25));
+  updateGauge(pressure);
+
+  // flash 效果
+  document.getElementById('pressureScore').classList.add('flash');
+  setTimeout(() => document.getElementById('pressureScore').classList.remove('flash'), 800);
+}
+function toggleAutoRefresh() {
+  autoRefresh = !autoRefresh;
+  document.getElementById('autoBtn').textContent = autoRefresh ? '⏸ 暂停自动' : '▶ 启动自动';
+}
+setInterval(() => { if (autoRefresh) refreshAll(); }, 5000);
+refreshAll();
+
+/* =============== VIX × MOVE 联合走势 =============== */
+const ctx = document.getElementById('contagionChart').getContext('2d');
+const labels = Array.from({length:30}, (_,i) => `T-${30-i}d`);
+// 模拟 30 天的 VIX / MOVE / 相关性
+const vixData = [14,15,14,16,18,17,15,16,19,22,20,18,17,19,21,24,22,20,21,23,25,23,21,20,22,24,26,25,23,18.4];
+const moveData = [88,90,92,89,93,95,94,96,98,102,100,97,99,103,108,106,104,107,110,112,108,105,109,113,115,114,116,118,116,118.4];
+const corrData = [0.4,0.42,0.38,0.45,0.5,0.48,0.52,0.55,0.58,0.62,0.6,0.58,0.62,0.65,0.7,0.68,0.66,0.7,0.72,0.74,0.7,0.68,0.72,0.76,0.78,0.75,0.77,0.8,0.78,0.78];
+
+new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels,
+    datasets: [
+      {
+        label: 'VIX',
+        data: vixData,
+        borderColor: '#E53935',
+        backgroundColor: 'rgba(229,57,53,0.1)',
+        borderWidth: 2,
+        tension: 0.35,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        yAxisID: 'y',
+        fill: true,
+      },
+      {
+        label: 'MOVE',
+        data: moveData,
+        borderColor: '#BA68C8',
+        backgroundColor: 'rgba(186,104,200,0.1)',
+        borderWidth: 2,
+        tension: 0.35,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        yAxisID: 'y1',
+        fill: true,
+      },
+      {
+        label: '相关性',
+        data: corrData,
+        borderColor: '#D4AF37',
+        backgroundColor: 'transparent',
+        borderWidth: 1.5,
+        borderDash: [4, 4],
+        tension: 0.3,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        yAxisID: 'y2',
+        fill: false,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: 'rgba(13,13,15,0.95)',
+        borderColor: '#D4AF37',
+        borderWidth: 1,
+        titleColor: '#D4AF37',
+        bodyColor: '#E8E8F0',
+        padding: 12,
+        titleFont: { family: 'JetBrains Mono', size: 11 },
+        bodyFont: { family: 'JetBrains Mono', size: 11 },
+      }
+    },
+    scales: {
+      x: {
+        grid: { color: 'rgba(255,255,255,0.04)' },
+        ticks: { color: '#5A5A70', font: { family: 'JetBrains Mono', size: 10 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 8 },
+      },
+      y: {
+        type: 'linear', position: 'left',
+        grid: { color: 'rgba(255,255,255,0.04)' },
+        ticks: { color: '#E53935', font: { family: 'JetBrains Mono', size: 10 }, callback: v=>v+'%' },
+        title: { display: true, text: 'VIX', color: '#E53935', font: { size: 10 } }
+      },
+      y1: {
+        type: 'linear', position: 'right',
+        grid: { display: false },
+        ticks: { color: '#BA68C8', font: { family: 'JetBrains Mono', size: 10 } },
+        title: { display: true, text: 'MOVE', color: '#BA68C8', font: { size: 10 } }
+      },
+      y2: {
+        type: 'linear', position: 'right', display: false,
+        min: 0, max: 1,
+      }
+    }
+  }
+});
+
+/* =============== 情景卡片点击 =============== */
+document.querySelectorAll('.scenario-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.scenario-card').forEach(c => {
+      c.classList.remove('border-2','border-[#FFB300]','bg-[rgba(255,179,0,0.08)]');
+      c.classList.add('border','border-[#2A2A3E]');
+      c.style.opacity = 0.4;
+    });
+    card.classList.remove('border','border-[#2A2A3E]');
+    card.classList.add('border-2','border-[#D4AF37]','bg-[rgba(212,175,55,0.08)]');
+    card.style.opacity = 1;
+  });
+});
+
+/* =============== 数字滚动动画 =============== */
+function animateNumber(el, target, duration=1000) {
+  const start = parseFloat(el.textContent) || 0;
+  const startTime = performance.now();
+  function step(now) {
+    const t = Math.min((now - startTime) / duration, 1);
+    const ease = 1 - Math.pow(1 - t, 3);
+    el.textContent = (start + (target - start) * ease).toFixed(0);
+    if (t < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+</script>
+
+
+<script>
+/* 英文版 · 强制英文化（框架文本） */
+(function(){
+  const DICT = {"仪表盘": "Dashboard", "情景研判": "Scenario Engine", "市场传染": "Market Contagion", "预警": "Alerts", "综合压力指数": "Composite Stress Index", "五大监控变量": "Five Key Monitoring Variables", "易和中 · 联合诊断 & 行动清单": "Yi He Zhong · Joint Diagnosis & Action List"};
+  function applyEn(){
+    document.querySelectorAll('h2, h3, nav a').forEach(el => {
+      el.childNodes.forEach(node => {
+        if (node.nodeType === 3) {
+          const zh = node.textContent.trim();
+          if (zh && DICT[zh] !== undefined) node.textContent = DICT[zh];
+        }
+      });
+    });
+  }
+  try {
+    if (typeof window.renderAll === 'function') { const _r = window.renderAll; window.renderAll = function(){ _r(); applyEn(); }; }
+    if (typeof window.refreshAll === 'function') { const _r = window.refreshAll; window.refreshAll = function(){ _r(); applyEn(); }; }
+  } catch(e) {}
+  setTimeout(applyEn, 120);
+  setInterval(applyEn, 5000);
+})();
+</script>
+<script>
+(function(){
+  const EXTRA = {"财情双生智库": "Econ-Sentiment Twin Think Tank", "财情双生": "Econ-Sentiment", "返回主导航": "Back to Main", "主导航": "Main Nav", "数据流": "Data Flow", "实时刷新": "Live Refresh", "实时同步": "Live Sync", "立即刷新": "Refresh Now", "暂停自动": "Pause Auto", "启动自动": "Start Auto", "数据更新": "Data Update", "模拟实时": "Simulated Live", "随机扰动": "Random Jitter", "低风险": "Low Risk", "温和": "Moderate", "中等偏高": "Moderately High", "高危": "High Risk", "中等": "Medium", "黄金": "Gold", "相关性": "Correlation", "联合走势": "Joint Moves", "阈值": "Threshold", "超阈": "Above Threshold", "突破阈值": "Above Threshold", "观察": "Watch", "区间": "Range", "趋势": "Trend", "重点": "Key", "杠杆": "Leverage", "判断": "Judgment", "行动": "Action", "信号": "Signal", "预期": "Expectation", "目标": "Target", "当前": "Current", "切换": "Switch", "情景": "scenario", "模拟": "Simulated", "综合": "Composite", "加权": "Weighted", "效果": "Effect", "易和中": "Yi He Zhong", "联合诊断": "Joint Diagnosis", "行动清单": "Action List", "让智慧有温度": "Wisdom with Warmth", "本读数为模型推断": "Model inference", "仅供研究": "For research only", "不构成投资建议": "Not investment advice", "数据源": "Data Source", "导航": "Navigation", "返回顶部": "Back to Top", "模块导航": "Section Nav", "滚动高亮": "Scroll Highlight", "默认高亮": "Default Highlight", "滚动监听": "Scroll Listener", "核心结论": "Core Conclusions", "降级": "Degrade", "时钟与倒计时": "Clock & Countdown", "已发布": "Published", "模拟下次事件时间": "Simulated next event time", "基于当前时间": "Based on current time", "综合压力仪表盘更新": "Stress gauge update", "颜色根据分数变化": "Color by score", "个子项": "sub-items", "天的": "days", "情景卡片点击": "Scenario card click", "数字滚动动画": "Number scroll animation"};
+  function applyExtra(){
+    document.querySelectorAll('h1,h2,h3,h4,span,div,p,td,th,li,button,a,b,label').forEach(el => {
+      el.childNodes.forEach(node => {
+        if (node.nodeType === 3) {
+          const zh = node.textContent.trim();
+          if (zh && EXTRA[zh] !== undefined) node.textContent = EXTRA[zh];
+        }
+      });
+    });
+  }
+  try {
+    if (typeof window.renderAll === 'function') { const _r = window.renderAll; window.renderAll = function(){ _r(); applyExtra(); }; }
+    if (typeof window.refreshAll === 'function') { const _r = window.refreshAll; window.refreshAll = function(){ _r(); applyExtra(); }; }
+  } catch(e) {}
+  setTimeout(applyExtra, 120);
+  setInterval(applyExtra, 5000);
+})();
+</script>
+</body>
+</html>

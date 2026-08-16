@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>资金流向监测系统 · 中美日三国 · 财情双生智库</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Noto+Serif+SC:wght@500;700;900&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg-primary:#0D0D0F; --bg-secondary:#0A1628; --bg-deep:#060D18; --border:#2A2A3E;
+    --gold:#D4AF37; --gold-light:#E6C65C; --gold-dark:#8B6914;
+    --text-primary:#E8E8F0; --text-secondary:#8A8AA0; --text-muted:#5A5A70;
+    --up:#E53935; --down:#43A047; --warn:#FFB300;
+  }
+  * { -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+  html,body { background:var(--bg-primary); color:var(--text-primary); font-family:'Noto Sans SC','Inter',sans-serif; scroll-behavior:smooth; }
+  body { background:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(212,175,55,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 90% 20%, rgba(229,57,53,0.04) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 10% 80%, rgba(79,195,247,0.04) 0%, transparent 60%),
+      linear-gradient(180deg,#0D0D0F 0%,#060D18 100%);
+    min-height:100vh; overflow-x:hidden; }
+  .gold-text { background:linear-gradient(135deg,#D4AF37 0%,#E6C65C 50%,#D4AF37 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .glass { background:rgba(26,26,46,0.5); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(212,175,55,0.15); }
+  .card-base { background:linear-gradient(135deg,rgba(10,22,40,0.9) 0%,rgba(6,13,24,0.9) 100%);
+    border:1px solid var(--border); border-radius:16px; position:relative; overflow:hidden; transition:all .4s cubic-bezier(.4,0,.2,1); }
+  .card-base::before { content:''; position:absolute; top:0; left:0; right:0; height:2px;
+    background:linear-gradient(90deg,transparent 0%,var(--accent,#D4AF37) 50%,transparent 100%); opacity:.85; }
+  .card-base:hover { transform:translateY(-2px); border-color:var(--accent,#D4AF37); }
+  .mono { font-family:'JetBrains Mono',monospace; font-feature-settings:'tnum'; }
+  .num-up{color:var(--up)} .num-down{color:var(--down)} .num-gold{color:var(--gold)}
+
+  .taiji { width:24px; height:24px; border-radius:50%;
+    background:conic-gradient(from 0deg,#0D0D0F 0deg 180deg,#D4AF37 180deg 360deg); position:relative; overflow:hidden; }
+  .taiji::before,.taiji::after { content:''; position:absolute; width:12px; height:12px; border-radius:50%; }
+  .taiji::before { top:0; left:50%; transform:translateX(-50%); background:#D4AF37; }
+  .taiji::after { bottom:0; left:50%; transform:translateX(-50%); background:#0D0D0F; }
+  .taiji-dot-light,.taiji-dot-dark { position:absolute; width:4px; height:4px; border-radius:50%; z-index:2; }
+  .taiji-dot-light { top:4px; left:50%; transform:translateX(-50%); background:#0D0D0F; }
+  .taiji-dot-dark { bottom:4px; left:50%; transform:translateX(-50%); background:#D4AF37; }
+
+  .grid-bg { background-image:
+    linear-gradient(rgba(212,175,55,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(212,175,55,0.035) 1px, transparent 1px);
+    background-size:40px 40px; }
+  .top-edge { height:1px; background:linear-gradient(90deg,transparent 0%,var(--gold) 50%,transparent 100%); }
+  .signal-light { width:8px; height:8px; border-radius:50%; box-shadow:0 0 8px currentColor; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+  .live-dot { animation:blink 1.5s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .badge-dot { width:6px; height:6px; border-radius:50%; background:currentColor; box-shadow:0 0 8px currentColor; animation:pulse 2s ease-in-out infinite; }
+  .badge { display:inline-flex; align-items:center; gap:6px; padding:3px 10px; border-radius:4px;
+    font-size:11px; font-weight:500; letter-spacing:.5px; border:1px solid currentColor; background:rgba(255,255,255,.02); }
+
+  .bar { height:5px; border-radius:3px; background:rgba(255,255,255,.06); overflow:hidden; }
+  .bar-fill { height:100%; border-radius:3px; transition:width .8s ease; }
+
+  .country-check { position:relative; display:inline-flex; align-items:center; gap:8px;
+    padding:8px 14px; border-radius:999px; cursor:pointer;
+    border:1px solid var(--border); background:rgba(255,255,255,.02);
+    transition:all .3s; user-select:none; font-size:12px; }
+  .country-check:hover { border-color:var(--gold-dark); }
+  .country-check input { display:none; }
+  .country-check .ck-box { width:16px; height:16px; border-radius:4px; border:1.5px solid var(--text-muted);
+    display:inline-flex; align-items:center; justify-content:center; transition:all .3s; flex-shrink:0; }
+  .country-check input:checked + .ck-box { background:var(--cc,var(--gold)); border-color:var(--cc,var(--gold)); }
+  .country-check input:checked + .ck-box::after { content:'✓'; color:#0D0D0F; font-size:11px; font-weight:900; line-height:1; }
+  .country-check input:checked ~ .ck-label { color:var(--cc,var(--gold)); }
+  .country-check .ck-label { transition:all .3s; font-weight:600; }
+
+  .flow-row { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px;
+    background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.05); transition:all .3s; }
+  .flow-row:hover { border-color:var(--gold-dark); background:rgba(212,175,55,.03); }
+
+  .win-4 { display:flex; flex-direction:column; align-items:center; padding:8px 10px; border-radius:10px;
+    background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07); flex:1; }
+  .win-4 .w-label { font-size:9px; color:var(--text-muted); letter-spacing:1.5px; }
+  .win-4 .w-val { font-size:14px; font-weight:800; font-family:'JetBrains Mono',monospace; margin-top:2px; }
+
+  .trend-tag { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:5px; font-size:11px; font-weight:600; }
+
+  ::-webkit-scrollbar { width:8px; height:8px; }
+  ::-webkit-scrollbar-track { background:var(--bg-primary); }
+  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
+  ::-webkit-scrollbar-thumb:hover { background:var(--gold-dark); }
+  .no-scrollbar::-webkit-scrollbar { display:none; }
+  .no-scrollbar { -ms-overflow-style:none; scrollbar-width:none; }
+  @keyframes scrollX { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+  .ticker-track { animation:scrollX 80s linear infinite; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  .fade-up { animation:fadeUp .6s ease-out backwards; }
+  section[id] { scroll-margin-top:64px; }
+
+  /* 财情双生 logo + 导航 */
+  .logo-img { width:36px; height:36px; border-radius:50%; transition: transform 0.6s ease; display:inline-block; }
+  .logo-img:hover { transform: rotate(360deg); }
+  .logo-img-wrap { line-height:0; display:inline-block; }
+  .home-btn { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; margin-right:6px; font-size:11px; border:1px solid #D4AF37; color:#D4AF37; border-radius:6px; transition: all 0.2s; }
+  .home-btn:hover { background:rgba(212,175,55,0.12); color:#D4AF37; }
+</style>
+</head>
+<body class="grid-bg">
+
+<!-- ============ TOP NAV ============ -->
+<header class="sticky top-0 z-50 glass border-b border-[#2A2A3E]">
+  <div class="max-w-[1500px] mx-auto px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="../../index.html" class="logo-img-wrap" title="返回主导航"><img src="../../_assets/logo.png" alt="财情双生" class="logo-img"/></a>
+      <div>
+        <div class="text-base font-semibold tracking-wide">财情双生智库 · <span class="gold-text">资金流向监测系统</span></div>
+        <div class="text-[10px] text-[#5A5A70] tracking-widest uppercase">Money Flow Surveillance · CN · US · JP</div>
+      </div>
+    </div>
+    <a href="../../index.html" class="home-btn">🏠 主导航</a><nav class="hidden xl:flex items-center gap-1">
+      <a class="px-3 py-1.5 text-xs text-[#D4AF37] border-b-2 border-[#D4AF37]" href="#overview">资金总览</a>
+      <a class="px-3 py-1.5 text-xs text-[#8A8AA0] hover:text-[#D4AF37] transition" href="#money">货币供应</a>
+      <a class="px-3 py-1.5 text-xs text-[#8A8AA0] hover:text-[#D4AF37] transition" href="#credit">信用融资</a>
+      <a class="px-3 py-1.5 text-xs text-[#8A8AA0] hover:text-[#D4AF37] transition" href="#fiscal">财政债务</a>
+      <a class="px-3 py-1.5 text-xs text-[#8A8AA0] hover:text-[#D4AF37] transition" href="#entity">实体银行</a>
+      <a class="px-3 py-1.5 text-xs text-[#8A8AA0] hover:text-[#D4AF37] transition" href="#extra">补充维度</a>
+      <a class="px-3 py-1.5 text-xs text-[#8A8AA0] hover:text-[#D4AF37] transition" href="#judge">四维判断</a>
+    </nav>
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 text-xs">
+        <span class="signal-light text-[#43A047] live-dot"></span>
+        <span class="text-[#8A8AA0] hidden sm:inline">数据流</span>
+        <span class="mono text-[#43A047] font-semibold">LIVE</span>
+      </div>
+      <div class="text-xs text-[#8A8AA0] mono" id="now">--:--:--</div>
+    </div>
+  </div>
+  <div class="top-edge"></div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="max-w-[1500px] mx-auto px-6 pt-12 pb-8">
+  <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+    <div>
+      <div class="flex items-center gap-2 mb-3 flex-wrap">
+        <span class="badge text-[#D4AF37]"><span class="badge-dot"></span>实时同步 · 10s</span>
+        <span class="badge text-[#43A047]">中 · 美 · 日 三国</span>
+        <span class="badge text-[#FFB300]">年 / 月 / 周 / 日 四维判断</span>
+      </div>
+      <h1 class="text-4xl md:text-5xl font-black tracking-tight leading-tight">
+        资金流向 · <span class="gold-text">供需传导全景监测</span>
+      </h1>
+      <p class="text-[#8A8AA0] text-sm md:text-base mt-3 max-w-3xl leading-relaxed">
+        沿 <span class="text-[#E8E8F0]">「钱从哪里来 → 流向哪里 → 在谁手里 → 风险信号」</span> 的资金链条，
+        监控 <span class="text-[#E8E8F0]">货币供应 · 社融信贷 · 财政税收 · 债务结构 · 企业利润 · 银行坏账</span> 六层资金状态，
+        生成 <span class="text-[#D4AF37] font-semibold">年度 / 月度 / 周度 / 日内</span> 四维判断。
+      </p>
+    </div>
+    <div class="flex items-center gap-2">
+      <button class="px-4 py-2 text-xs border border-[#D4AF37] text-[#D4AF37] rounded-lg hover:bg-[#D4AF37] hover:text-[#0D0D0F] transition" onclick="refreshAll()">⟳ 立即刷新</button>
+      <button class="px-4 py-2 text-xs border border-[#2A2A3E] text-[#E8E8F0] rounded-lg hover:border-[#D4AF37] transition" onclick="toggleAuto()" id="autoBtn">⏸ 暂停自动</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 国家复选 ============ -->
+<section class="max-w-[1500px] mx-auto px-6 mb-8">
+  <div class="card-base p-5" style="--accent:#D4AF37;">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="text-xs font-bold flex items-center gap-2"><span class="w-1 h-4 bg-[#D4AF37] rounded"></span>国家对比选择</span>
+      <span class="text-[10px] text-[#5A5A70]">勾选 → 全部模块联动</span>
+    </div>
+    <div class="flex flex-wrap gap-2" id="countrySelector"></div>
+  </div>
+</section>
+
+<!-- ============ 资金总览 ============ -->
+<section class="max-w-[1500px] mx-auto px-6 mb-8" id="overview">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-lg font-bold flex items-center gap-2"><span class="w-1 h-5 bg-[#D4AF37] rounded"></span>资金流向总览 · 三国全景</h2>
+    <div class="text-[10px] text-[#5A5A70] tracking-wider mono">MONEY FLOW MAP · SUPPLY → FLOW → ENTITY → RISK</div>
+  </div>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4" id="flowOverview"></div>
+</section>
+
+<!-- ============ 货币供应 ============ -->
+<section class="max-w-[1500px] mx-auto px-6 mb-8" id="money">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-lg font-bold flex items-center gap-2"><span class="w-1 h-5 bg-[#D4AF37] rounded"></span>货币供应 · M0 / M1 / M2 与央表</h2>
+    <div class="text-[10px] text-[#5A5A70] tracking-wider mono">MONEY SUPPLY · CENTRAL BANK BALANCE SHEET</div>
+  </div>
+  <div class="grid grid-cols-1 xl:grid-cols-3 gap-4" id="moneyGrid"></div>
+  <div class="card-base p-5 mt-5" style="--accent:#D4AF37;">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="text-sm font-bold">M2 同比走势 · 12 个月</h3>
+      <span class="text-[10px] text-[#5A5A70] mono">M2 YOY %</span>
+    </div>
+    <div style="height:260px"><canvas id="m2Chart"></canvas></div>
+  </div>
+</section>
+
+<!-- ============ 信用融资 ============ -->
+<section class="max-w-[1500px] mx-auto px-6 mb-8" id="credit">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-lg font-bold flex items-center gap-2"><span class="w-1 h-5 bg-[#FFB300] rounded"></span>信用与融资 · 社融 / 信贷 / 直接融资</h2>
+    <div class="text-[10px] text-[#5A5A70] tracking-wider mono">CREDIT & FINANCING</div>
+  </div>
+  <div class="grid grid-cols-1 xl:grid-cols-3 gap-4" id="creditGrid"></div>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-5">
+    <div class="card-base p-5" style="--accent:#FFB300;">
+      <h3 class="text-sm font-bold mb-3">新增社融结构（中国 · 单月）</h3>
+      <div style="height:260px"><canvas id="creditChart"></canvas></div>
+    </div>
+    <div class="card-base p-5" style="--accent:#FFB300;">
+      <h3 class="text-sm font-bold mb-3">社零增速 · 消费端对比</h3>
+      <div style="height:260px"><canvas id="retailChart"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 财政债务 ============ -->
+<section class="max-w-[1500px] mx-auto px-6 mb-8" id="fiscal">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-lg font-bold flex items-center gap-2"><span class="w-1 h-5 bg-[#E53935] rounded"></span>财政与债务 · 税收 / 土地 / 债务结构</h2>
+    <div class="text-[10px] text-[#5A5A70] tracking-wider mono">FISCAL & DEBT</div>
+  </div>
+  <div class="grid grid-cols-1 xl:grid-cols-3 gap-4" id="fiscalGrid"></div>
+  <div class="card-base p-5 mt-5" style="--accent:#E53935;">
+    <h3 class="text-sm font-bold mb-3">债务结构分解（存量 · 三国）</h3>
+    <div style="height:280px"><canvas id="debtChart"></canvas></div>
+  </div>
+</section>
+
+<!-- ============ 实体银行 ============ -->
+<section class="max-w-[1500px] mx-auto px-6 mb-8" id="entity">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-lg font-bold flex items-center gap-2"><span class="w-1 h-5 bg-[#4FC3F7] rounded"></span>实体经济与银行 · 企业利润 / 社零 / 银行</h2>
+    <div class="text-[10px] text-[#5A5A70] tracking-wider mono">ENTITY & BANKING</div>
+  </div>
+  <div class="grid grid-cols-1 xl:grid-cols-3 gap-4" id="entityGrid"></div>
+  <div class="card-base p-5 mt-5" style="--accent:#4FC3F7;">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="text-sm font-bold">银行净息差 vs 不良率</h3>
+      <span class="text-[10px] text-[#5A5A70] mono">NIM % vs NPL %</span>
+    </div>
+    <div style="height:260px"><canvas id="bankChart"></canvas></div>
+  </div>
+</section>
+
+<!-- ============ 补充维度 ============ -->
+<section class="max-w-[1500px] mx-auto px-6 mb-8" id="extra">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-lg font-bold flex items-center gap-2"><span class="w-1 h-5 bg-[#BA68C8] rounded"></span>补充维度 · 居民 / 跨境 / 利率</h2>
+    <div class="text-[10px] text-[#5A5A70] tracking-wider mono">EXTRA · RESIDENTS × CROSS-BORDER × RATES</div>
+  </div>
+  <div class="grid grid-cols-1 xl:grid-cols-3 gap-4" id="extraGrid"></div>
+</section>
+
+<!-- ============ 四维判断 ============ -->
+<section class="max-w-[1500px] mx-auto px-6 mb-12" id="judge">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-lg font-bold flex items-center gap-2"><span class="w-1 h-5 bg-[#43A047] rounded"></span>四维判断引擎 · 三国资金流</h2>
+    <div class="text-[10px] text-[#5A5A70] tracking-wider mono">YEAR → MONTH → WEEK → DAY</div>
+  </div>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4" id="judgeGrid"></div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="border-t border-[#2A2A3E] mt-8">
+  <div class="bg-[#060D18] py-3 overflow-hidden">
+    <div class="flex ticker-track whitespace-nowrap text-xs">
+      <div class="flex gap-8 px-4 text-[#8A8AA0] mono" id="ticker1"></div>
+      <div class="flex gap-8 px-4 text-[#8A8AA0] mono" id="ticker2"></div>
+    </div>
+  </div>
+  <div class="max-w-[1500px] mx-auto px-6 py-6 flex flex-col md:flex-row items-center justify-between text-[10px] text-[#5A5A70]">
+    <div>© 2026 财情双生智库 · 资金流向监测系统 v1.0</div>
+    <div class="flex gap-4 mt-2 md:mt-0">
+      <span>数据源 · PBOC · 央行 · 财政部 · 统计局 · FED · BOJ</span>
+      <span>·</span>
+      <span class="mono">BUILD 2026.08.05</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ================================================================
+   三国资金流数据模型
+   cn=人民币(万亿) · us=美元(万亿) · jp=日元(万亿)
+================================================================ */
+const FLOW = {
+  cn: {
+    key:'cn', name:'中国', flag:'🇨🇳', color:'#E53935', cur:'万亿人民币',
+    m0:{ val:13.2, yoy:8.0, note:'流通中现金' },
+    m1:{ val:73.1, yoy:1.5, note:'狭义货币 · 活化不足', hist:[76.2,75.8,75.4,75.1,74.8,74.4,74.0,73.6,73.4,73.2,73.2,73.1] },
+    m2:{ val:331.5, yoy:7.5, note:'广义货币 · 温和扩张', hist:[308,311,314,317,319,322,324,326,328,330,331,331.5] },
+    cb:{ name:'央行资产负债表', val:45.2, chg:-0.5, note:'温和缩表 · 回归中性', hist:[46.5,46.2,46.0,45.8,45.6,45.5,45.4,45.3,45.3,45.2,45.2,45.2] },
+    sf:{ name:'社融存量', val:421.0, yoy:8.5, note:'政府债是主要支撑', hist:[388,391,395,398,401,405,408,411,414,417,419,421] },
+    credit:{ note:'新增社融 2.1万亿 · 人民币贷款1.1万亿 · 政府债0.8万亿 · 企业债0.2万亿' },
+    retail:{ name:'社零增速', val:4.1, yoy:4.1, note:'温和回升 · 服务消费强', hist:[3.7,3.8,3.9,3.9,4.0,4.0,4.1,4.1,4.0,4.1,4.1,4.1] },
+    tax:{ name:'一般公共预算收入', val:21.2, yoy:-1.2, note:'税收承压 · 减税降费', hist:[21.5,21.4,21.4,21.3,21.3,21.2,21.2,21.2,21.2,21.2,21.2,21.2] },
+    land:{ name:'土地出让金', val:4.8, yoy:-12.0, note:'地产出清 · 地方财政收缩', hist:[7.2,6.8,6.4,6.0,5.7,5.4,5.2,5.0,4.9,4.9,4.8,4.8] },
+    debt:{ name:'政府+城投债务', val:150.0, yoy:8.0, note:'国债40 + 地方债45 + 城投65', hist:[139,140,142,143,144,146,147,148,149,149,150,150] },
+    debtBreakdown:[{name:'国债',val:40,color:'#E53935'},{name:'地方债',val:45,color:'#FFB300'},{name:'城投债',val:65,color:'#BA68C8'}],
+    soe:{ name:'国企利润', val:4.2, yoy:2.0, note:'央企稳 · 地方国企承压' },
+    pvt:{ name:'规上工业企业利润', val:6.8, yoy:-3.0, note:'民企通缩压力 · 反内卷待效' },
+    bank:{ nim:1.45, npl:1.55, note:'净息差历史低位 · 银行让利实体' },
+    residents:{ name:'居民存款', val:152.0, yoy:11.0, note:'储蓄意愿强 · 消费倾向弱' },
+    fxReserve:{ name:'外汇储备', val:3.42, yoy:2.0, note:'3.4万亿+ · 稳中有升', unit:'万亿美元' },
+    rate:{ name:'政策利率', val:3.10, note:'降息通道 · 7月或再降10bp' },
+    judge:{ note:'资金供给充足但活化不足：M1低迷 + 居民储蓄高企 = 资金淤积于金融体系，未充分流入实体' },
+  },
+  us: {
+    key:'us', name:'美国', flag:'🇺🇸', color:'#4FC3F7', cur:'万亿美元',
+    m0:{ val:2.4, yoy:3.0, note:'流通现金' },
+    m1:{ val:18.2, yoy:1.0, note:'资金活化偏弱', hist:[18.0,18.0,18.1,18.1,18.1,18.2,18.2,18.2,18.2,18.2,18.2,18.2] },
+    m2:{ val:21.8, yoy:3.0, note:'温和扩张 · 量化紧缩后', hist:[21.2,21.2,21.3,21.4,21.4,21.5,21.6,21.6,21.7,21.7,21.8,21.8] },
+    cb:{ name:'美联储资产负债表', val:6.8, chg:-2.0, note:'QT 缩表 · 沃什"降息+缩表"', hist:[7.6,7.4,7.2,7.1,7.0,6.9,6.9,6.8,6.8,6.8,6.8,6.8] },
+    sf:{ name:'信贷总量', val:42.0, yoy:2.5, note:'企业信贷稳 · 消费贷分化' },
+    credit:{ note:'M2 同比 +3% · 银行信贷温和 · 直接融资（债市）活跃' },
+    retail:{ name:'零售销售增速', val:1.8, yoy:2.2, note:'通胀侵蚀实际购买力', hist:[3.5,3.2,3.0,2.8,2.6,2.5,2.4,2.3,2.2,2.2,2.2,2.2] },
+    tax:{ name:'联邦财政收入', val:4.9, yoy:5.0, note:'关税+企业税驱动' },
+    land:{ name:'州地方政府税', val:2.1, yoy:2.0, note:'房地产税稳定' },
+    debt:{ name:'联邦政府债务', val:36.2, yoy:6.5, note:'利息支出已超国防开支', hist:[34.0,34.2,34.5,34.7,34.9,35.2,35.4,35.6,35.8,36.0,36.1,36.2] },
+    debtBreakdown:[{name:'联邦债',val:36.2,color:'#4FC3F7'},{name:'州债',val:1.2,color:'#FFB300'},{name:'公司债',val:10.5,color:'#BA68C8'}],
+    soe:{ name:'标普500企业盈利', val:2.3, yoy:8.0, note:'AI 巨头驱动 · 广度不足' },
+    pvt:{ name:'中小型企业(SBFI)', val:1.1, yoy:2.0, note:'中小企业借贷成本高企' },
+    bank:{ nim:2.80, npl:0.85, note:'净息差相对健康 · 商业地产风险' },
+    residents:{ name:'居民储蓄率', val:4.2, yoy:3.5, note:'储蓄率偏低 · 消费依赖信用' },
+    fxReserve:{ name:'外汇储备', val:0.30, yoy:-1.0, note:'美元本币国 · 储备少', unit:'万亿美元' },
+    rate:{ name:'联邦基金利率', val:3.60, note:'加息预期 · 沃什鹰派', },
+    judge:{ note:'财政扩张强（36万亿债务）但货币传导弱：高利率压制信贷需求，资金更多滞留于货币市场基金' },
+  },
+  jp: {
+    key:'jp', name:'日本', flag:'🇯🇵', color:'#BA68C8', cur:'万亿日元',
+    m0:{ val:118.0, yoy:1.0, note:'流通现金' },
+    m1:{ val:1080.0, yoy:1.8, note:'平稳 · 正常化中', hist:[1060,1063,1066,1069,1072,1074,1076,1078,1079,1080,1080,1080] },
+    m2:{ val:1280.0, yoy:2.5, note:'温和扩张', hist:[1250,1254,1258,1262,1266,1270,1273,1276,1278,1279,1280,1280] },
+    cb:{ name:'日本央行资产负债表', val:639.0, chg:-3.0, note:'收缩 · QQE 退出 · 缩表 JGB', hist:[757,740,720,700,680,665,655,648,643,640,639,639] },
+    sf:{ name:'信贷总量', val:620.0, yoy:2.0, note:'企业融资平稳' },
+    credit:{ note:'日本央行加息 1% · 信贷需求平稳 · 套息交易受冲击' },
+    retail:{ name:'社零增速', val:-0.5, yoy:-0.5, note:'实际购买力受通胀侵蚀', hist:[0.8,0.5,0.2,0.0,-0.2,-0.3,-0.4,-0.4,-0.5,-0.5,-0.5,-0.5] },
+    tax:{ name:'税收收入', val:72.0, yoy:4.0, note:'企业税+消费税驱动', hist:[69,69.5,70,70.5,71,71.2,71.5,71.8,71.8,72,72,72] },
+    land:{ name:'固定资产税', val:9.5, yoy:1.0, note:'稳定' },
+    debt:{ name:'政府债务', val:1400.0, yoy:2.5, note:'GDP 的 240% · 利息负担重', hist:[1360,1368,1375,1382,1388,1392,1395,1397,1398,1399,1400,1400] },
+    debtBreakdown:[{name:'国债',val:1300,color:'#BA68C8'},{name:'地方政府债',val:80,color:'#FFB300'},{name:'借入金',val:20,color:'#4FC3F7'}],
+    soe:{ name:'上市企业利润', val:58.0, yoy:10.0, note:'出口+贬值受益' },
+    pvt:{ name:'中小企业利润', val:22.0, yoy:1.0, note:'成本压力大 · 加薪乏力' },
+    bank:{ nim:0.90, npl:1.20, note:'低息环境 · 净息差压缩' },
+    residents:{ name:'居民金融资产', val:2200.0, yoy:4.0, note:'现金占比高 · 投资信托增加', unit:'万亿日元' },
+    fxReserve:{ name:'外汇储备', val:1.29, yoy:0.0, note:'1.287万亿 · 干预弹药', unit:'万亿美元' },
+    rate:{ name:'政策利率', val:1.00, note:'加息通道 · 9月或升至1.25%' },
+    judge:{ note:'央行扩表结束转向缩表（639万亿），利率正常化推动资金从债市流向股市，但高债务压制财政空间' },
+  },
+};
+const COUNTRIES = ['cn','us','jp'];
+let selected = new Set(COUNTRIES);
+let auto = true;
+const MONTHS = ['8月','9月','10月','11月','12月','1月','2月','3月','4月','5月','6月','7月'];
+const charts = {};
+
+/* =============== 工具 =============== */
+function pad(n){return String(n).padStart(2,'0')}
+function tickNow(){const d=new Date();document.getElementById('now').textContent=`${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`}
+setInterval(tickNow,1000);tickNow();
+function pct(v,s=true){ return (s&&v>0?'+':'')+v.toFixed(1)+'%'; }
+function chgCls(v){ return v>=0?'num-up':'num-down'; }
+function arrow(v){ return v>=0?'▲':'▼'; }
+function fmtVal(v){ return v>=1000 ? v.toLocaleString('en-US') : v; }
+
+/* =============== 复选 =============== */
+function renderSelector(){
+  document.getElementById('countrySelector').innerHTML = COUNTRIES.map(k=>{
+    const c=FLOW[k];
+    return `<label class="country-check" style="--cc:${c.color}">
+      <input type="checkbox" ${selected.has(k)?'checked':''} onchange="toggleCountry('${k}')"/>
+      <span class="ck-box"></span>
+      <span class="ck-label">${c.flag} ${c.name}</span>
+    </label>`;
+  }).join('');
+}
+function toggleCountry(k){ selected.has(k)?selected.delete(k):selected.add(k); renderAll(); }
+
+/* =============== 资金总览 =============== */
+function renderFlowOverview(){
+  document.getElementById('flowOverview').innerHTML = COUNTRIES.filter(k=>selected.has(k)).map(k=>{
+    const c=FLOW[k];
+    // 剪刀差
+    const scissor = c.m1.yoy - c.m2.yoy;
+    const scissorNote = scissor < -3 ? '资金淤积 · 活化不足' : scissor < 0 ? '偏淤积' : '活化改善';
+    return `
+    <div class="card-base p-5 fade-up" style="--accent:${c.color}">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2"><span class="text-2xl">${c.flag}</span><span class="font-bold">${c.name} · 资金流</span></div>
+        <span class="text-[10px] text-[#5A5A70] mono">${c.cur}</span>
+      </div>
+      <div class="space-y-2 text-xs">
+        <div class="flow-row">
+          <span class="text-[#8A8AA0] w-24 flex-shrink-0">供给端</span>
+          <span class="flex-1">M2 <span class="mono text-[#E8E8F0] font-bold">${fmtVal(c.m2.val)}</span> <span class="${chgCls(c.m2.yoy)}">${pct(c.m2.yoy)}</span></span>
+          <span class="trend-tag ${c.m2.yoy>=6?'text-[#43A047]':'text-[#FFB300]'}" style="background:rgba(255,255,255,.03)">${c.m2.yoy>=6?'宽松':'平稳'}</span>
+        </div>
+        <div class="flow-row">
+          <span class="text-[#8A8AA0] w-24 flex-shrink-0">传导端</span>
+          <span class="flex-1">M1-M2 剪刀差 <span class="mono ${chgCls(scissor)} font-bold">${scissor>0?'+':''}${scissor.toFixed(1)}pp</span></span>
+          <span class="trend-tag ${scissor<-3?'text-[#FFB300]':'text-[#43A047]'}" style="background:rgba(255,255,255,.03)">${scissorNote}</span>
+        </div>
+        <div class="flow-row">
+          <span class="text-[#8A8AA0] w-24 flex-shrink-0">实体端</span>
+          <span class="flex-1">社零 <span class="mono ${chgCls(c.retail.yoy)} font-bold">${pct(c.retail.yoy)}</span></span>
+          <span class="trend-tag ${c.retail.yoy>=2?'text-[#43A047]':'text-[#FFB300]'}" style="background:rgba(255,255,255,.03)">${c.retail.yoy>=2?'消费回暖':'消费偏弱'}</span>
+        </div>
+        <div class="flow-row">
+          <span class="text-[#8A8AA0] w-24 flex-shrink-0">风险端</span>
+          <span class="flex-1">债务 <span class="mono text-[#E8E8F0] font-bold">${fmtVal(c.debt.val)}</span> <span class="${chgCls(c.debt.yoy)}">${pct(c.debt.yoy)}</span></span>
+          <span class="trend-tag ${c.debt.yoy>=5?'text-[#E53935]':'text-[#FFB300]'}" style="background:rgba(255,255,255,.03)">${c.debt.yoy>=5?'扩张':'温和'}</span>
+        </div>
+      </div>
+      <div class="mt-3 pt-3 border-t border-[#2A2A3E] text-[10px] text-[#8A8AA0] leading-relaxed">
+        <span class="text-[#D4AF37] font-semibold">资金链诊断：</span>${c.judge.note}
+      </div>
+    </div>`;
+  }).join('') || '<div class="col-span-full text-center py-10 text-[#5A5A70]">请勾选至少一个国家</div>';
+}
+
+/* =============== 货币供应 =============== */
+function moneyCard(c){
+  const scissor = c.m1.yoy - c.m2.yoy;
+  return `
+  <div class="card-base p-5" style="--accent:${c.color}">
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center gap-2"><span class="text-xl">${c.flag}</span><span class="font-bold text-sm">${c.name} · 货币供应</span></div>
+      <span class="text-[10px] text-[#5A5A70] mono">${c.cur}</span>
+    </div>
+    <div class="grid grid-cols-3 gap-2 mb-3">
+      <div class="p-2 rounded-lg bg-[rgba(255,255,255,.03)] text-center">
+        <div class="text-[9px] text-[#5A5A70]">M0</div>
+        <div class="mono text-sm font-bold">${fmtVal(c.m0.val)}</div>
+        <div class="text-[9px] ${chgCls(c.m0.yoy)}">${pct(c.m0.yoy)}</div>
+      </div>
+      <div class="p-2 rounded-lg bg-[rgba(255,255,255,.03)] text-center">
+        <div class="text-[9px] text-[#5A5A70]">M1</div>
+        <div class="mono text-sm font-bold">${fmtVal(c.m1.val)}</div>
+        <div class="text-[9px] ${chgCls(c.m1.yoy)}">${pct(c.m1.yoy)}</div>
+      </div>
+      <div class="p-2 rounded-lg bg-[rgba(255,255,255,.03)] text-center">
+        <div class="text-[9px] text-[#5A5A70]">M2</div>
+        <div class="mono text-sm font-bold">${fmtVal(c.m2.val)}</div>
+        <div class="text-[9px] ${chgCls(c.m2.yoy)}">${pct(c.m2.yoy)}</div>
+      </div>
+    </div>
+    <div class="space-y-2 text-xs">
+      <div class="flex justify-between items-center">
+        <span class="text-[#8A8AA0]">M1-M2 剪刀差</span>
+        <span class="mono ${chgCls(scissor)} font-bold">${scissor>0?'+':''}${scissor.toFixed(1)}pp <span class="text-[9px]">${scissor<-3?'⚠ 淤积':scissor<0?'偏淤积':'活化改善'}</span></span>
+      </div>
+      <div class="flex justify-between items-center">
+        <span class="text-[#8A8AA0]">${c.cb.name}</span>
+        <span class="mono text-[#E8E8F0] font-bold">${fmtVal(c.cb.val)} <span class="${chgCls(c.cb.chg)} text-[9px]">${arrow(c.cb.chg)} ${Math.abs(c.cb.chg)}%</span></span>
+      </div>
+    </div>
+    <div class="mt-2 text-[10px] text-[#5A5A70]">${c.cb.note}</div>
+  </div>`;
+}
+function renderMoney(){ document.getElementById('moneyGrid').innerHTML = COUNTRIES.filter(k=>selected.has(k)).map(k=>moneyCard(FLOW[k])).join(''); }
+
+/* =============== 信用融资 =============== */
+function creditCard(c){
+  return `
+  <div class="card-base p-5" style="--accent:#FFB300;">
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center gap-2"><span class="text-xl">${c.flag}</span><span class="font-bold text-sm">${c.name} · 信用融资</span></div>
+    </div>
+    <div class="space-y-3 text-xs">
+      <div>
+        <div class="flex justify-between mb-1"><span class="text-[#8A8AA0]">${c.sf.name}</span><span class="mono text-[#E8E8F0] font-bold">${fmtVal(c.sf.val)} <span class="${chgCls(c.sf.yoy)}">${pct(c.sf.yoy)}</span></span></div>
+        <div class="bar"><div class="bar-fill" style="width:${Math.min(c.sf.yoy*10,90)}%; background:linear-gradient(90deg,#43A047,#FFB300)"></div></div>
+      </div>
+      <div class="flex justify-between items-center">
+        <span class="text-[#8A8AA0]">社零增速</span>
+        <span class="mono ${chgCls(c.retail.yoy)} font-bold">${pct(c.retail.yoy)}</span>
+      </div>
+      <div class="flex justify-between items-center">
+        <span class="text-[#8A8AA0]">居民储蓄（沉淀）</span>
+        <span class="mono ${chgCls(c.residents.yoy)} font-bold">${fmtVal(c.residents.val)} <span class="text-[9px]">${pct(c.residents.yoy)}</span></span>
+      </div>
+      <div class="p-2.5 rounded-lg bg-[rgba(255,179,0,.05)] border border-[rgba(255,179,0,.2)] text-[10px] text-[#8A8AA0] leading-relaxed">
+        ${c.credit.note}
+      </div>
+    </div>
+  </div>`;
+}
+function renderCredit(){ document.getElementById('creditGrid').innerHTML = COUNTRIES.filter(k=>selected.has(k)).map(k=>creditCard(FLOW[k])).join(''); }
+
+/* =============== 财政债务 =============== */
+function fiscalCard(c){
+  return `
+  <div class="card-base p-5" style="--accent:#E53935;">
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center gap-2"><span class="text-xl">${c.flag}</span><span class="font-bold text-sm">${c.name} · 财政债务</span></div>
+    </div>
+    <div class="space-y-2 text-xs">
+      <div class="flex justify-between items-center">
+        <span class="text-[#8A8AA0]">${c.tax.name}</span>
+        <span class="mono ${chgCls(c.tax.yoy)} font-bold">${fmtVal(c.tax.val)} ${pct(c.tax.yoy)}</span>
+      </div>
+      <div class="flex justify-between items-center">
+        <span class="text-[#8A8AA0]">${c.land.name}</span>
+        <span class="mono ${chgCls(c.land.yoy)} font-bold">${fmtVal(c.land.val)} ${pct(c.land.yoy)}</span>
+      </div>
+      <div class="pt-2 border-t border-[#2A2A3E]">
+        <div class="flex justify-between items-center mb-1">
+          <span class="text-[#8A8AA0]">${c.debt.name}</span>
+          <span class="mono text-[#E53935] font-bold">${fmtVal(c.debt.val)} ${pct(c.debt.yoy)}</span>
+        </div>
+        <div class="flex gap-1 h-3 rounded overflow-hidden">
+          ${c.debtBreakdown.map(d=>`<div style="flex:${d.val};background:${d.color}" title="${d.name} ${d.val}"></div>`).join('')}
+        </div>
+        <div class="flex gap-3 mt-1.5">
+          ${c.debtBreakdown.map(d=>`<span class="text-[9px] text-[#8A8AA0]"><span class="inline-block w-1.5 h-1.5 rounded-sm mr-1" style="background:${d.color}"></span>${d.name} <span class="mono">${d.val}</span></span>`).join('')}
+        </div>
+      </div>
+      <div class="text-[10px] text-[#5A5A70]">${c.rate.note}</div>
+    </div>
+  </div>`;
+}
+function renderFiscal(){ document.getElementById('fiscalGrid').innerHTML = COUNTRIES.filter(k=>selected.has(k)).map(k=>fiscalCard(FLOW[k])).join(''); }
+
+/* =============== 实体银行 =============== */
+function entityCard(c){
+  const pvtCls = c.pvt.yoy>=0?'num-up':'num-down';
+  return `
+  <div class="card-base p-5" style="--accent:#4FC3F7;">
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center gap-2"><span class="text-xl">${c.flag}</span><span class="font-bold text-sm">${c.name} · 实体与银行</span></div>
+    </div>
+    <div class="space-y-2 text-xs">
+      <div class="flow-row">
+        <span class="text-[#E53935] font-bold w-14 flex-shrink-0">国企/公营</span>
+        <span class="flex-1 text-[#8A8AA0]">${c.soe.name}</span>
+        <span class="mono ${chgCls(c.soe.yoy)} font-bold">${fmtVal(c.soe.val)} ${pct(c.soe.yoy)}</span>
+      </div>
+      <div class="flow-row">
+        <span class="text-[#43A047] font-bold w-14 flex-shrink-0">民企/中小</span>
+        <span class="flex-1 text-[#8A8AA0]">${c.pvt.name}</span>
+        <span class="mono ${pvtCls} font-bold">${fmtVal(c.pvt.val)} ${pct(c.pvt.yoy)}</span>
+      </div>
+      <div class="grid grid-cols-2 gap-2 pt-2">
+        <div class="p-2.5 rounded-lg bg-[rgba(255,255,255,.03)]">
+          <div class="text-[9px] text-[#5A5A70]">银行净息差</div>
+          <div class="mono text-lg font-black ${c.bank.nim>=2?'text-[#43A047]':c.bank.nim>=1?'text-[#FFB300]':'num-down'}">${c.bank.nim}%</div>
+          <div class="bar mt-1"><div class="bar-fill" style="width:${c.bank.nim/4*100}%; background:${c.bank.nim>=2?'#43A047':c.bank.nim>=1?'#FFB300':'#E53935'}"></div></div>
+        </div>
+        <div class="p-2.5 rounded-lg bg-[rgba(255,255,255,.03)]">
+          <div class="text-[9px] text-[#5A5A70]">不良贷款率</div>
+          <div class="mono text-lg font-black ${c.bank.npl>=2?'num-down':c.bank.npl>=1.2?'text-[#FFB300]':'text-[#43A047]'}">${c.bank.npl}%</div>
+          <div class="bar mt-1"><div class="bar-fill" style="width:${c.bank.npl/4*100}%; background:${c.bank.npl>=2?'#E53935':c.bank.npl>=1.2?'#FFB300':'#43A047'}"></div></div>
+        </div>
+      </div>
+      <div class="text-[10px] text-[#5A5A70]">${c.bank.note}</div>
+    </div>
+  </div>`;
+}
+function renderEntity(){ document.getElementById('entityGrid').innerHTML = COUNTRIES.filter(k=>selected.has(k)).map(k=>entityCard(FLOW[k])).join(''); }
+
+/* =============== 补充维度 =============== */
+function renderExtra(){
+  document.getElementById('extraGrid').innerHTML = COUNTRIES.filter(k=>selected.has(k)).map(k=>{
+    const c=FLOW[k];
+    const items = [
+      ['🏠 居民存款/储蓄', c.residents.name, fmtVal(c.residents.val)+(c.residents.unit?' '+c.residents.unit:''), c.residents.yoy, c.residents.note],
+      ['🌐 外汇储备', c.fxReserve.name, fmtVal(c.fxReserve.val)+(c.fxReserve.unit?' '+c.fxReserve.unit:''), c.fxReserve.yoy, c.fxReserve.note],
+    ];
+    return `
+    <div class="card-base p-5" style="--accent:#BA68C8;">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2"><span class="text-xl">${c.flag}</span><span class="font-bold text-sm">${c.name} · 补充维度</span></div>
+      </div>
+      <div class="space-y-2 text-xs">
+        ${items.map(it=>`
+        <div class="flow-row">
+          <span class="text-[#8A8AA0] w-6">${it[0].split(' ')[0]}</span>
+          <span class="flex-1">
+            <span class="block text-[10px] text-[#5A5A70]">${it[1]}</span>
+            <span class="mono text-[#E8E8F0] font-bold">${it[2]}</span>
+            <span class="${chgCls(it[3])} text-[9px] ml-1">${pct(it[3])}</span>
+          </span>
+        </div>`).join('')}
+        <div class="p-2.5 rounded-lg bg-[rgba(186,104,200,.05)] border border-[rgba(186,104,200,.2)]">
+          <div class="text-[10px] text-[#BA68C8] font-semibold mb-1">💱 利率走廊</div>
+          <div class="text-[10px] text-[#8A8AA0] leading-relaxed">${c.rate.note} · 当前 ${c.rate.val}%</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('') || '<div class="col-span-full text-center py-10 text-[#5A5A70]">请勾选至少一个国家</div>';
+}
+
+/* =============== 四维判断 =============== */
+function judge4(c){
+  const signs = {
+    cn: { y:'🟢', m:'🟡', w:'🟡', d:'🟡',
+      yNote:'M2 +7.5% 宽松 · 财政发力', mNote:'社融回升 · 政府债支撑', wNote:'降息预期 · 资金面平稳', dNote:'流动性充裕 · 待活化' },
+    us: { y:'🟡', m:'🔴', w:'🔴', d:'🟡',
+      yNote:'财政扩张 · 债务新高', mNote:'加息预期 · 信贷收缩', wNote:'QT 缩表 · 流动性收紧', dNote:'货币基金资金充裕' },
+    jp: { y:'🔴', m:'🟡', w:'🟡', d:'🟡',
+      yNote:'缩表 + 加息 · 正常化', mNote:'资金流出债市入股市', wNote:'BOJ 9月会议观望', dNote:'套息交易扰动' },
+  }[c.key];
+  const label = { y:'年度', m:'月度', w:'周度', d:'日内' };
+  const color = { '🟢':'#43A047', '🟡':'#FFB300', '🔴':'#E53935' };
+  return `
+  <div class="card-base p-5" style="--accent:${c.color}">
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center gap-2"><span class="text-xl">${c.flag}</span><span class="font-bold">${c.name} · 资金流向判断</span></div>
+    </div>
+    <div class="grid grid-cols-4 gap-2 mb-3">
+      ${Object.keys(signs).filter(k=>k!=='yNote'&&k!=='mNote'&&k!=='wNote'&&k!=='dNote').map(k=>`
+        <div class="win-4"><span class="w-label">${label[k]}</span><span class="text-xl mt-1">${signs[k]}</span></div>`).join('')}
+    </div>
+    <div class="space-y-1.5 text-[10px] text-[#8A8AA0]">
+      ${['y','m','w','d'].map(k=>`<div class="flex items-start gap-1.5"><span>${signs[k]}</span><span>${signs[k+'Note']}</span></div>`).join('')}
+    </div>
+    <div class="mt-3 pt-3 border-t border-[#2A2A3E] text-[10px] text-[#8A8AA0] leading-relaxed">${c.judge.note}</div>
+  </div>`;
+}
+function renderJudge(){ document.getElementById('judgeGrid').innerHTML = COUNTRIES.filter(k=>selected.has(k)).map(k=>judge4(FLOW[k])).join(''); }
+
+/* =============== Charts =============== */
+function mkChart(id,cfg){ if(charts[id]) charts[id].destroy(); charts[id]=new Chart(document.getElementById(id),cfg); }
+function renderCharts(){
+  const list=COUNTRIES.filter(k=>selected.has(k));
+  const months=MONTHS;
+  // M2 走势
+  mkChart('m2Chart',{ type:'line',
+    data:{ labels:months, datasets:list.map(k=>({ label:FLOW[k].flag+' '+FLOW[k].name+' M2', data:FLOW[k].m2.hist,
+      borderColor:FLOW[k].color, borderWidth:2.5, tension:.3, pointRadius:0, pointHoverRadius:4, fill:false })) },
+    options:{ responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false},
+      plugins:{ legend:{position:'top',labels:{color:'#8A8AA0',font:{size:10},boxWidth:12,boxHeight:4}},
+        tooltip:{backgroundColor:'rgba(13,13,15,.95)',borderColor:'#D4AF37',borderWidth:1,titleColor:'#D4AF37',bodyColor:'#E8E8F0',padding:10} },
+      scales:{ x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#8A8AA0',font:{size:10}}},
+        y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#8A8AA0',font:{size:10}}} } } });
+  // 社融结构（中国）
+  mkChart('creditChart',{ type:'bar',
+    data:{ labels:['人民币贷款','政府债券','企业债券','表外融资','其他'], datasets:[{ data:[1.1,0.8,0.2,0.1,0.3],
+      backgroundColor:['#E53935','#FFB300','#BA68C8','#4FC3F7','#8A8AA0'], borderRadius:6, maxBarThickness:40 }] },
+    options:{ responsive:true, maintainAspectRatio:false, indexAxis:'y',
+      plugins:{ legend:{display:false}, tooltip:{backgroundColor:'rgba(13,13,15,.95)',borderColor:'#D4AF37',borderWidth:1,bodyColor:'#E8E8F0',padding:10,callbacks:{label:c=>' '+c.parsed.x+' 万亿'}} },
+      scales:{ x:{grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#8A8AA0',font:{size:10}}}, y:{grid:{display:false},ticks:{color:'#E8E8F0',font:{size:11}}} } } });
+  // 社零
+  mkChart('retailChart',{ type:'bar',
+    data:{ labels:list.map(k=>FLOW[k].flag+FLOW[k].name), datasets:[{ data:list.map(k=>FLOW[k].retail.yoy),
+      backgroundColor:list.map(k=>FLOW[k].retail.yoy>=0?FLOW[k].color+'CC':FLOW[k].color+'66'), borderColor:list.map(k=>FLOW[k].color), borderWidth:1, borderRadius:6, maxBarThickness:50 }] },
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{backgroundColor:'rgba(13,13,15,.95)',borderColor:'#D4AF37',borderWidth:1,bodyColor:'#E8E8F0',padding:10,callbacks:{label:c=>' 社零 YoY: '+c.parsed.y+'%'}} },
+      scales:{ y:{grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#8A8AA0',font:{size:10},callback:v=>v+'%'}}, x:{grid:{display:false},ticks:{color:'#E8E8F0',font:{size:11}}} } } });
+  // 债务
+  const debtLabels=['国债','地方债','城投债'];
+  mkChart('debtChart',{ type:'bar',
+    data:{ labels:list.map(k=>FLOW[k].flag+FLOW[k].name),
+      datasets:[{ label:'国债', data:list.map(k=>FLOW[k].debtBreakdown[0].val), backgroundColor:'#E53935', borderRadius:4, stack:'s', maxBarThickness:50 },
+        { label:'地方债', data:list.map(k=>FLOW[k].debtBreakdown[1]?.val||0), backgroundColor:'#FFB300', borderRadius:4, stack:'s' },
+        { label:'城投/其他', data:list.map(k=>FLOW[k].debtBreakdown[2]?.val||0), backgroundColor:'#BA68C8', borderRadius:4, stack:'s' }] },
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{position:'top',labels:{color:'#8A8AA0',font:{size:10},boxWidth:12,boxHeight:4}},
+        tooltip:{backgroundColor:'rgba(13,13,15,.95)',borderColor:'#D4AF37',borderWidth:1,titleColor:'#D4AF37',bodyColor:'#E8E8F0',padding:10} },
+      scales:{ x:{grid:{display:false},ticks:{color:'#E8E8F0',font:{size:11}}}, y:{grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#8A8AA0',font:{size:10}}} } } });
+  // 银行
+  mkChart('bankChart',{ type:'bar',
+    data:{ labels:list.map(k=>FLOW[k].flag+FLOW[k].name),
+      datasets:[{ label:'净息差 %', data:list.map(k=>FLOW[k].bank.nim), backgroundColor:'#4FC3F7', borderRadius:6, maxBarThickness:36, yAxisID:'y' },
+        { label:'不良率 %', data:list.map(k=>FLOW[k].bank.npl), backgroundColor:'#E53935', borderRadius:6, maxBarThickness:36, yAxisID:'y' }] },
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{position:'top',labels:{color:'#8A8AA0',font:{size:10},boxWidth:12,boxHeight:4}},
+        tooltip:{backgroundColor:'rgba(13,13,15,.95)',borderColor:'#D4AF37',borderWidth:1,titleColor:'#D4AF37',bodyColor:'#E8E8F0',padding:10} },
+      scales:{ x:{grid:{display:false},ticks:{color:'#E8E8F0',font:{size:11}}}, y:{grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#8A8AA0',font:{size:10},callback:v=>v+'%'},beginAtZero:true} } } });
+}
+
+/* =============== Ticker =============== */
+function renderTicker(){
+  const items=[
+    ['中国M2','331.5万亿','+7.5%',1],['中国社融','421万亿','+8.5%',1],['M1-M2剪刀差','-6.0pp','⚠',-1],
+    ['美国债务','36.2万亿','+6.5%',-1],['美联储缩表','6.8万亿','-2.0%',-1],['美净息差','2.80%','',1],
+    ['日本央表','639万亿','-3.0%',-1],['日本利率','1.00%','+25bp',1],['日债务/GDP','240%','⚠',-1],
+    ['中国土地出让','4.8万亿','-12%',-1],['中国不良率','1.55%','',1],['外汇储备CN','3.42万亿','+2%',1],
+  ];
+  const html=items.map(i=>`<span><span class="text-[#D4AF37]">${i[0]}</span> ${i[1]} <span class="${i[3]>0?'text-[#E53935]':'text-[#43A047]'}">${i[2]}</span></span>`).join('');
+  document.getElementById('ticker1').innerHTML=html;
+  document.getElementById('ticker2').innerHTML=html;
+}
+
+/* =============== 调度 =============== */
+function renderAll(){
+  renderSelector();
+  renderFlowOverview();
+  renderMoney();
+  renderCredit();
+  renderFiscal();
+  renderEntity();
+  renderExtra();
+  renderJudge();
+  renderCharts();
+  renderTicker();
+}
+function refreshAll(){ renderFlowOverview(); renderMoney(); renderCredit(); renderFiscal(); renderEntity(); renderExtra(); renderJudge(); renderCharts(); }
+function toggleAuto(){ auto=!auto; document.getElementById('autoBtn').textContent = auto?'⏸ 暂停自动':'▶ 启动自动'; }
+setInterval(()=>{ if(auto) refreshAll(); }, 10000);
+
+renderAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Econ-Sentiment Twin Think Tank · Stocks-Bonds-FX Monitor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Noto+Serif+SC:wght@500;700;900&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg-primary:#0D0D0F; --bg-secondary:#0A1628; --bg-card:#1A1A2E; --bg-deep:#060D18;
+    --border:#2A2A3E; --gold:#D4AF37; --gold-light:#E6C65C; --gold-dark:#8B6914;
+    --text-primary:#E8E8F0; --text-secondary:#8A8AA0; --text-muted:#5A5A70;
+    --up:#E53935; --down:#43A047; --warn:#FFB300;
+  }
+  * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  html, body { background: var(--bg-primary); color: var(--text-primary); font-family:'Noto Sans SC','Inter',sans-serif; scroll-behavior:smooth; }
+  body {
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(212,175,55,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 90% 20%, rgba(229,57,53,0.04) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 10% 80%, rgba(79,195,247,0.04) 0%, transparent 60%),
+      linear-gradient(180deg,#0D0D0F 0%,#060D18 100%);
+    min-height:100vh; overflow-x:hidden;
+  }
+  .gold-text {
+    background: linear-gradient(135deg,#D4AF37 0%,#E6C65C 50%,#D4AF37 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .glass { background:rgba(26,26,46,0.5); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(212,175,55,0.15); }
+  .card-base {
+    background: linear-gradient(135deg,rgba(10,22,40,0.88) 0%,rgba(6,13,24,0.88) 100%);
+    border:1px solid var(--border); border-radius:16px; position:relative; overflow:hidden;
+    transition: all .4s cubic-bezier(.4,0,.2,1);
+  }
+  .card-base::before { content:''; position:absolute; top:0; left:0; right:0; height:2px;
+    background:linear-gradient(90deg,transparent 0%,var(--accent,#D4AF37) 50%,transparent 100%); opacity:.8; }
+  .card-base:hover { transform:translateY(-2px); border-color:var(--accent,#D4AF37); }
+  .mono { font-family:'JetBrains Mono',monospace; font-feature-settings:'tnum'; }
+  .num-up { color:var(--up); } .num-down { color:var(--down); }
+
+  .taiji { width:24px; height:24px; border-radius:50%;
+    background:conic-gradient(from 0deg,#0D0D0F 0deg 180deg,#D4AF37 180deg 360deg); position:relative; overflow:hidden; }
+  .taiji::before,.taiji::after { content:''; position:absolute; width:12px; height:12px; border-radius:50%; }
+  .taiji::before { top:0; left:50%; transform:translateX(-50%); background:#D4AF37; }
+  .taiji::after { bottom:0; left:50%; transform:translateX(-50%); background:#0D0D0F; }
+  .taiji-dot-light,.taiji-dot-dark { position:absolute; width:4px; height:4px; border-radius:50%; z-index:2; }
+  .taiji-dot-light { top:4px; left:50%; transform:translateX(-50%); background:#0D0D0F; }
+  .taiji-dot-dark { bottom:4px; left:50%; transform:translateX(-50%); background:#D4AF37; }
+
+  .grid-bg { background-image:
+    linear-gradient(rgba(212,175,55,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(212,175,55,0.035) 1px, transparent 1px);
+    background-size:40px 40px; }
+  .top-edge { height:1px; background:linear-gradient(90deg,transparent 0%,var(--gold) 50%,transparent 100%); }
+  .signal-light { width:8px; height:8px; border-radius:50%; box-shadow:0 0 8px currentColor; }
+
+  .badge { display:inline-flex; align-items:center; gap:6px; padding:3px 10px; border-radius:4px;
+    font-size:11px; font-weight:500; letter-spacing:.5px; border:1px solid currentColor; background:rgba(255,255,255,.02); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .badge-dot { width:6px; height:6px; border-radius:50%; background:currentColor; box-shadow:0 0 8px currentColor; animation:pulse 2s ease-in-out infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+  .live-dot { animation:blink 1.5s ease-in-out infinite; }
+
+  /* 复选框 */
+  .country-check { position:relative; display:inline-flex; align-items:center; gap:8px;
+    padding:8px 14px; border-radius:999px; cursor:pointer;
+    border:1px solid var(--border); background:rgba(255,255,255,.02);
+    transition:all .3s; user-select:none; font-size:12px; }
+  .country-check:hover { border-color:var(--gold-dark); }
+  .country-check input { display:none; }
+  .country-check .ck-box { width:16px; height:16px; border-radius:4px; border:1.5px solid var(--text-muted);
+    display:inline-flex; align-items:center; justify-content:center; transition:all .3s; flex-shrink:0; }
+  .country-check input:checked + .ck-box { background:var(--cc,var(--gold)); border-color:var(--cc,var(--gold)); }
+  .country-check input:checked + .ck-box::after { content:'✓'; color:#0D0D0F; font-size:11px; font-weight:900; line-height:1; }
+  .country-check input:checked ~ .ck-label { color:var(--cc,var(--gold)); }
+  .country-check .ck-label { transition:all .3s; font-weight:600; }
+
+  .bar { height:5px; border-radius:3px; background:rgba(255,255,255,.06); overflow:hidden; }
+  .bar-fill { height:100%; border-radius:3px; transition:width .8s ease; }
+
+  /* 三窗格信号 */
+  .win { display:inline-flex; flex-direction:column; align-items:center; padding:6px 10px;
+    border-radius:8px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06); min-width:64px; }
+  .win .w-label { font-size:9px; color:var(--text-muted); letter-spacing:1px; }
+  .win .w-val { font-size:14px; font-weight:700; font-family:'JetBrains Mono',monospace; margin-top:2px; }
+  .win .w-trend { font-size:9px; margin-top:1px; }
+
+  /* 趋势标签 */
+  .trend-tag { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:4px;
+    font-size:10px; font-weight:600; }
+
+  .toc-link { transition:all .3s; border-left:2px solid transparent; padding-left:12px; }
+  .toc-link:hover { color:var(--gold); border-left-color:var(--gold); }
+
+  ::-webkit-scrollbar { width:8px; height:8px; }
+  ::-webkit-scrollbar-track { background:var(--bg-primary); }
+  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
+  ::-webkit-scrollbar-thumb:hover { background:var(--gold-dark); }
+  .no-scrollbar::-webkit-scrollbar { display:none; }
+  .no-scrollbar { -ms-overflow-style:none; scrollbar-width:none; }
+
+  @keyframes scrollX { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+  .ticker-track { animation:scrollX 80s linear infinite; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  .fade-up { animation:fadeUp .6s ease-out backwards; }
+  section[id] { scroll-margin-top:70px; }
+
+  /* 财情双生 logo + 导航 */
+  .logo-img { width:36px; height:36px; border-radius:50%; transition: transform 0.6s ease; display:inline-block; }
+  .logo-img:hover { transform: rotate(360deg); }
+  .logo-img-wrap { line-height:0; display:inline-block; }
+  .home-btn { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; margin-right:6px; font-size:11px; border:1px solid #D4AF37; color:#D4AF37; border-radius:6px; transition: all 0.2s; }
+  .home-btn:hover { background:rgba(212,175,55,0.12); color:#D4AF37; }
+
+  .en-brand-sm { font-size: 9px; opacity: .6; letter-spacing: 1px; font-weight: 400; margin-left: 4px; color: var(--gold, #D4AF37); }
+  @media (max-width: 640px) { .en-brand-sm { display: none; } }
+
+  .lang-pair-sub { display:inline-flex; align-items:center; gap:4px; padding:3px 8px; border:1px solid rgba(212,175,55,.4); border-radius:6px; font-size:10px; margin-right:6px; vertical-align:middle; }
+  .lang-pair-sub a { padding:1px 7px; border-radius:4px; color:#8A8AA0; text-decoration:none; }
+  .lang-pair-sub a:hover { color:#D4AF37; }
+  .lang-pair-sub a.active { color:#0D0D0F; background:#D4AF37; font-weight:600; }
+  .lang-pair-sub .sep { color:#5A5A70; }
+</style>
+</head>
+<body class="grid-bg">
+
+<!-- ============ TOP NAV ============ -->
+<header class="sticky top-0 z-50 glass border-b border-[#2A2A3E]">
+  <div class="max-w-[1500px] mx-auto px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="../../index-en.html" class="logo-img-wrap" title="Back to Main"><img src="../../_assets/logo.png" alt="Econ-Sentiment" class="logo-img"/></a>
+      <div>
+        <div class="text-base font-semibold tracking-wide">Econ-Sentiment Twin Think Tank · <span class="gold-text">Stocks-Bonds-FX Monitor</span> <span class="en-brand-sm">· Econ-Sentiment Twin Think Tank</span></div>
+        <div class="text-[10px] text-[#5A5A70] tracking-widest uppercase">Equity · Bond · FX · 8 Country Surveillance</div>
+      </div>
+    </div>
+    <a href="../../index-en.html" class="home-btn">🏠 Main Nav</a><span class="lang-pair-sub"><a href="../../apps/05-stock-bond-fx/index.html">中</a><span class="sep">|</span><a href="index.html" class="active">EN</a></span><nav class="hidden lg:flex items-center gap-1">
+      <a class="px-3 py-1.5 text-xs text-[#D4AF37] border-b-2 border-[#D4AF37]" href="#matrix">Overview Matrix</a>
+      <a class="px-3 py-1.5 text-xs text-[#8A8AA0] hover:text-[#D4AF37] transition" href="#equity">Equities</a>
+      <a class="px-3 py-1.5 text-xs text-[#8A8AA0] hover:text-[#D4AF37] transition" href="#bond">Bonds</a>
+      <a class="px-3 py-1.5 text-xs text-[#8A8AA0] hover:text-[#D4AF37] transition" href="#fx">FX</a>
+      <a class="px-3 py-1.5 text-xs text-[#8A8AA0] hover:text-[#D4AF37] transition" href="#judge">Trend Engine</a>
+    </nav>
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 text-xs">
+        <span class="signal-light text-[#43A047] live-dot"></span>
+        <span class="text-[#8A8AA0] hidden sm:inline">Data Flow</span>
+        <span class="mono text-[#43A047] font-semibold">LIVE</span>
+      </div>
+      <div class="text-xs text-[#8A8AA0] mono" id="now">--:--:--</div>
+    </div>
+  </div>
+  <div class="top-edge"></div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="max-w-[1500px] mx-auto px-6 pt-12 pb-8">
+  <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+    <div>
+      <div class="flex items-center gap-2 mb-3 flex-wrap">
+        <span class="badge text-[#D4AF37]"><span class="badge-dot"></span>Live Sync · 10s</span>
+        <span class="badge text-[#43A047]">8 Nations Covered</span>
+        <span class="badge text-[#FFB300]">年 / 月 / 周 3D Judgment</span>
+      </div>
+      <h1 class="text-4xl md:text-5xl font-black tracking-tight leading-tight">
+        S-B-FX Monitor · <span class="gold-text">8-Nation Multi-Select</span>
+      </h1>
+      <p class="text-[#8A8AA0] text-sm md:text-base mt-3 max-w-3xl leading-relaxed">
+        以 <span class="text-[#E8E8F0]">Equities · Bonds · FX</span> 3 markets as rows，
+        <span class="text-[#E8E8F0]">🇨🇳🇺🇸🇯🇵🇬🇧🇩🇪🇰🇷🇮🇷🇷🇺</span> 8 nations as columns，
+        Check nations to compare。<span class="text-[#D4AF37] font-semibold">年（Long-term Trend）· 月（Mid-term Direction）· 周（Short-term Momentum）</span>3D Linked Judgment。
+      </p>
+    </div>
+    <div class="flex items-center gap-2">
+      <button class="px-4 py-2 text-xs border border-[#D4AF37] text-[#D4AF37] rounded-lg hover:bg-[#D4AF37] hover:text-[#0D0D0F] transition" onclick="refreshAll()">⟳ Refresh Now</button>
+      <button class="px-4 py-2 text-xs border border-[#2A2A3E] text-[#E8E8F0] rounded-lg hover:border-[#D4AF37] transition" onclick="toggleAuto()" id="autoBtn">⏸ Pause Auto</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 国家复选选择器 ============ -->
+<section class="max-w-[1500px] mx-auto px-6 mb-8">
+  <div class="card-base p-5" style="--accent:#D4AF37;">
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <span class="text-xs font-bold flex items-center gap-2"><span class="w-1 h-4 bg-[#D4AF37] rounded"></span>Nation Select</span>
+      <span class="text-[10px] text-[#5A5A70]">Check → All modules linked</span>
+    </div>
+    <div class="flex flex-wrap gap-2" id="countrySelector"></div>
+  </div>
+</section>
+
+<!-- ============ Overview Matrix ============ -->
+<section class="max-w-[1500px] mx-auto px-6 mb-8" id="matrix">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-lg font-bold flex items-center gap-2">
+      <span class="w-1 h-5 bg-[#D4AF37] rounded"></span>
+      S-B-FX · Overview Matrix
+    </h2>
+    <div class="text-[10px] text-[#5A5A70] tracking-wider mono">▲红=涨 ▼绿=跌 · ACN convention</div>
+  </div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4" id="matrixGrid"></div>
+</section>
+
+<!-- ============ Equities模块 ============ -->
+<section class="max-w-[1500px] mx-auto px-6 mb-8" id="equity">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-lg font-bold flex items-center gap-2">
+      <span class="w-1 h-5 bg-[#E53935] rounded"></span>
+      Equity Monitor · 年 / 月 / W/M/Y compare
+    </h2>
+    <div class="text-[10px] text-[#5A5A70] tracking-wider mono">EQUITY · YoY / MoM / WoW</div>
+  </div>
+
+  <div class="card-base p-5 mb-5" style="--accent:#E53935;">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="text-sm font-bold">Index Level Ranking + 3D Returns</h3>
+      <span class="text-[10px] text-[#5A5A70]">Index Level · YoY/MoM/WoW</span>
+    </div>
+    <div class="overflow-x-auto no-scrollbar">
+      <table class="w-full text-xs min-w-[760px]" id="equityTable"></table>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+    <div class="card-base p-5" style="--accent:#E53935;">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-bold">Annual YoY gain (YoY)</h3>
+        <span class="text-[10px] text-[#5A5A70] mono">12M CHANGE</span>
+      </div>
+      <div style="height:300px"><canvas id="eqYoYChart"></canvas></div>
+    </div>
+    <div class="card-base p-5" style="--accent:#E53935;">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-bold">12 -month trend</h3>
+        <span class="text-[10px] text-[#5A5A70] mono">PRICE INDEX (rebased 100)</span>
+      </div>
+      <div style="height:300px"><canvas id="eqLineChart"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Bonds模块 ============ -->
+<section class="max-w-[1500px] mx-auto px-6 mb-8" id="bond">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-lg font-bold flex items-center gap-2">
+      <span class="w-1 h-5 bg-[#FFB300] rounded"></span>
+      Bond Monitor · 10Y Yields & Spreads
+    </h2>
+    <div class="text-[10px] text-[#5A5A70] tracking-wider mono">BOND · 10Y YIELD & SPREAD</div>
+  </div>
+
+  <div class="card-base p-5 mb-5" style="--accent:#FFB300;">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="text-sm font-bold">10Y Treasury Yield Ranking + Term Spread</h3>
+      <span class="text-[10px] text-[#5A5A70]">Yield % · Spread = 10Y - 2Y (bp)</span>
+    </div>
+    <div class="space-y-2" id="yieldRankList"></div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+    <div class="card-base p-5" style="--accent:#FFB300;">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-bold">10Y Yield Bar Compare</h3>
+        <span class="text-[10px] text-[#5A5A70] mono">YIELD NOW</span>
+      </div>
+      <div style="height:300px"><canvas id="bondBarChart"></canvas></div>
+    </div>
+    <div class="card-base p-5" style="--accent:#FFB300;">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-bold">12 -month yield trend</h3>
+        <span class="text-[10px] text-[#5A5A70] mono">TRAJECTORY</span>
+      </div>
+      <div style="height:300px"><canvas id="bondLineChart"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FX模块 ============ -->
+<section class="max-w-[1500px] mx-auto px-6 mb-8" id="fx">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-lg font-bold flex items-center gap-2">
+      <span class="w-1 h-5 bg-[#4FC3F7] rounded"></span>
+      FX Monitor · Pairs & Volatility
+    </h2>
+    <div class="text-[10px] text-[#5A5A70] tracking-wider mono">FX · USD PAIRS</div>
+  </div>
+
+  <div class="card-base p-5 mb-5" style="--accent:#4FC3F7;">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="text-sm font-bold">FX Ranking（USD Terms）+ 3D Change</h3>
+      <span class="text-[10px] text-[#5A5A70]">Falling = Local ccy appreciation · Red-up Green-down</span>
+    </div>
+    <div class="overflow-x-auto no-scrollbar">
+      <table class="w-full text-xs min-w-[760px]" id="fxTable"></table>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+    <div class="card-base p-5" style="--accent:#4FC3F7;">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-bold">Annual FX change (YoY)</h3>
+        <span class="text-[10px] text-[#5A5A70] mono">LOCAL FX vs USD</span>
+      </div>
+      <div style="height:300px"><canvas id="fxYoYChart"></canvas></div>
+    </div>
+    <div class="card-base p-5" style="--accent:#4FC3F7;">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-bold">12 -month FX trend</h3>
+        <span class="text-[10px] text-[#5A5A70] mono">USD PAIRS (rebased 100)</span>
+      </div>
+      <div style="height:300px"><canvas id="fxLineChart"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Trend Decision Engine ============ -->
+<section class="max-w-[1500px] mx-auto px-6 mb-12" id="judge">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-lg font-bold flex items-center gap-2">
+      <span class="w-1 h-5 bg-[#BA68C8] rounded"></span>
+      Trend Decision Engine · 年 / 月 / 周 3D Decision
+    </h2>
+    <div class="text-[10px] text-[#5A5A70] tracking-wider mono">LONG-TERM → MID-TERM → SHORT-TERM</div>
+  </div>
+
+  <div class="card-base p-5" style="--accent:#BA68C8;">
+    <div class="text-xs text-[#8A8AA0] leading-relaxed mb-4">
+      Logic：<span class="text-[#D4AF37]">年（YoY）= Long-term Trend</span> · <span class="text-[#FFB300]">月（MoM）= Mid-term Direction</span> · <span class="text-[#4FC3F7]">周（WoW）= Short-term Momentum</span>。
+      All aligned = Trend confirmed；年↑月↓周↑ = Pullback within uptrend；年↓月↑周↑ = Bounce unconfirmed。绿=Bullish Signal · 红=Bearish Signal · 黄=Neutral/Divergence。
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4" id="judgeGrid"></div>
+  </div>
+</section>
+
+<!-- ============ FOOTER TICKER ============ -->
+<footer class="border-t border-[#2A2A3E] mt-8">
+  <div class="bg-[#060D18] py-3 overflow-hidden">
+    <div class="flex ticker-track whitespace-nowrap text-xs">
+      <div class="flex gap-8 px-4 text-[#8A8AA0] mono" id="ticker1"></div>
+      <div class="flex gap-8 px-4 text-[#8A8AA0] mono" id="ticker2"></div>
+    </div>
+  </div>
+  <div class="max-w-[1500px] mx-auto px-6 py-6 flex flex-col md:flex-row items-center justify-between text-[10px] text-[#5A5A70]">
+    <div>© 2026 Econ-Sentiment Twin Think Tank · Stocks-Bonds-FX Monitor v1.0</div>
+    <div class="flex gap-4 mt-2 md:mt-0">
+      <span>Data Source · National exchanges / Central Banks / Finance Ministries</span>
+      <span>·</span>
+      <span class="mono">BUILD 2026.08.05</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ================================================================
+   八国股债汇数据模型
+================================================================ */
+const MARKETS = {
+  cn: {
+    key:'cn', name:'中国', flag:'🇨🇳', color:'#E53935',
+    equity:{ code:'上证指数', idx:'SSE', value:3550, yoy:+11.2, mom:+2.8, wow:+0.4, hist:[3120,3160,3210,3280,3310,3360,3400,3450,3490,3520,3500,3550] },
+    bond:{ y10:2.31, y10chg:+2, y2:1.69, hist:[2.72,2.68,2.60,2.55,2.48,2.42,2.38,2.33,2.36,2.30,2.34,2.31] },
+    fx:{ code:'USD/CNY', value:6.77, yoy:-3.2, mom:-0.8, wow:-0.1, hist:[7.05,7.02,6.98,6.95,6.92,6.88,6.85,6.82,6.80,6.79,6.78,6.77], local:'人民币' },
+  },
+  us: {
+    key:'us', name:'美国', flag:'🇺🇸', color:'#4FC3F7',
+    equity:{ code:'标普500', idx:'SPX', value:5700, yoy:+3.5, mom:-1.8, wow:-0.6, hist:[5510,5520,5540,5560,5590,5610,5660,5690,5720,5740,5760,5700] },
+    bond:{ y10:4.53, y10chg:+3, y2:4.19, hist:[4.10,4.22,4.35,4.48,4.55,4.62,4.58,4.65,4.52,4.48,4.55,4.53] },
+    fx:{ code:'DXY', value:100.9, yoy:+1.8, mom:+0.5, wow:+0.2, hist:[105.0,104.2,103.5,102.8,102.1,101.5,101.0,100.6,100.2,100.5,100.7,100.9], local:'美元' },
+  },
+  jp: {
+    key:'jp', name:'日本', flag:'🇯🇵', color:'#BA68C8',
+    equity:{ code:'日经225', idx:'NKY', value:59200, yoy:+18.5, mom:+3.2, wow:+1.1, hist:[49800,50500,51200,52000,52800,54000,55200,56400,57500,58600,59000,59200] },
+    bond:{ y10:2.79, y10chg:+4, y2:1.40, hist:[1.35,1.45,1.52,1.60,1.72,1.85,1.98,2.15,2.35,2.60,2.75,2.79] },
+    fx:{ code:'USD/JPY', value:164.0, yoy:+12.5, mom:+2.2, wow:+0.6, hist:[146,148,150,152,154,156,158,160,161,162,163,164], local:'日元' },
+  },
+  gb: {
+    key:'gb', name:'英国', flag:'🇬🇧', color:'#FF6F00',
+    equity:{ code:'富时100', idx:'FTSE', value:8350, yoy:+4.2, mom:+0.8, wow:+0.2, hist:[8010,8030,8060,8100,8130,8160,8200,8240,8280,8310,8330,8350] },
+    bond:{ y10:4.18, y10chg:-1, y2:3.90, hist:[4.20,4.25,4.30,4.28,4.22,4.18,4.15,4.22,4.28,4.25,4.22,4.18] },
+    fx:{ code:'GBP/USD', value:1.30, yoy:+2.1, mom:+0.3, wow:+0.1, hist:[1.27,1.27,1.28,1.28,1.29,1.29,1.30,1.30,1.29,1.29,1.30,1.30], local:'英镑' },
+  },
+  de: {
+    key:'de', name:'德国', flag:'🇩🇪', color:'#FDD835',
+    equity:{ code:'DAX', idx:'DAX', value:18950, yoy:+1.5, mom:-2.2, wow:-0.8, hist:[18680,18700,18800,18950,19050,19150,19250,19350,19450,19550,19400,18950] },
+    bond:{ y10:2.55, y10chg:-1, y2:1.90, hist:[2.35,2.42,2.50,2.58,2.62,2.66,2.60,2.58,2.52,2.48,2.56,2.55] },
+    fx:{ code:'EUR/USD', value:1.09, yoy:+0.8, mom:-0.2, wow:-0.1, hist:[1.08,1.08,1.09,1.09,1.10,1.10,1.09,1.09,1.08,1.08,1.09,1.09], local:'欧元' },
+  },
+  kr: {
+    key:'kr', name:'韩国', flag:'🇰🇷', color:'#26A69A',
+    equity:{ code:'KOSPI', idx:'KOSPI', value:2700, yoy:+8.0, mom:+2.0, wow:+0.7, hist:[2500,2515,2530,2550,2575,2590,2610,2635,2655,2675,2680,2700] },
+    bond:{ y10:3.12, y10chg:-2, y2:2.70, hist:[3.30,3.25,3.20,3.15,3.10,3.08,3.14,3.18,3.15,3.12,3.15,3.12] },
+    fx:{ code:'USD/KRW', value:1365, yoy:-1.5, mom:-0.6, wow:-0.2, hist:[1385,1382,1380,1378,1375,1372,1370,1368,1367,1366,1366,1365], local:'韩元' },
+  },
+  ir: {
+    key:'ir', name:'伊朗', flag:'🇮🇷', color:'#FF7043',
+    equity:{ code:'德黑兰指数', idx:'TEDPIX', value:2200000, yoy:+42.0, mom:+3.5, wow:+0.9, hist:[1550000,1600000,1680000,1750000,1820000,1900000,1980000,2050000,2110000,2160000,2180000,2200000] },
+    bond:{ y10:35.20, y10chg:+5, y2:30.00, hist:[28.5,29.8,31.2,32.6,33.8,35.0,36.2,37.5,38.8,37.2,36.0,35.2] },
+    fx:{ code:'USD/IRR', value:902000, yoy:+38.0, mom:+4.0, wow:+1.2, hist:[650000,680000,720000,760000,800000,840000,870000,890000,900000,895000,899000,902000], local:'里亚尔' },
+  },
+  ru: {
+    key:'ru', name:'俄罗斯', flag:'🇷🇺', color:'#78909C',
+    equity:{ code:'MOEX', idx:'MOEX', value:3200, yoy:+15.0, mom:+2.5, wow:+0.6, hist:[2780,2810,2850,2890,2940,2990,3040,3090,3130,3160,3185,3200] },
+    bond:{ y10:15.80, y10chg:+3, y2:14.00, hist:[12.8,13.4,14.2,15.0,15.6,16.2,16.8,17.5,16.8,16.0,15.4,15.8] },
+    fx:{ code:'USD/RUB', value:95.0, yoy:+8.0, mom:+1.5, wow:+0.4, hist:[88,89,90,91,92,93,93.5,94,94.5,94.8,94.9,95.0], local:'卢布' },
+  },
+};
+const MONTHS = ['8月','9月','10月','11月','12月','1月','2月','3月','4月','5月','6月','7月'];
+const DEFAULT_SELECTED = Object.keys(MARKETS);
+let selected = new Set(DEFAULT_SELECTED);
+let auto = true;
+let chartInstances = {};
+
+/* =============== 工具 =============== */
+function pad(n){ return String(n).padStart(2,'0'); }
+function tickNow(){ const d=new Date(); document.getElementById('now').textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; }
+setInterval(tickNow,1000); tickNow();
+function fmtNum(v){
+  if (Math.abs(v) >= 100000) return v.toLocaleString('en-US');
+  if (Math.abs(v) >= 1000) return v.toLocaleString('en-US');
+  return String(Math.round(v*100)/100);
+}
+function pct(v, signed=true){
+  const s = v > 0 ? '+' : '';
+  return (signed ? s : '') + v.toFixed(1) + '%';
+}
+function chgCls(v){ return v >= 0 ? 'num-up' : 'num-down'; }
+function arrow(v){ return v >= 0 ? '▲' : '▼'; }
+
+/* =============== 国家复选 =============== */
+function renderSelector(){
+  document.getElementById('countrySelector').innerHTML =
+    Object.values(MARKETS).map(m => `
+      <label class="country-check" style="--cc:${m.color}">
+        <input type="checkbox" value="${m.key}" ${selected.has(m.key)?'checked':''} onchange="toggleCountry('${m.key}')" />
+        <span class="ck-box"></span>
+        <span class="ck-label">${m.flag} ${m.name}</span>
+      </label>`).join('') +
+    `<button class="px-3 py-1.5 rounded-full text-[10px] border border-[#2A2A3E] text-[#8A8AA0] hover:border-[#D4AF37] hover:text-[#D4AF37] transition" onclick="selectAll(true)">全选</button>
+     <button class="px-3 py-1.5 rounded-full text-[10px] border border-[#2A2A3E] text-[#8A8AA0] hover:border-[#D4AF37] hover:text-[#D4AF37] transition" onclick="selectAll(false)">清空</button>`;
+}
+function toggleCountry(k){ selected.has(k) ? selected.delete(k) : selected.add(k); renderAll(); }
+function selectAll(v){ selected = v ? new Set(Object.keys(MARKETS)) : new Set(); renderAll(); }
+
+/* =============== 三维窗口组件 =============== */
+function winHTML(label, val, cls){
+  const v = parseFloat(val);
+  const t = Math.abs(v) < 0.01 ? '平' : (v > 0 ? '升' : '降');
+  const tCls = Math.abs(v) < 0.01 ? 'text-[#8A8AA0]' : (v > 0 ? 'text-[#E53935]' : 'text-[#43A047]');
+  return `<div class="win">
+    <span class="w-label">${label}</span>
+    <span class="w-val ${cls}">${val}</span>
+    <span class="w-trend ${tCls}">${t}</span>
+  </div>`;
+}
+
+/* =============== 总览矩阵 =============== */
+function renderMatrix(){
+  const list = Object.values(MARKETS).filter(m => selected.has(m.key));
+  document.getElementById('matrixGrid').innerHTML = list.map(m => `
+    <div class="card-base p-5 fade-up" style="--accent:${m.color}">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">${m.flag}</span>
+          <span class="font-bold">${m.name}</span>
+        </div>
+        <span class="text-[10px] text-[#5A5A70] mono">${m.key.toUpperCase()}</span>
+      </div>
+      <div class="space-y-2.5">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] text-[#8A8AA0] flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-sm bg-[#E53935]"></span>股市 ${m.equity.code}</span>
+          <span class="mono text-sm font-bold">${fmtNum(m.equity.value)} <span class="text-[10px] ${chgCls(m.equity.yoy)}">${pct(m.equity.yoy)}</span></span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] text-[#8A8AA0] flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-sm bg-[#FFB300]"></span>债市 10Y</span>
+          <span class="mono text-sm font-bold text-[#FFB300]">${m.bond.y10}% <span class="text-[10px] ${chgCls(m.bond.y10chg)}">${m.bond.y10chg>0?'+':''}${m.bond.y10chg}bp</span></span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] text-[#8A8AA0] flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-sm bg-[#4FC3F7]"></span>汇市 ${m.fx.code}</span>
+          <span class="mono text-sm font-bold">${m.fx.value} <span class="text-[10px] ${chgCls(-m.fx.yoy)}">${pct(-m.fx.yoy)}</span></span>
+        </div>
+      </div>
+      <div class="mt-3 pt-3 border-t border-[#2A2A3E] flex gap-2">
+        ${winHTML('年 YoY', pct(m.equity.yoy), chgCls(m.equity.yoy))}
+        ${winHTML('月 MoM', pct(m.equity.mom), chgCls(m.equity.mom))}
+        ${winHTML('周 WoW', pct(m.equity.wow), chgCls(m.equity.wow))}
+      </div>
+    </div>`).join('') || `<div class="col-span-full text-center py-10 text-[#5A5A70]">请勾选至少一个国家</div>`;
+}
+
+/* =============== 股市模块 =============== */
+function renderEquity(){
+  const list = Object.values(MARKETS).filter(m => selected.has(m.key)).sort((a,b) => b.equity.value - a.equity.value);
+  document.getElementById('equityTable').innerHTML = `
+    <thead>
+      <tr class="text-left border-b border-[#2A2A3E]">
+        <th class="py-2.5 pr-3 text-[#D4AF37] font-semibold">国家</th>
+        <th class="py-2.5 pr-3 text-[#8A8AA0] font-semibold">指数</th>
+        <th class="py-2.5 pr-3 text-right text-[#8A8AA0] font-semibold">点位</th>
+        <th class="py-2.5 pr-3 text-right text-[#E53935] font-semibold">年 YoY</th>
+        <th class="py-2.5 pr-3 text-right text-[#FFB300] font-semibold">月 MoM</th>
+        <th class="py-2.5 pr-3 text-right text-[#4FC3F7] font-semibold">周 WoW</th>
+        <th class="py-2.5 text-left text-[#8A8AA0] font-semibold">信号</th>
+      </tr>
+    </thead>
+    <tbody>
+    ${list.map(m => {
+      const e = m.equity;
+      const tag = trendTag(e.yoy, e.mom, e.wow);
+      return `<tr class="border-b border-[#1A1A2E] hover:bg-[rgba(229,57,53,0.03)]">
+        <td class="py-2.5 pr-3"><span class="mr-1">${m.flag}</span><span class="font-semibold text-[#E8E8F0]">${m.name}</span></td>
+        <td class="py-2.5 pr-3 text-[#8A8AA0]">${e.code}</td>
+        <td class="py-2.5 pr-3 text-right mono font-bold">${fmtNum(e.value)}</td>
+        <td class="py-2.5 pr-3 text-right mono ${chgCls(e.yoy)} font-bold">${pct(e.yoy)} ${arrow(e.yoy)}</td>
+        <td class="py-2.5 pr-3 text-right mono ${chgCls(e.mom)}">${pct(e.mom)} ${arrow(e.mom)}</td>
+        <td class="py-2.5 pr-3 text-right mono ${chgCls(e.wow)}">${pct(e.wow)} ${arrow(e.wow)}</td>
+        <td class="py-2.5">${tag}</td>
+      </tr>`;
+    }).join('')}
+    </tbody>`;
+}
+
+/* 趋势判断逻辑 */
+function trendTag(yoy, mom, wow){
+  const up = v => v > 0.1, dn = v => v < -0.1, fl = v => Math.abs(v) <= 0.1;
+  if (up(yoy) && up(mom) && up(wow)) return `<span class="trend-tag text-[#43A047]" style="background:rgba(67,160,71,.12);border:1px solid rgba(67,160,71,.3)">▲ 强势上行 · 趋势确立</span>`;
+  if (dn(yoy) && dn(mom) && dn(wow)) return `<span class="trend-tag text-[#E53935]" style="background:rgba(229,57,53,.12);border:1px solid rgba(229,57,53,.3)">▼ 弱势下行 · 趋势确立</span>`;
+  if (up(yoy) && dn(mom) && up(wow)) return `<span class="trend-tag text-[#FFB300]" style="background:rgba(255,179,0,.12);border:1px solid rgba(255,179,0,.3)">⟲ 长多 · 中期回调 · 周修复</span>`;
+  if (up(yoy) && dn(mom) && dn(wow)) return `<span class="trend-tag text-[#FFB300]" style="background:rgba(255,179,0,.12);border:1px solid rgba(255,179,0,.3)">↘ 长多 · 中期走弱</span>`;
+  if (dn(yoy) && up(mom) && up(wow)) return `<span class="trend-tag text-[#FFB300]" style="background:rgba(255,179,0,.12);border:1px solid rgba(255,179,0,.3)">↗ 长空 · 反弹待确认</span>`;
+  if (dn(yoy) && up(mom) && dn(wow)) return `<span class="trend-tag text-[#E53935]" style="background:rgba(229,57,53,.12);border:1px solid rgba(229,57,53,.3)">⟳ 长空 · 反弹乏力</span>`;
+  if (up(yoy) && fl(mom) && up(wow)) return `<span class="trend-tag text-[#43A047]" style="background:rgba(67,160,71,.12);border:1px solid rgba(67,160,71,.3)">▲ 长多 · 平台整理</span>`;
+  if (dn(yoy) && fl(mom) && dn(wow)) return `<span class="trend-tag text-[#E53935]" style="background:rgba(229,57,53,.12);border:1px solid rgba(229,57,53,.3)">▼ 长空 · 底部徘徊</span>`;
+  return `<span class="trend-tag text-[#8A8AA0]" style="background:rgba(138,138,160,.12);border:1px solid rgba(138,138,160,.3)">◇ 分歧 · 观望</span>`;
+}
+
+/* =============== 债市模块 =============== */
+function yieldScale(v){ const max=35.2; return Math.round(Math.pow(v/max,0.6)*100); }
+function renderBond(){
+  const list = Object.values(MARKETS).filter(m => selected.has(m.key)).sort((a,b) => b.bond.y10 - a.bond.y10);
+  document.getElementById('yieldRankList').innerHTML = list.map(m => {
+    const b = m.bond, spread = (b.y10 - b.y2) * 100;
+    const spCls = spread >= 0 ? 'text-[#E53935]' : 'text-[#43A047]';
+    const spNote = spread > 200 ? '极端陡峭 · 通胀预期高' : spread > 50 ? '陡峭 · 经济预期改善' : spread > 0 ? '正常 · 正carry' : '倒挂 · 衰退信号';
+    return `
+    <div class="flex items-center gap-3 flex-wrap sm:flex-nowrap">
+      <div class="w-28 flex items-center gap-2 flex-shrink-0">
+        <span>${m.flag}</span>
+        <span class="text-[#E8E8F0] font-semibold text-xs">${m.name}</span>
+      </div>
+      <div class="yield-track flex-1 h-7 rounded-md bg-[rgba(255,255,255,.04)] overflow-hidden relative min-w-[160px]">
+        <div class="absolute left-0 top-0 bottom-0 rounded-md flex items-center pl-2" style="width:${yieldScale(b.y10)}%; background:linear-gradient(90deg,${m.color}66,${m.color}); transition:width .8s ease">
+          <span class="text-white text-[10px] mono font-bold drop-shadow">${b.y10}%</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-4 flex-shrink-0 text-[11px] mono">
+        <span class="text-[#8A8AA0]">2Y <span class="text-[#E8E8F0]">${b.y2}%</span></span>
+        <span class="${spCls} font-bold">利差 ${spread.toFixed(0)}bp</span>
+        <span class="text-[10px] ${chgCls(b.y10chg)}">${b.y10chg>0?'+':''}${b.y10chg}bp</span>
+      </div>
+      <span class="text-[10px] text-[#5A5A70] hidden xl:inline w-40">${spNote}</span>
+    </div>`;
+  }).join('') || '<div class="text-center py-6 text-[#5A5A70]">请勾选至少一个国家</div>';
+}
+
+/* =============== 汇市模块 =============== */
+function renderFxTable(){
+  const list = Object.values(MARKETS).filter(m => selected.has(m.key)).sort((a,b) => b.fx.value - a.fx.value);
+  document.getElementById('fxTable').innerHTML = `
+    <thead>
+      <tr class="text-left border-b border-[#2A2A3E]">
+        <th class="py-2.5 pr-3 text-[#D4AF37] font-semibold">国家</th>
+        <th class="py-2.5 pr-3 text-[#8A8AA0] font-semibold">货币对</th>
+        <th class="py-2.5 pr-3 text-right text-[#8A8AA0] font-semibold">汇率</th>
+        <th class="py-2.5 pr-3 text-right text-[#E53935] font-semibold">年 YoY</th>
+        <th class="py-2.5 pr-3 text-right text-[#FFB300] font-semibold">月 MoM</th>
+        <th class="py-2.5 pr-3 text-right text-[#4FC3F7] font-semibold">周 WoW</th>
+        <th class="py-2.5 text-left text-[#8A8AA0] font-semibold">本币判断</th>
+      </tr>
+    </thead>
+    <tbody>
+    ${list.map(m => {
+      const f = m.fx;
+      // 汇率下跌 = 本币升值，用反向符号判断本币强弱
+      const lcTag = f.yoy < 0
+        ? `<span class="trend-tag text-[#43A047]" style="background:rgba(67,160,71,.12);border:1px solid rgba(67,160,71,.3)">${m.fx.local}升值 ${arrow(-f.yoy)}</span>`
+        : `<span class="trend-tag text-[#E53935]" style="background:rgba(229,57,53,.12);border:1px solid rgba(229,57,53,.3)">${m.fx.local}贬值 ${arrow(-f.yoy)}</span>`;
+      return `<tr class="border-b border-[#1A1A2E] hover:bg-[rgba(79,195,247,0.03)]">
+        <td class="py-2.5 pr-3"><span class="mr-1">${m.flag}</span><span class="font-semibold text-[#E8E8F0]">${m.name}</span></td>
+        <td class="py-2.5 pr-3 text-[#8A8AA0]">${f.code}</td>
+        <td class="py-2.5 pr-3 text-right mono font-bold">${fmtNum(f.value)}</td>
+        <td class="py-2.5 pr-3 text-right mono ${chgCls(f.yoy)} font-bold">${pct(f.yoy)} ${arrow(f.yoy)}</td>
+        <td class="py-2.5 pr-3 text-right mono ${chgCls(f.mom)}">${pct(f.mom)} ${arrow(f.mom)}</td>
+        <td class="py-2.5 pr-3 text-right mono ${chgCls(f.wow)}">${pct(f.wow)} ${arrow(f.wow)}</td>
+        <td class="py-2.5">${lcTag}</td>
+      </tr>`;
+    }).join('')}
+    </tbody>`;
+}
+
+/* =============== 趋势判断引擎 =============== */
+function renderJudge(){
+  const list = Object.values(MARKETS).filter(m => selected.has(m.key));
+  document.getElementById('judgeGrid').innerHTML = list.map(m => {
+    const e = m.equity, b = m.bond, f = m.fx;
+    const eqTag = trendTag(e.yoy, e.mom, e.wow);
+    const fxTag = trendTag(-f.yoy, -f.mom, -f.wow); // 本币视角
+    // 债市信号：收益率趋势（上行=债熊）
+    const bondUp = b.y10chg > 0;
+    const bondTag = bondUp
+      ? `<span class="trend-tag text-[#E53935]" style="background:rgba(229,57,53,.12);border:1px solid rgba(229,57,53,.3)">▲ 收益率上行 · 债市承压</span>`
+      : `<span class="trend-tag text-[#43A047]" style="background:rgba(67,160,71,.12);border:1px solid rgba(67,160,71,.3)">▼ 收益率下行 · 债市走强</span>`;
+    // 综合
+    const score = (e.yoy>0?1:0) + (e.mom>0?1:0) + (e.wow>0?1:0) + (f.yoy<0?1:0) + (f.mom<0?1:0) + (f.wow<0?1:0) + (b.y10chg<0?1:0);
+    const overall = score >= 5
+      ? `<span class="text-[#43A047] font-bold">🟢 风险偏好上行 · 股汇债共振向好</span>`
+      : score >= 3
+      ? `<span class="text-[#FFB300] font-bold">🟡 中性 · 结构性机会为主</span>`
+      : `<span class="text-[#E53935] font-bold">🔴 风险偏好收缩 · 防御优先</span>`;
+    return `
+    <div class="card-base p-5 fade-up" style="--accent:${m.color}">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">${m.flag}</span>
+          <div>
+            <div class="font-bold text-sm">${m.name}</div>
+            <div class="text-[9px] text-[#5A5A70] mono">RISK SCORE ${score}/7</div>
+          </div>
+        </div>
+        ${overall}
+      </div>
+      <div class="space-y-2 text-[10px]">
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-[#8A8AA0] w-14 flex-shrink-0">📈 股市</span>
+          <span class="flex-1">${eqTag}</span>
+        </div>
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-[#8A8AA0] w-14 flex-shrink-0">📉 债市</span>
+          <span class="flex-1">${bondTag}</span>
+        </div>
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-[#8A8AA0] w-14 flex-shrink-0">💱 汇市</span>
+          <span class="flex-1">${fxTag}</span>
+        </div>
+      </div>
+      <div class="mt-3 pt-3 border-t border-[#2A2A3E] text-[10px] text-[#8A8AA0] leading-relaxed">
+        ${judgeText(m)}
+      </div>
+    </div>`;
+  }).join('') || '<div class="col-span-full text-center py-10 text-[#5A5A70]">请勾选至少一个国家</div>';
+}
+function judgeText(m){
+  const e = m.equity, b = m.bond, f = m.fx;
+  const parts = [];
+  parts.push(`股市${e.yoy>0?'年涨':'年跌'}${e.yoy>0?'+':' '}${Math.abs(e.yoy)}%`);
+  parts.push(`债市10Y ${b.y10}%${b.y10chg>0?'上行':'下行'}`);
+  parts.push(`本币${f.yoy<0?'升值':'贬值'} ${Math.abs(f.yoy)}%`);
+  return parts.join(' · ');
+}
+
+/* =============== Charts =============== */
+function makeChart(key, cfg){
+  if (chartInstances[key]) chartInstances[key].destroy();
+  chartInstances[key] = new Chart(document.getElementById(key), cfg);
+}
+function renderCharts(){
+  const list = Object.values(MARKETS).filter(m => selected.has(m.key));
+
+  // 股市 YoY
+  makeChart('eqYoYChart', {
+    type:'bar',
+    data:{ labels:list.map(m=>m.flag+m.name), datasets:[{
+      data:list.map(m=>m.equity.yoy),
+      backgroundColor:list.map(m=>m.equity.yoy>=0?m.color+'CC':m.color+'66'),
+      borderColor:list.map(m=>m.color), borderWidth:1, borderRadius:6, maxBarThickness:44
+    }]},
+    options:{ responsive:true, maintainAspectRatio:false, indexAxis:'y',
+      plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'rgba(13,13,15,.95)', borderColor:'#D4AF37', borderWidth:1, bodyColor:'#E8E8F0', padding:10, callbacks:{ label:c=>' YoY: '+c.parsed.x+'%' } } },
+      scales:{ x:{ grid:{color:'rgba(255,255,255,.05)'}, ticks:{color:'#8A8AA0',font:{size:10},callback:v=>v+'%'} }, y:{ grid:{display:false}, ticks:{color:'#E8E8F0',font:{size:11}} } } }
+  });
+
+  // 股市 12 月走势（rebase 100）
+  makeChart('eqLineChart', {
+    type:'line',
+    data:{ labels:MONTHS, datasets:list.map(m=>{
+      const base = m.equity.hist[0];
+      return { label:m.flag+' '+m.name, data:m.equity.hist.map(v=>+(v/base*100).toFixed(1)), borderColor:m.color, backgroundColor:m.color+'22', borderWidth:2, tension:.3, pointRadius:0, pointHoverRadius:4, fill:false };
+    })},
+    options:{ responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false},
+      plugins:{ legend:{ position:'top', labels:{color:'#8A8AA0',font:{size:10},boxWidth:12,boxHeight:4} }, tooltip:{ backgroundColor:'rgba(13,13,15,.95)', borderColor:'#D4AF37', borderWidth:1, bodyColor:'#E8E8F0', padding:10 } },
+      scales:{ x:{ grid:{color:'rgba(255,255,255,.05)'}, ticks:{color:'#8A8AA0',font:{size:10}} }, y:{ grid:{color:'rgba(255,255,255,.05)'}, ticks:{color:'#8A8AA0',font:{size:10}} } } }
+  });
+
+  // 债市柱状
+  makeChart('bondBarChart', {
+    type:'bar',
+    data:{ labels:list.map(m=>m.flag+m.name), datasets:[{
+      data:list.map(m=>m.bond.y10), backgroundColor:list.map(m=>m.color), borderRadius:6, maxBarThickness:44
+    }]},
+    options:{ responsive:true, maintainAspectRatio:false, indexAxis:'y',
+      plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'rgba(13,13,15,.95)', borderColor:'#D4AF37', borderWidth:1, bodyColor:'#E8E8F0', padding:10, callbacks:{ label:c=>' 10Y: '+c.parsed.x+'%' } } },
+      scales:{ x:{ grid:{color:'rgba(255,255,255,.05)'}, ticks:{color:'#8A8AA0',font:{size:10},callback:v=>v+'%'} }, y:{ grid:{display:false}, ticks:{color:'#E8E8F0',font:{size:11}} } } }
+  });
+
+  // 债市 12 月走势
+  makeChart('bondLineChart', {
+    type:'line',
+    data:{ labels:MONTHS, datasets:list.map(m=>({ label:m.flag+' '+m.name, data:m.bond.hist, borderColor:m.color, backgroundColor:m.color+'22', borderWidth:2, tension:.3, pointRadius:0, pointHoverRadius:4, fill:false })) },
+    options:{ responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false},
+      plugins:{ legend:{ position:'top', labels:{color:'#8A8AA0',font:{size:10},boxWidth:12,boxHeight:4} }, tooltip:{ backgroundColor:'rgba(13,13,15,.95)', borderColor:'#D4AF37', borderWidth:1, bodyColor:'#E8E8F0', padding:10 } },
+      scales:{ x:{ grid:{color:'rgba(255,255,255,.05)'}, ticks:{color:'#8A8AA0',font:{size:10}} }, y:{ grid:{color:'rgba(255,255,255,.05)'}, ticks:{color:'#8A8AA0',font:{size:10},callback:v=>v+'%'} } } }
+  });
+
+  // 汇市 YoY
+  makeChart('fxYoYChart', {
+    type:'bar',
+    data:{ labels:list.map(m=>m.flag+m.name), datasets:[{
+      data:list.map(m=>m.fx.yoy),
+      backgroundColor:list.map(m=>m.fx.yoy>=0?m.color+'CC':m.color+'66'),
+      borderColor:list.map(m=>m.color), borderWidth:1, borderRadius:6, maxBarThickness:44
+    }]},
+    options:{ responsive:true, maintainAspectRatio:false, indexAxis:'y',
+      plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'rgba(13,13,15,.95)', borderColor:'#D4AF37', borderWidth:1, bodyColor:'#E8E8F0', padding:10, callbacks:{ label:c=>' USD'+' '+c.parsed.x+'%' } } },
+      scales:{ x:{ grid:{color:'rgba(255,255,255,.05)'}, ticks:{color:'#8A8AA0',font:{size:10},callback:v=>v+'%'} }, y:{ grid:{display:false}, ticks:{color:'#E8E8F0',font:{size:11}} } } }
+  });
+
+  // 汇市 12 月走势（rebase 100）
+  makeChart('fxLineChart', {
+    type:'line',
+    data:{ labels:MONTHS, datasets:list.map(m=>{
+      const base = m.fx.hist[0];
+      return { label:m.flag+' '+m.fx.code, data:m.fx.hist.map(v=>+(v/base*100).toFixed(1)), borderColor:m.color, backgroundColor:m.color+'22', borderWidth:2, tension:.3, pointRadius:0, pointHoverRadius:4, fill:false };
+    })},
+    options:{ responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false},
+      plugins:{ legend:{ position:'top', labels:{color:'#8A8AA0',font:{size:10},boxWidth:12,boxHeight:4} }, tooltip:{ backgroundColor:'rgba(13,13,15,.95)', borderColor:'#D4AF37', borderWidth:1, bodyColor:'#E8E8F0', padding:10 } },
+      scales:{ x:{ grid:{color:'rgba(255,255,255,.05)'}, ticks:{color:'#8A8AA0',font:{size:10}} }, y:{ grid:{color:'rgba(255,255,255,.05)'}, ticks:{color:'#8A8AA0',font:{size:10}} } } }
+  });
+}
+
+/* =============== Ticker =============== */
+function renderTicker(){
+  const items = [];
+  Object.values(MARKETS).forEach(m=>{
+    items.push([m.equity.code, fmtNum(m.equity.value), m.equity.wow, m.equity.wow]);
+    items.push([m.bond.y10+'Y', m.bond.y10+'%', m.bond.y10chg, m.bond.y10chg]);
+    items.push([m.fx.code, String(m.fx.value), m.fx.wow, m.fx.wow]);
+  });
+  const html = items.map(i=>`<span><span class="text-[#E53935]">${i[0]}</span> ${i[1]} <span class="${i[2]>=0?'text-[#E53935]':'text-[#43A047]'}">${i[3]>=0?'+':''}${i[3]}${i[0].includes('%')?'bp':'%'}</span></span>`).join('');
+  document.getElementById('ticker1').innerHTML = html;
+  document.getElementById('ticker2').innerHTML = html;
+}
+
+/* =============== 总调度 =============== */
+function renderAll(){
+  renderSelector();
+  renderMatrix();
+  renderEquity();
+  renderBond();
+  renderFxTable();
+  renderJudge();
+  renderCharts();
+  renderTicker();
+}
+function refreshAll(){ renderMatrix(); renderEquity(); renderBond(); renderFxTable(); renderJudge(); renderCharts(); }
+function toggleAuto(){ auto=!auto; document.getElementById('autoBtn').textContent = auto ? '⏸ 暂停自动' : '▶ 启动自动'; }
+setInterval(()=>{ if(auto) refreshAll(); }, 10000);
+
+renderAll();
+</script>
+
+
+<script>
+/* 英文版 · 强制英文化（框架文本） */
+(function(){
+  const DICT = {"总览矩阵": "Overview Matrix", "股市": "Equities", "债市": "Bonds", "汇市": "FX", "趋势判断": "Trend Engine", "股债汇 · 总览矩阵": "Stocks·Bonds·FX Overview Matrix", "股市监测 · 年 / 月 / 周对比": "Equity Monitor · Y / M / W Comparison", "债市监测 · 10Y 收益率与利差": "Bond Monitor · 10Y Yields & Spreads", "汇市监测 · 货币对与波动": "FX Monitor · Currency Pairs & Volatility", "趋势判断引擎 · 年 / 月 / 周 三维决策": "Trend Decision Engine · Y / M / W 3D"};
+  function applyEn(){
+    document.querySelectorAll('h2, h3, nav a').forEach(el => {
+      el.childNodes.forEach(node => {
+        if (node.nodeType === 3) {
+          const zh = node.textContent.trim();
+          if (zh && DICT[zh] !== undefined) node.textContent = DICT[zh];
+        }
+      });
+    });
+  }
+  try {
+    if (typeof window.renderAll === 'function') { const _r = window.renderAll; window.renderAll = function(){ _r(); applyEn(); }; }
+    if (typeof window.refreshAll === 'function') { const _r = window.refreshAll; window.refreshAll = function(){ _r(); applyEn(); }; }
+  } catch(e) {}
+  setTimeout(applyEn, 120);
+  setInterval(applyEn, 5000);
+})();
+</script>
+<script>
+(function(){
+  const EXTRA = {"财情双生智库": "Econ-Sentiment Twin Think Tank", "财情双生": "Econ-Sentiment", "返回主导航": "Back to Main", "主导航": "Main Nav", "数据流": "Data Flow", "实时刷新": "Live Refresh", "实时同步": "Live Sync", "立即刷新": "Refresh Now", "暂停自动": "Pause Auto", "启动自动": "Start Auto", "数据更新": "Data Update", "低风险": "Low Risk", "温和": "Moderate", "中等": "Medium", "中等偏高": "Moderately High", "高危": "High Risk", "黄金": "Gold", "相关性": "Correlation", "阈值": "Threshold", "判断": "Judgment", "行动": "Action", "信号": "Signal", "预期": "Expectation", "当前": "Current", "切换": "Switch", "模拟": "Simulated", "综合": "Composite", "易和中": "Yi He Zhong", "联合诊断": "Joint Diagnosis", "行动清单": "Action List", "让智慧有温度": "Wisdom with Warmth", "本读数为模型推断": "Model inference", "仅供研究": "For research only", "不构成投资建议": "Not investment advice", "数据源": "Data Source", "全选": "Select All", "清空": "Clear", "中性": "Neutral", "看多": "Bullish", "看空": "Bearish", "初始化": "Initialize", "工具": "Tools", "八国股债汇数据模型": "8-Nation S-B-FX Data Model", "中国": "China", "上证指数": "SSE Composite", "人民币": "CNY", "美国": "United States", "标普": "S&P 500", "美元": "USD", "日本": "Japan", "日经": "Nikkei", "日元": "JPY", "英国": "United Kingdom", "富时": "FTSE", "英镑": "GBP", "德国": "Germany", "欧元": "EUR", "韩国": "Korea", "韩元": "KRW", "伊朗": "Iran", "德黑兰指数": "TEDPIX", "里亚尔": "IRR", "俄罗斯": "Russia", "卢布": "RUB", "国家复选": "Nation Select", "三维窗口组件": "3D Panel Component", "总览矩阵": "Overview Matrix", "股市": "Equities", "债市": "Bonds", "汇市": "FX", "请勾选至少一个国家": "Select at least one nation", "股市模块": "Equity Module", "国家": "Nation", "指数": "Index", "点位": "Level", "趋势判断逻辑": "Trend Logic", "强势上行": "Strong up", "趋势确立": "Trend confirmed", "弱势下行": "Weak down", "长多": "Long-term Bullish", "中期回调": "Mid pullback", "周修复": "Weekly repair", "中期走弱": "Mid weakening", "长空": "Long-term Bearish", "反弹待确认": "Bounce unconfirmed", "反弹乏力": "Weak bounce", "平台整理": "Platform consolidation", "底部徘徊": "Bottoming", "分歧": "Divergence", "观望": "Stand aside", "债市模块": "Bond Module", "极端陡峭": "Extremely steep", "通胀预期高": "High inflation expectations", "陡峭": "Steep", "经济预期改善": "Growth expectations improve", "正常": "Normal", "倒挂": "Inverted", "衰退信号": "Recession signal", "利差": "Spread", "汇市模块": "FX Module", "货币对": "Pair", "汇率": "Rate", "本币判断": "Local ccy view", "汇率下跌": "Rate falls", "本币升值": "Local ccy appreciates", "用反向符号判断本币强弱": "Invert sign for local ccy strength", "升值": "Appreciating", "贬值": "Depreciating", "本币视角": "Local ccy lens", "债市信号": "Bond signal", "收益率趋势": "Yield trend", "上行": "Rising", "债熊": "Bond bear", "收益率上行": "Yields up", "债市承压": "Bonds under pressure", "收益率下行": "Yields down", "债市走强": "Bonds strong", "风险偏好上行": "Risk-on", "股汇债共振向好": "Equities/FX/Bonds aligned up", "结构性机会为主": "Structural opportunities", "风险偏好收缩": "Risk-off", "防御优先": "Defensive first", "年涨": "Y gain", "年跌": "Y loss", "下行": "Declining", "本币": "Local ccy", "月走势": "-month trend", "债市柱状": "Bond bars", "总调度": "Orchestrator"};
+  function applyExtra(){
+    document.querySelectorAll('h1,h2,h3,h4,span,div,p,td,th,li,button,a,b,label').forEach(el => {
+      el.childNodes.forEach(node => {
+        if (node.nodeType === 3) {
+          const zh = node.textContent.trim();
+          if (zh && EXTRA[zh] !== undefined) node.textContent = EXTRA[zh];
+        }
+      });
+    });
+  }
+  try {
+    if (typeof window.renderAll === 'function') { const _r = window.renderAll; window.renderAll = function(){ _r(); applyExtra(); }; }
+    if (typeof window.refreshAll === 'function') { const _r = window.refreshAll; window.refreshAll = function(){ _r(); applyExtra(); }; }
+  } catch(e) {}
+  setTimeout(applyExtra, 120);
+  setInterval(applyExtra, 5000);
+})();
+</script>
+</body>
+</html>

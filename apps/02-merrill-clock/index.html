@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>美林时钟 · 八国宏观监控系统 · 财情双生智库</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Noto+Serif+SC:wght@500;700;900&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg-primary: #0D0D0F;
+    --bg-secondary: #0A1628;
+    --bg-card: #1A1A2E;
+    --bg-deep: #060D18;
+    --border: #2A2A3E;
+    --gold: #D4AF37;
+    --gold-light: #E6C65C;
+    --gold-dark: #8B6914;
+    --text-primary: #E8E8F0;
+    --text-secondary: #8A8AA0;
+    --text-muted: #5A5A70;
+    --up: #E53935;
+    --down: #43A047;
+    --warn: #FFB300;
+    --q1: #43A047; --q2: #E53935; --q3: #9C27B0; --q4: #4FC3F7;
+  }
+  * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  html, body { background: var(--bg-primary); color: var(--text-primary); font-family: 'Noto Sans SC', 'Inter', sans-serif; }
+  body {
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(212,175,55,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 90% 20%, rgba(229,57,53,0.04) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 10% 80%, rgba(79,195,247,0.04) 0%, transparent 60%),
+      linear-gradient(180deg, #0D0D0F 0%, #060D18 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  .gold-text {
+    background: linear-gradient(135deg, #D4AF37 0%, #E6C65C 50%, #D4AF37 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .glass {
+    background: rgba(26,26,46,0.5);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(212,175,55,0.15);
+  }
+  .card-base {
+    background: linear-gradient(135deg, rgba(10,22,40,0.85) 0%, rgba(6,13,24,0.85) 100%);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .card-base::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent 0%, var(--accent, #D4AF37) 50%, transparent 100%);
+    opacity: 0.8;
+  }
+  .card-base:hover { transform: translateY(-2px); border-color: var(--accent, #D4AF37); }
+  .mono { font-family: 'JetBrains Mono', monospace; font-feature-settings: 'tnum'; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 10px; border-radius: 4px;
+    font-size: 11px; font-weight: 500; letter-spacing: 0.5px;
+    border: 1px solid currentColor; background: rgba(255,255,255,0.02);
+  }
+  .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+  @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+  .live-dot { animation: blink 1.5s ease-in-out infinite; }
+
+  /* ===== 美林时钟 ===== */
+  .clock-wrap { position: relative; width: 100%; aspect-ratio: 1; max-width: 380px; margin: 0 auto; }
+  .clock-quadrant {
+    position: absolute; width: 50%; height: 50%;
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    font-weight: 700; transition: all 0.4s; cursor: pointer;
+  }
+  .clock-quadrant:hover { filter: brightness(1.2); }
+  .clock-divider-v, .clock-divider-h { position: absolute; background: rgba(212,175,55,0.4); }
+  .clock-divider-v { left: 50%; top: 0; bottom: 0; width: 1px; }
+  .clock-divider-h { top: 50%; left: 0; right: 0; height: 1px; }
+  .clock-core {
+    position: absolute; inset: 22%; border-radius: 50%;
+    background: radial-gradient(circle, rgba(13,13,15,0.95) 0%, rgba(6,13,24,0.95) 100%);
+    border: 2px solid var(--gold);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    box-shadow: 0 0 40px rgba(212,175,55,0.15);
+  }
+  .clock-pointer { position: absolute; left: 50%; top: 50%; transform-origin: 0 0; z-index: 5; transition: transform 0.6s; }
+  .pointer-line { width: 38%; height: 3px; background: linear-gradient(90deg, transparent 0%, var(--gold) 100%); border-radius: 2px; box-shadow: 0 0 12px var(--gold); }
+  .pointer-dot { position: absolute; left: -8px; top: -8px; width: 16px; height: 16px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 20px var(--gold), 0 0 40px rgba(212,175,55,0.4); z-index: 6; }
+  .pointer-ring {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--gold);
+    opacity: 0.5; animation: ripple 2s ease-out infinite;
+  }
+  @keyframes ripple {
+    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+  }
+
+  /* 国旗侧边条 */
+  .country-bar { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; z-index: 3; }
+  .country-bar.cn { background: linear-gradient(180deg, #DE2910 0%, #FFB300 100%); }
+  .country-bar.us { background: linear-gradient(180deg, #B22234 0%, #FFFFFF 50%, #3C3B6E 100%); }
+  .country-bar.jp { background: linear-gradient(180deg, #BC002D 0%, #FFFFFF 100%); }
+  .country-bar.gb { background: linear-gradient(180deg, #012169 0%, #C8102E 50%, #FFFFFF 100%); }
+  .country-bar.de { background: linear-gradient(180deg, #000000 0%, #DD0000 50%, #FFCE00 100%); }
+  .country-bar.kr { background: linear-gradient(180deg, #CD2E3A 0%, #FFFFFF 50%, #0047A0 100%); }
+  .country-bar.ir { background: linear-gradient(180deg, #239F40 0%, #FFFFFF 50%, #DA0000 100%); }
+  .country-bar.ru { background: linear-gradient(180deg, #FFFFFF 0%, #0039A6 33%, #D52B1E 66%, #FFFFFF 100%); }
+
+  .taiji {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: conic-gradient(from 0deg, #0D0D0F 0deg 180deg, #D4AF37 180deg 360deg);
+    position: relative; overflow: hidden;
+  }
+  .taiji::before, .taiji::after { content: ''; position: absolute; width: 12px; height: 12px; border-radius: 50%; }
+  .taiji::before { top: 0; left: 50%; transform: translateX(-50%); background: #D4AF37; }
+  .taiji::after { bottom: 0; left: 50%; transform: translateX(-50%); background: #0D0D0F; }
+  .taiji-dot-light, .taiji-dot-dark { position: absolute; width: 4px; height: 4px; border-radius: 50%; z-index: 2; }
+  .taiji-dot-light { top: 4px; left: 50%; transform: translateX(-50%); background: #0D0D0F; }
+  .taiji-dot-dark { bottom: 4px; left: 50%; transform: translateX(-50%); background: #D4AF37; }
+
+  .grid-bg {
+    background-image:
+      linear-gradient(rgba(212,175,55,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(212,175,55,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .top-edge { height: 1px; background: linear-gradient(90deg, transparent 0%, var(--gold) 50%, transparent 100%); }
+  .signal-light { width: 8px; height: 8px; border-radius: 50%; box-shadow: 0 0 8px currentColor; }
+  .progress-bar { height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 2px; transition: width 0.8s ease; }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: var(--bg-primary); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--gold-dark); }
+
+  @keyframes scrollX { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+  .ticker-track { animation: scrollX 80s linear infinite; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .fade-up { animation: fadeUp 0.6s ease-out backwards; }
+
+  .countdown { font-variant-numeric: tabular-nums; }
+  .data-pill {
+    background: rgba(212,175,55,0.08); border: 1px solid rgba(212,175,55,0.2);
+    border-radius: 6px; padding: 2px 8px; font-size: 12px; color: var(--gold);
+  }
+
+  /* ===== 历史周期时间线 ===== */
+  .tl-row {
+    display: grid;
+    grid-template-columns: 92px repeat(17, minmax(16px, 1fr));
+    gap: 3px;
+    align-items: center;
+  }
+  .tl-cell {
+    height: 28px; border-radius: 4px; cursor: pointer;
+    position: relative; transition: all 0.2s;
+    border: 1px solid rgba(255,255,255,0.05);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 700; color: rgba(13,13,15,0.85);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .tl-cell:hover { transform: scaleY(1.3); filter: brightness(1.3); z-index: 2; box-shadow: 0 4px 16px rgba(0,0,0,0.5); }
+  .tl-cell.current { border: 2px solid #D4AF37; box-shadow: 0 0 12px rgba(212,175,55,0.7); }
+  .tl-cell.pivot::after {
+    content: '●'; position: absolute; top: 2px; right: 2px;
+    font-size: 6px; color: rgba(255,255,255,0.9);
+    text-shadow: 0 0 3px rgba(0,0,0,0.8);
+  }
+  .tl-legend { display: flex; gap: 14px; font-size: 10px; }
+  .tl-dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+  .tl-legend span { display: flex; align-items: center; gap: 5px; color: #8A8AA0; }
+  .tl-years {
+    display: grid;
+    grid-template-columns: 92px repeat(17, minmax(16px, 1fr));
+    gap: 3px;
+    align-items: center;
+  }
+  .tl-years .yr { text-align: center; overflow: hidden; white-space: nowrap; }
+  .tl-years .yr.now { color: #D4AF37; font-weight: 700; }
+  .tl-tooltip {
+    position: fixed; z-index: 100; pointer-events: none;
+    background: rgba(13,13,15,0.97); border: 1px solid #D4AF37;
+    border-radius: 8px; padding: 8px 12px; font-size: 11px;
+    color: #E8E8F0; box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+    display: none; max-width: 240px; line-height: 1.5;
+  }
+  .tl-tooltip .tt-year { color: #D4AF37; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+  .tl-tooltip .tt-phase { font-weight: 700; }
+  .tl-tooltip .tt-event { color: #8A8AA0; }
+
+  /* ===== 复选框国家选择器 ===== */
+  .country-check {
+    position: relative; display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 14px; border-radius: 999px; cursor: pointer;
+    border: 1px solid var(--border); background: rgba(255,255,255,0.02);
+    transition: all 0.3s; user-select: none; font-size: 12px;
+  }
+  .country-check:hover { border-color: var(--gold-dark); }
+  .country-check input { display: none; }
+  .country-check .ck-box {
+    width: 16px; height: 16px; border-radius: 4px;
+    border: 1.5px solid var(--text-muted);
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: all 0.3s; flex-shrink: 0;
+  }
+  .country-check input:checked + .ck-box {
+    background: var(--cc, var(--gold)); border-color: var(--cc, var(--gold));
+  }
+  .country-check input:checked + .ck-box::after {
+    content: '✓'; color: #0D0D0F; font-size: 11px; font-weight: 900; line-height: 1;
+  }
+  .country-check input:checked ~ .ck-label { color: var(--cc, var(--gold)); }
+  .country-check .ck-label { transition: all 0.3s; font-weight: 600; }
+
+  /* 收益率排柱 */
+  .yield-bar-row { display: flex; align-items: center; gap: 10px; }
+  .yield-bar-track { flex: 1; height: 26px; background: rgba(255,255,255,0.04); border-radius: 4px; position: relative; overflow: hidden; }
+  .yield-bar-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; transition: width 0.8s ease; display: flex; align-items: center; padding-left: 8px; }
+
+  /* 财情双生 logo + 导航 */
+  .logo-img { width:36px; height:36px; border-radius:50%; transition: transform 0.6s ease; display:inline-block; }
+  .logo-img:hover { transform: rotate(360deg); }
+  .logo-img-wrap { line-height:0; display:inline-block; }
+  .home-btn { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; margin-right:6px; font-size:11px; border:1px solid #D4AF37; color:#D4AF37; border-radius:6px; transition: all 0.2s; }
+  .home-btn:hover { background:rgba(212,175,55,0.12); color:#D4AF37; }
+
+  .en-brand-sm { font-size: 9px; opacity: .6; letter-spacing: 1px; font-weight: 400; margin-left: 4px; color: var(--gold, #D4AF37); }
+  @media (max-width: 640px) { .en-brand-sm { display: none; } }
+
+  .lang-pair-sub { display:inline-flex; align-items:center; gap:4px; padding:3px 8px; border:1px solid rgba(212,175,55,.4); border-radius:6px; font-size:10px; margin-right:6px; vertical-align:middle; }
+  .lang-pair-sub a { padding:1px 7px; border-radius:4px; color:#8A8AA0; text-decoration:none; }
+  .lang-pair-sub a:hover { color:#D4AF37; }
+  .lang-pair-sub a.active { color:#0D0D0F; background:#D4AF37; font-weight:600; }
+  .lang-pair-sub .sep { color:#5A5A70; }
+</style>
+</head>
+<body class="grid-bg">
+
+<!-- =============== TOP NAV =============== -->
+<header class="sticky top-0 z-50 glass border-b border-[#2A2A3E]">
+  <div class="max-w-[1500px] mx-auto px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="../../index.html" class="logo-img-wrap" title="返回主导航"><img src="../../_assets/logo.png" alt="财情双生" class="logo-img"/></a>
+      <div>
+        <div class="text-base font-semibold tracking-wide">财情双生智库 · <span class="gold-text">美林时钟监控系统</span> <span class="en-brand-sm">· Econ-Sentiment Twin Think Tank</span></div>
+        <div class="text-[10px] text-[#5A5A70] tracking-widest uppercase">Investment Clock · 8 Country Surveillance</div>
+      </div>
+    </div>
+    <a href="../../index.html" class="home-btn">🏠 主导航</a><span class="lang-pair-sub"><a href="index.html" class="active">中</a><span class="sep">|</span><a href="../../apps-en/02-merrill-clock/index.html">EN</a></span><nav class="hidden lg:flex items-center gap-1">
+      <a class="px-3 py-1.5 text-xs text-[#D4AF37] border-b-2 border-[#D4AF37]" href="#clocks">时钟矩阵</a>
+      <a class="px-3 py-1.5 text-xs text-[#8A8AA0] hover:text-[#D4AF37] transition" href="#indicators">关键指标</a>
+      <a class="px-3 py-1.5 text-xs text-[#8A8AA0] hover:text-[#D4AF37] transition" href="#allocation">资产配置</a>
+      <a class="px-3 py-1.5 text-xs text-[#8A8AA0] hover:text-[#D4AF37] transition" href="#timeline">周期轨迹</a>
+      <a class="px-3 py-1.5 text-xs text-[#8A8AA0] hover:text-[#D4AF37] transition" href="#calendar">事件日历</a>
+      <a class="px-3 py-1.5 text-xs text-[#8A8AA0] hover:text-[#D4AF37] transition" href="#bonds">10Y 国债利率</a>
+    </nav>
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 text-xs">
+        <span class="signal-light text-[#43A047] live-dot"></span>
+        <span class="text-[#8A8AA0] hidden sm:inline">数据流</span>
+        <span class="mono text-[#43A047] font-semibold" id="dataStatus">LIVE</span>
+      </div>
+      <div class="text-xs text-[#8A8AA0] mono" id="now">--:--:--</div>
+    </div>
+  </div>
+  <div class="top-edge"></div>
+</header>
+
+<!-- =============== HERO =============== -->
+<section class="max-w-[1500px] mx-auto px-6 pt-12 pb-8">
+  <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+    <div>
+      <div class="flex items-center gap-2 mb-3 flex-wrap">
+        <span class="badge text-[#D4AF37]"><span class="badge-dot"></span>实时同步 · 10s</span>
+        <span class="badge text-[#43A047]">8 国覆盖</span>
+        <span class="badge text-[#E53935]">G7 + 金砖 + 东亚</span>
+      </div>
+      <h1 class="text-4xl md:text-5xl font-black tracking-tight leading-tight">
+        投资时钟 · <span class="gold-text">八国宏观同步监控</span>
+      </h1>
+      <p class="text-[#8A8AA0] text-sm md:text-base mt-3 max-w-3xl leading-relaxed">
+        以<span class="text-[#D4AF37]">经济增长 ↔ 通胀方向</span>为双轴，按美林时钟四象限定位
+        <span class="text-[#E8E8F0]">🇨🇳🇺🇸🇯🇵🇬🇧🇩🇪🇰🇷🇮🇷🇷🇺</span> 八国周期；
+        <span class="text-[#D4AF37] font-semibold">10Y 国债利率</span>作为独立模块，支持<span class="text-[#E8E8F0]">复选框勾选国家</span>横向对比。
+      </p>
+    </div>
+    <div class="flex items-center gap-2">
+      <button class="px-4 py-2 text-xs border border-[#D4AF37] text-[#D4AF37] rounded-lg hover:bg-[#D4AF37] hover:text-[#0D0D0F] transition" onclick="refreshAll()">⟳ 立即刷新</button>
+      <button class="px-4 py-2 text-xs border border-[#2A2A3E] text-[#E8E8F0] rounded-lg hover:border-[#D4AF37] transition" onclick="toggleAuto()" id="autoBtn">⏸ 暂停自动</button>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 时钟矩阵（复选国家） =============== -->
+<section class="max-w-[1500px] mx-auto px-6 mb-8" id="clocks">
+  <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+    <h2 class="text-lg font-bold flex items-center gap-2">
+      <span class="w-1 h-5 bg-[#D4AF37] rounded"></span>
+      时钟矩阵 · 周期定位
+      <span class="text-xs text-[#5A5A70] font-normal ml-1">勾选国家 → 显示对应时钟</span>
+    </h2>
+    <div class="text-[10px] text-[#5A5A70] tracking-wider mono">REFRESH 10s</div>
+  </div>
+
+  <!-- 国家复选框选择器 -->
+  <div class="flex flex-wrap gap-2 mb-5" id="countrySelector"></div>
+
+  <!-- 时钟动态网格 -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5" id="clockGrid"></div>
+</section>
+
+<!-- =============== 关键指标总表 =============== -->
+<section class="max-w-[1500px] mx-auto px-6 mb-8" id="indicators">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-lg font-bold flex items-center gap-2">
+      <span class="w-1 h-5 bg-[#D4AF37] rounded"></span>
+      八国关键指标总表
+    </h2>
+    <div class="text-[10px] text-[#5A5A70] tracking-wider mono">GROWTH × INFLATION × POLICY × RATES</div>
+  </div>
+  <div class="card-base overflow-hidden" style="--accent:#D4AF37;">
+    <div class="overflow-x-auto no-scrollbar">
+      <table class="w-full text-xs">
+        <thead>
+          <tr class="text-left bg-[rgba(212,175,55,0.05)] border-b border-[#2A2A3E]">
+            <th class="py-3 px-4 font-semibold text-[#D4AF37]">国家</th>
+            <th class="py-3 px-4 font-semibold text-[#8A8AA0]">周期定位</th>
+            <th class="py-3 px-4 font-semibold text-[#8A8AA0]">GDP 同比</th>
+            <th class="py-3 px-4 font-semibold text-[#8A8AA0]">CPI 同比</th>
+            <th class="py-3 px-4 font-semibold text-[#8A8AA0]">失业率</th>
+            <th class="py-3 px-4 font-semibold text-[#8A8AA0]">政策利率</th>
+            <th class="py-3 px-4 font-semibold text-[#FFB300]">10Y 国债</th>
+            <th class="py-3 px-4 font-semibold text-[#8A8AA0]">资产为王</th>
+          </tr>
+        </thead>
+        <tbody id="indicatorTable"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 资产配置总表 =============== -->
+<section class="max-w-[1500px] mx-auto px-6 mb-8" id="allocation">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-lg font-bold flex items-center gap-2">
+      <span class="w-1 h-5 bg-[#D4AF37] rounded"></span>
+      美林时钟 · 四象限资产配置
+    </h2>
+    <div class="text-[10px] text-[#5A5A70] tracking-wider mono">RSM Ranking: Stock > Commodity > Bond > Cash</div>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4" id="allocCards"></div>
+</section>
+
+<!-- =============== 历史周期切换时间线 =============== -->
+<section class="max-w-[1500px] mx-auto px-6 mb-8" id="timeline">
+  <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+    <h2 class="text-lg font-bold flex items-center gap-2">
+      <span class="w-1 h-5 bg-[#BA68C8] rounded"></span>
+      历史周期切换时间线 · 2010 → 2026
+      <span class="text-xs text-[#5A5A70] font-normal ml-1">各国时钟移动轨迹 · 跟随上方复选框 · 悬停查看年份事件</span>
+    </h2>
+    <div class="tl-legend">
+      <span><span class="tl-dot" style="background:#43A047"></span>复苏期</span>
+      <span><span class="tl-dot" style="background:#E53935"></span>过热期</span>
+      <span><span class="tl-dot" style="background:#9C27B0"></span>滞胀期</span>
+      <span><span class="tl-dot" style="background:#4FC3F7"></span>衰退期</span>
+      <span style="color:#D4AF37">● 切换点 · ★ 当前</span>
+    </div>
+  </div>
+  <div class="card-base p-5" style="--accent:#BA68C8;">
+    <div class="tl-years mb-2" id="tlYears"></div>
+    <div class="space-y-2" id="timelineList"></div>
+  </div>
+</section>
+
+<!-- =============== 事件日历 + 跨市场 =============== -->
+<section class="max-w-[1500px] mx-auto px-6 mb-8" id="calendar">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+    <div class="card-base p-5" style="--accent:#D4AF37;">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-sm font-bold flex items-center gap-2">
+          <span class="w-1 h-4 bg-[#D4AF37] rounded"></span>
+          全球事件日历 · 未来 7 天
+        </h3>
+        <span class="text-[10px] text-[#5A5A70] mono">CATALYSTS</span>
+      </div>
+      <div class="space-y-2" id="eventList"></div>
+    </div>
+    <div class="card-base p-5" style="--accent:#4FC3F7;">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-sm font-bold flex items-center gap-2">
+          <span class="w-1 h-4 bg-[#4FC3F7] rounded"></span>
+          跨市场联动 · 汇率
+        </h3>
+        <span class="text-[10px] text-[#5A5A70] mono">FX MATRIX</span>
+      </div>
+      <div style="height:300px"><canvas id="fxChart"></canvas></div>
+      <div class="mt-3 pt-3 border-t border-[#2A2A3E] grid grid-cols-3 gap-3 text-center" id="fxSummary"></div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 易和中 · 联合诊断 =============== -->
+<section class="max-w-[1500px] mx-auto px-6 mb-12">
+  <div class="card-base p-6" style="--accent:#D4AF37;">
+    <div class="flex items-center justify-between mb-5">
+      <h2 class="text-lg font-bold flex items-center gap-2">
+        <span class="w-1 h-5 bg-[#D4AF37] rounded"></span>
+        易和中 · 八国时钟联合诊断 & 行动清单
+      </h2>
+      <div class="text-[10px] text-[#5A5A70] tracking-wider mono">财情双生智库 · 2026-08-05 10:10</div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div>
+        <div class="text-[10px] text-[#D4AF37] tracking-widest mb-2 font-semibold">SIGNAL · 八国信号</div>
+        <ul class="space-y-2 text-xs text-[#E8E8F0] leading-relaxed" id="signalList"></ul>
+      </div>
+      <div>
+        <div class="text-[10px] text-[#D4AF37] tracking-widest mb-2 font-semibold">JUDGMENT · 周期判断</div>
+        <div class="text-xs text-[#E8E8F0] leading-relaxed space-y-2" id="judgmentList"></div>
+      </div>
+      <div>
+        <div class="text-[10px] text-[#D4AF37] tracking-widest mb-2 font-semibold">ACTION · 行动清单</div>
+        <ul class="space-y-2 text-xs text-[#E8E8F0] leading-relaxed" id="actionList"></ul>
+      </div>
+    </div>
+    <div class="mt-6 pt-5 border-t border-[#2A2A3E] flex items-center justify-between text-[10px] text-[#5A5A70]">
+      <div class="flex items-center gap-2">
+        <span class="taiji relative" style="width:14px;height:14px">
+          <div class="taiji-dot-light" style="width:2px;height:2px;top:1px"></div>
+          <div class="taiji-dot-dark" style="width:2px;height:2px;bottom:1px"></div>
+        </span>
+        <span>财情双生 · 让智慧有温度</span>
+      </div>
+      <div class="mono">本读数为模型推断，仅供研究，不构成投资建议</div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 10Y 国债利率模块 =============== -->
+<section class="max-w-[1500px] mx-auto px-6 mb-8" id="bonds">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-lg font-bold flex items-center gap-2">
+      <span class="w-1 h-5 bg-[#FFB300] rounded"></span>
+      10年期国债利率 · 多国对比
+      <span class="text-xs text-[#5A5A70] font-normal ml-1">全球资金定价锚 · 勾选国家对比</span>
+    </h2>
+    <div class="flex items-center gap-2 text-[10px] text-[#5A5A70] mono">
+      <span class="signal-light text-[#FFB300] live-dot"></span>
+      UST 10Y 4.42% · JGB 1.05% · CGB 2.31%
+    </div>
+  </div>
+
+  <!-- 收益率排行（水平柱状） -->
+  <div class="card-base p-5 mb-5" style="--accent:#FFB300;">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-sm font-bold flex items-center gap-2">
+        <span class="w-1 h-4 bg-[#FFB300] rounded"></span>
+        当前 10Y 收益率 · 由高到低
+      </h3>
+      <div class="text-[10px] text-[#5A5A70]">最新收盘 · %</div>
+    </div>
+    <div class="space-y-2" id="yieldRankList"></div>
+  </div>
+
+  <!-- 双图对比 -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+    <!-- 柱状对比 -->
+    <div class="card-base p-5" style="--accent:#FFB300;">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-bold">当前收益率柱状对比</h3>
+        <span class="text-[10px] text-[#5A5A70] mono">10Y YIELD NOW</span>
+      </div>
+      <div style="height:320px"><canvas id="yieldBarChart"></canvas></div>
+    </div>
+    <!-- 12个月走势 -->
+    <div class="card-base p-5" style="--accent:#FFB300;">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-bold">12 个月收益率走势</h3>
+        <span class="text-[10px] text-[#5A5A70] mono">TRAJECTORY</span>
+      </div>
+      <div style="height:320px"><canvas id="yieldLineChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- 利差表 -->
+  <div class="card-base p-5 mt-5" style="--accent:#FFB300;">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-sm font-bold flex items-center gap-2">
+        <span class="w-1 h-4 bg-[#FFB300] rounded"></span>
+        利差矩阵 · 相对美债 10Y (4.42%)
+      </h3>
+      <div class="text-[10px] text-[#5A5A70] mono">SPREAD vs UST</div>
+    </div>
+    <div class="overflow-x-auto no-scrollbar">
+      <table class="w-full text-xs">
+        <thead>
+          <tr class="text-left text-[#5A5A70] border-b border-[#2A2A3E]">
+            <th class="py-2 pr-4">国家</th>
+            <th class="py-2 pr-4">10Y 收益率</th>
+            <th class="py-2 pr-4">vs 美债利差</th>
+            <th class="py-2 pr-4">12M 变化</th>
+            <th class="py-2">信号解读</th>
+          </tr>
+        </thead>
+        <tbody id="spreadTable"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- =============== FOOTER =============== -->
+<footer class="border-t border-[#2A2A3E] mt-8">
+  <div class="bg-[#060D18] py-3 overflow-hidden">
+    <div class="flex ticker-track whitespace-nowrap text-xs">
+      <div class="flex gap-8 px-4 text-[#8A8AA0] mono" id="tickerContent"></div>
+      <div class="flex gap-8 px-4 text-[#8A8AA0] mono" id="tickerContent2"></div>
+    </div>
+  </div>
+  <div class="max-w-[1500px] mx-auto px-6 py-6 flex flex-col md:flex-row items-center justify-between text-[10px] text-[#5A5A70]">
+    <div>© 2026 财情双生智库 · 美林时钟监控系统 v2.0 · 8 国版</div>
+    <div class="flex gap-4 mt-2 md:mt-0">
+      <span>数据源 · NBS · BLS · 総務省 · ONS · Destatis · BOK · CBI · Rosstat</span>
+      <span>·</span>
+      <span class="mono">BUILD 2026.08.05</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ================================================================
+   八国数据模型
+================================================================ */
+const COUNTRIES = {
+  cn: {
+    key:'cn', name:'中国', flag:'🇨🇳', color:'#E53935',
+    phase:'复苏期', phaseShort:'复苏', desc:'经济↑ 通胀↓', angle:-45, asset:'股票为王', assetIcon:'📈',
+    gdp:5.2, gdpT:'up', cpi:0.6, cpiT:'up', unemp:5.0, policy:3.10, y10:2.31, y10T:'down', y10m:[-0.4,-0.5,-0.3,0.0,0.3,0.5,0.4,0.5,0.6,0.6,0.7,0.8],
+    y10Hist:[2.72,2.68,2.60,2.55,2.48,2.42,2.38,2.33,2.36,2.30,2.34,2.31],
+    spreadNote:'相对美债 -211bp · 全球最低息之一',
+  },
+  us: {
+    key:'us', name:'美国', flag:'🇺🇸', color:'#4FC3F7',
+    phase:'滞胀阴影', phaseShort:'滞胀', desc:'经济↓ 通胀↑', angle:135, asset:'现金为王', assetIcon:'💵',
+    gdp:2.1, gdpT:'down', cpi:3.2, cpiT:'up', unemp:4.3, policy:5.50, y10:4.42, y10T:'up', y10m:[4.8,4.6,4.5,4.4,4.3,4.2,4.1,4.2,4.3,4.4,4.3,4.4],
+    y10Hist:[4.10,4.22,4.35,4.48,4.55,4.62,4.58,4.65,4.52,4.48,4.55,4.42],
+    spreadNote:'基准锚 · 全球资产定价之锚',
+  },
+  jp: {
+    key:'jp', name:'日本', flag:'🇯🇵', color:'#BA68C8',
+    phase:'过热期', phaseShort:'过热', desc:'经济↑ 通胀↑', angle:45, asset:'商品为王', assetIcon:'🔥',
+    gdp:0.8, gdpT:'up', cpi:2.7, cpiT:'up', unemp:2.5, policy:0.25, y10:1.05, y10T:'up', y10m:[0.65,0.70,0.74,0.78,0.82,0.86,0.90,0.95,1.02,1.05,1.08,1.05],
+    y10Hist:[0.62,0.68,0.75,0.80,0.85,0.90,0.96,1.02,1.08,1.10,1.07,1.05],
+    spreadNote:'相对美债 -337bp · YCC退出后正常化',
+  },
+  gb: {
+    key:'gb', name:'英国', flag:'🇬🇧', color:'#FF6F00',
+    phase:'复苏期', phaseShort:'复苏', desc:'经济↑ 通胀↓', angle:-45, asset:'股票为王', assetIcon:'📈',
+    gdp:1.2, gdpT:'up', cpi:2.4, cpiT:'down', unemp:4.4, policy:4.75, y10:4.18, y10T:'down', y10m:[4.0,3.9,4.1,4.3,4.2,4.0,3.9,4.1,4.2,4.3,4.2,4.2],
+    y10Hist:[4.20,4.25,4.30,4.28,4.22,4.18,4.15,4.22,4.28,4.25,4.22,4.18],
+    spreadNote:'相对美债 -24bp · 利差极窄',
+  },
+  de: {
+    key:'de', name:'德国', flag:'🇩🇪', color:'#FDD835',
+    phase:'衰退期', phaseShort:'衰退', desc:'经济↓ 通胀↓', angle:225, asset:'债券为王', assetIcon:'❄️',
+    gdp:-0.3, gdpT:'down', cpi:2.1, cpiT:'down', unemp:6.0, policy:3.40, y10:2.55, y10T:'down', y10m:[2.3,2.4,2.5,2.6,2.7,2.8,2.7,2.6,2.5,2.4,2.6,2.5],
+    y10Hist:[2.35,2.42,2.50,2.58,2.62,2.66,2.60,2.58,2.52,2.48,2.56,2.55],
+    spreadNote:'相对美债 -187bp · 欧洲资金避风港',
+  },
+  kr: {
+    key:'kr', name:'韩国', flag:'🇰🇷', color:'#26A69A',
+    phase:'复苏期', phaseShort:'复苏', desc:'经济↑ 通胀↓', angle:-45, asset:'股票为王', assetIcon:'📈',
+    gdp:2.4, gdpT:'up', cpi:1.8, cpiT:'down', unemp:2.8, policy:3.00, y10:3.12, y10T:'down', y10m:[3.4,3.3,3.2,3.1,3.0,3.1,3.2,3.1,3.0,3.1,3.2,3.1],
+    y10Hist:[3.30,3.25,3.20,3.15,3.10,3.08,3.14,3.18,3.15,3.12,3.15,3.12],
+    spreadNote:'相对美债 -130bp · 半导体周期敏感',
+  },
+  ir: {
+    key:'ir', name:'伊朗', flag:'🇮🇷', color:'#FF7043',
+    phase:'滞胀期', phaseShort:'滞胀', desc:'经济↓ 通胀↑', angle:135, asset:'现金为王', assetIcon:'💵',
+    gdp:3.1, gdpT:'down', cpi:38.5, cpiT:'up', unemp:9.0, policy:30.00, y10:35.20, y10T:'up', y10m:[32,33,34,35,36,37,38,39,38,37,36,35],
+    y10Hist:[28.5,29.8,31.2,32.6,33.8,35.0,36.2,37.5,38.8,37.2,36.0,35.2],
+    spreadNote:'相对美债 +3078bp · 恶性通胀',
+  },
+  ru: {
+    key:'ru', name:'俄罗斯', flag:'🇷🇺', color:'#78909C',
+    phase:'过热期', phaseShort:'过热', desc:'经济↑ 通胀↑', angle:45, asset:'商品为王', assetIcon:'🔥',
+    gdp:3.6, gdpT:'up', cpi:8.5, cpiT:'up', unemp:2.3, policy:18.00, y10:15.80, y10T:'up', y10m:[13.5,14.0,14.8,15.2,15.8,16.5,17.2,17.8,17.0,16.2,15.5,15.8],
+    y10Hist:[12.8,13.4,14.2,15.0,15.6,16.2,16.8,17.5,16.8,16.0,15.4,15.8],
+    spreadNote:'相对美债 +1138bp · 战时高利率',
+  },
+};
+
+const DEFAULT_SELECTED = ['cn','us','jp','gb','de','kr','ir','ru'];
+let selected = new Set(DEFAULT_SELECTED);
+let auto = true;
+
+/* =============== 工具 =============== */
+function pad(n){ return String(n).padStart(2,'0'); }
+function tickNow() {
+  const d = new Date();
+  document.getElementById('now').textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+setInterval(tickNow, 1000); tickNow();
+
+function countdown(id, target) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const tick = () => {
+    const diff = target - new Date();
+    if (diff < 0) { el.textContent = '已发布'; return; }
+    const d = Math.floor(diff/86400000);
+    const h = Math.floor((diff%86400000)/3600000);
+    const m = Math.floor((diff%3600000)/60000);
+    el.textContent = (d>0?d+'d ':'') + `${pad(h)}:${pad(m)}`;
+  };
+  tick(); setInterval(tick, 30000);
+}
+const now0 = new Date();
+countdown('cEv1', new Date(now0.getTime() + 1000*3600*92));
+countdown('cEv2', new Date(now0.getTime() + 1000*3600*216));
+countdown('cEv3', new Date(now0.getTime() + 1000*3600*240));
+countdown('cEv4', new Date(now0.getTime() + 1000*3600*232));
+countdown('cEv5', new Date(now0.getTime() + 1000*3600*408));
+
+/* =============== 国家复选框选择器 =============== */
+function renderSelector() {
+  const box = document.getElementById('countrySelector');
+  box.innerHTML = Object.values(COUNTRIES).map(c => `
+    <label class="country-check" style="--cc:${c.color}">
+      <input type="checkbox" value="${c.key}" ${selected.has(c.key)?'checked':''} onchange="toggleCountry('${c.key}')" />
+      <span class="ck-box"></span>
+      <span class="ck-label">${c.flag} ${c.name}</span>
+    </label>
+  `).join('');
+  box.insertAdjacentHTML('beforeend', `
+    <button class="px-3 py-1.5 rounded-full text-[10px] border border-[#2A2A3E] text-[#8A8AA0] hover:border-[#D4AF37] hover:text-[#D4AF37] transition" onclick="selectAll(true)">全选</button>
+    <button class="px-3 py-1.5 rounded-full text-[10px] border border-[#2A2A3E] text-[#8A8AA0] hover:border-[#D4AF37] hover:text-[#D4AF37] transition" onclick="selectAll(false)">清空</button>
+  `);
+}
+function toggleCountry(key) {
+  if (selected.has(key)) selected.delete(key); else selected.add(key);
+  renderAll();
+}
+function selectAll(v) {
+  selected = v ? new Set(Object.keys(COUNTRIES)) : new Set();
+  renderAll();
+}
+
+/* =============== 时钟渲染 =============== */
+function clockCard(c) {
+  const qColor = { '复苏期':'#43A047', '过热期':'#E53935', '滞胀期':'#9C27B0', '衰退期':'#4FC3F7' }[c.phase];
+  const qBg = { '复苏期':'rgba(67,160,71,0.22)', '过热期':'rgba(229,57,53,0.22)', '滞胀期':'rgba(156,39,176,0.22)', '衰退期':'rgba(79,195,247,0.22)' }[c.phase];
+  return `
+  <div class="card-base p-5 fade-up" style="--accent:${c.color}">
+    <div class="country-bar ${c.key}"></div>
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center gap-3">
+        <div class="text-2xl">${c.flag}</div>
+        <div>
+          <div class="text-[10px] text-[#5A5A70] tracking-wider">${c.key.toUpperCase()}</div>
+          <div class="text-base font-bold">${c.name}</div>
+        </div>
+      </div>
+      <div class="text-right">
+        <div class="text-[10px] text-[#5A5A70]">周期定位</div>
+        <div class="data-pill" style="color:${qColor}">${c.phase}</div>
+      </div>
+    </div>
+    <div class="clock-wrap mb-3">
+      <div>
+        <div class="clock-quadrant" style="left:0; top:0; background:${c.phase==='复苏期'?qBg:'rgba(67,160,71,0.16)'}; border-top-left-radius:50%; color:#43A047;">
+          <div><div class="text-[10px]">复苏期</div><div class="text-[8px] opacity-70">股票为王</div></div>
+        </div>
+        <div class="clock-quadrant" style="right:0; top:0; background:${c.phase==='过热期'?qBg:'rgba(229,57,53,0.16)'}; border-top-right-radius:50%; color:#E53935;">
+          <div><div class="text-[10px]">过热期</div><div class="text-[8px] opacity-70">商品为王</div></div>
+        </div>
+        <div class="clock-quadrant" style="right:0; bottom:0; background:${c.phase==='滞胀期'?qBg:'rgba(156,39,176,0.16)'}; border-bottom-right-radius:50%; color:#9C27B0;">
+          <div><div class="text-[10px]">滞胀期</div><div class="text-[8px] opacity-70">现金为王</div></div>
+        </div>
+        <div class="clock-quadrant" style="left:0; bottom:0; background:${c.phase==='衰退期'?qBg:'rgba(79,195,247,0.16)'}; border-bottom-left-radius:50%; color:#4FC3F7;">
+          <div><div class="text-[10px]">衰退期</div><div class="text-[8px] opacity-70">债券为王</div></div>
+        </div>
+        <div class="clock-divider-v"></div>
+        <div class="clock-divider-h"></div>
+        <div class="clock-pointer" id="ptr_${c.key}" style="transform: rotate(${c.angle}deg);">
+          <div class="pointer-dot"></div>
+          <div class="pointer-line"></div>
+        </div>
+        <div class="pointer-ring" style="left:50%; top:50%;"></div>
+        <div class="clock-core">
+          <div class="text-[8px] text-[#5A5A70] tracking-widest">PHASE</div>
+          <div class="text-xl font-black gold-text mono">${c.phaseShort}</div>
+          <div class="text-[9px] text-[#8A8AA0] mt-0.5">${c.desc}</div>
+        </div>
+      </div>
+    </div>
+    <div class="space-y-1.5 text-[11px]">
+      <div class="flex justify-between items-center">
+        <span class="text-[#8A8AA0]">GDP 同比</span>
+        <span class="mono ${c.gdpT==='up'?'text-[#43A047]':'text-[#FFB300]'} font-semibold">${c.gdp>0?'+':''}${c.gdp}% ${c.gdpT==='up'?'▲':'▼'}</span>
+      </div>
+      <div class="flex justify-between items-center">
+        <span class="text-[#8A8AA0]">CPI 同比</span>
+        <span class="mono ${c.cpiT==='up'?'text-[#E53935]':'text-[#43A047]'} font-semibold">+${c.cpi}% ${c.cpiT==='up'?'▲':'▼'}</span>
+      </div>
+      <div class="flex justify-between items-center">
+        <span class="text-[#8A8AA0]">政策利率</span>
+        <span class="mono text-[#E8E8F0] font-semibold">${c.policy}%</span>
+      </div>
+      <div class="flex justify-between items-center">
+        <span class="text-[#8A8AA0]">10Y 国债</span>
+        <span class="mono text-[#FFB300] font-semibold">${c.y10}% ${c.y10T==='up'?'▲':'▼'}</span>
+      </div>
+      <div class="flex justify-between items-center pt-1.5 border-t border-[#2A2A3E]">
+        <span class="text-[#8A8AA0]">资产为王</span>
+        <span class="font-semibold" style="color:${qColor}">${c.assetIcon} ${c.asset}</span>
+      </div>
+    </div>
+  </div>`;
+}
+function renderClocks() {
+  const grid = document.getElementById('clockGrid');
+  const list = Object.values(COUNTRIES).filter(c => selected.has(c.key));
+  grid.innerHTML = list.length ? list.map(clockCard).join('') :
+    `<div class="col-span-full text-center py-12 text-[#5A5A70] text-sm">请勾选至少一个国家</div>`;
+  list.forEach(c => {
+    const p = document.getElementById('ptr_' + c.key);
+    if (p) {
+      const drift = (Math.random() - 0.5) * 6;
+      setTimeout(() => { p.style.transform = `rotate(${c.angle + drift}deg)`; }, 50);
+    }
+  });
+}
+
+/* =============== 10Y 国债模块 =============== */
+function yieldScale(v) {
+  // 对数压缩：35.2% → 100%
+  const max = 35.2;
+  return Math.round(Math.pow(v / max, 0.6) * 100);
+}
+function renderYieldRank() {
+  const list = Object.values(COUNTRIES).filter(c => selected.has(c.key)).sort((a,b) => b.y10 - a.y10);
+  document.getElementById('yieldRankList').innerHTML = list.map(c => `
+    <div class="yield-bar-row">
+      <div class="w-28 flex items-center gap-2 flex-shrink-0">
+        <span>${c.flag}</span>
+        <span class="text-[#E8E8F0] font-semibold">${c.name}</span>
+      </div>
+      <div class="yield-bar-track">
+        <div class="yield-bar-fill" style="width:${yieldScale(c.y10)}%; background:linear-gradient(90deg, ${c.color}66, ${c.color});">
+          <span class="text-white text-[10px] mono font-bold drop-shadow">${c.y10}%</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+function renderSpreadTable() {
+  const usY = COUNTRIES.us.y10;
+  const rows = Object.values(COUNTRIES).filter(c => selected.has(c.key)).sort((a,b) => b.y10 - a.y10);
+  document.getElementById('spreadTable').innerHTML = rows.map(c => {
+    const sp = c.y10 - usY;
+    const spAbs = Math.abs(sp);
+    const spColor = sp > 0 ? 'text-[#E53935]' : 'text-[#43A047]';
+    const y12m = c.y10 - c.y10Hist[0];
+    const yc = y12m >= 0 ? 'text-[#E53935]' : 'text-[#43A047]';
+    const note = spAbs > 1000 ? '⚠ 极端利差 · 风险溢价极高' :
+      spAbs > 200 ? '利率分化 · 套利关注' :
+      spAbs > 50 ? '利差温和' : '利差收敛 · 低套利空间';
+    return `
+    <tr class="border-b border-[#1A1A2E] hover:bg-[rgba(255,179,0,0.03)]">
+      <td class="py-2.5 pr-4"><span class="mr-1.5">${c.flag}</span><span class="text-[#E8E8F0] font-semibold">${c.name}</span></td>
+      <td class="py-2.5 pr-4 mono text-[#FFB300] font-bold">${c.y10}%</td>
+      <td class="py-2.5 pr-4 mono ${spColor} font-bold">${sp>0?'+':''}${sp.toFixed(2)}pp (${sp>0?'+':''}${Math.round(sp*100)}bp)</td>
+      <td class="py-2.5 pr-4 mono ${yc}">${y12m>=0?'+':''}${y12m.toFixed(2)}pp</td>
+      <td class="py-2.5 text-[#8A8AA0]">${note}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* Chart 实例 */
+let yieldBarChart = null, yieldLineChart = null, fxChart = null, trajChart = null;
+
+function renderYieldCharts() {
+  const list = Object.values(COUNTRIES).filter(c => selected.has(c.key)).sort((a,b) => b.y10 - a.y10);
+  const labels = list.map(c => c.flag + ' ' + c.name);
+  const data = list.map(c => c.y10);
+  const colors = list.map(c => c.color);
+  const months = ['8月','9月','10月','11月','12月','1月','2月','3月','4月','5月','6月','7月'];
+
+  if (yieldBarChart) yieldBarChart.destroy();
+  yieldBarChart = new Chart(document.getElementById('yieldBarChart'), {
+    type: 'bar',
+    data: { labels, datasets: [{ data, backgroundColor: colors, borderRadius: 6, maxBarThickness: 48 }] },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(13,13,15,0.95)', borderColor: '#D4AF37', borderWidth: 1,
+          titleColor: '#D4AF37', bodyColor: '#E8E8F0', padding: 10,
+          callbacks: { label: c => ' 10Y: ' + c.parsed.x + '%' }
+        }
+      },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#8A8AA0', font: { family: 'JetBrains Mono', size: 10 }, callback: v => v + '%' } },
+        y: { grid: { display: false }, ticks: { color: '#E8E8F0', font: { size: 11 } } }
+      }
+    }
+  });
+
+  if (yieldLineChart) yieldLineChart.destroy();
+  const ds = list.map(c => ({
+    label: c.flag + ' ' + c.name,
+    data: c.y10Hist,
+    borderColor: c.color,
+    backgroundColor: c.color + '22',
+    borderWidth: 2, tension: 0.3, pointRadius: 0, pointHoverRadius: 4, fill: false,
+  }));
+  yieldLineChart = new Chart(document.getElementById('yieldLineChart'), {
+    type: 'line',
+    data: { labels: months, datasets: ds },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: true, position: 'top', labels: { color: '#8A8AA0', font: { size: 10, family: 'JetBrains Mono' }, boxWidth: 12, boxHeight: 4 } },
+        tooltip: { backgroundColor: 'rgba(13,13,15,0.95)', borderColor: '#D4AF37', borderWidth: 1, titleColor: '#D4AF37', bodyColor: '#E8E8F0', padding: 10 }
+      },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#8A8AA0', font: { size: 10 } } },
+        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#8A8AA0', font: { size: 10, family: 'JetBrains Mono' }, callback: v => v + '%' } }
+      }
+    }
+  });
+}
+
+/* =============== 指标总表 =============== */
+const phaseColor = { '复苏期':'#43A047', '过热期':'#E53935', '滞胀期':'#9C27B0', '衰退期':'#4FC3F7' };
+function renderIndicatorTable() {
+  document.getElementById('indicatorTable').innerHTML = Object.values(COUNTRIES).map(c => `
+    <tr class="border-b border-[#1A1A2E] hover:bg-[rgba(212,175,55,0.03)]">
+      <td class="py-3 px-4"><span class="mr-1.5">${c.flag}</span><span class="text-[#E8E8F0] font-semibold">${c.name}</span></td>
+      <td class="py-3 px-4"><span class="badge" style="color:${phaseColor[c.phase]}">${c.phase}</span></td>
+      <td class="py-3 px-4 mono ${c.gdpT==='up'?'text-[#43A047]':'text-[#FFB300]'} font-semibold">${c.gdp>0?'+':''}${c.gdp}%</td>
+      <td class="py-3 px-4 mono ${c.cpiT==='up'?'text-[#E53935]':'text-[#43A047]'} font-semibold">+${c.cpi}%</td>
+      <td class="py-3 px-4 mono text-[#E8E8F0]">${c.unemp}%</td>
+      <td class="py-3 px-4 mono text-[#E8E8F0]">${c.policy}%</td>
+      <td class="py-3 px-4 mono text-[#FFB300] font-bold">${c.y10}%</td>
+      <td class="py-3 px-4 font-semibold" style="color:${phaseColor[c.phase]}">${c.assetIcon} ${c.asset}</td>
+    </tr>
+  `).join('');
+}
+
+/* =============== 四象限配置 =============== */
+function allocCard(q, icon, title, subtitle, items, countries) {
+  return `
+  <div class="card-base p-5 fade-up" style="--accent:${q}; border-color: ${q}66;">
+    <div class="flex items-center justify-between mb-3">
+      <div>
+        <div class="text-[10px] tracking-widest" style="color:${q}">${title[0]}</div>
+        <div class="text-lg font-bold">${title[1]}</div>
+      </div>
+      <div class="text-2xl">${icon}</div>
+    </div>
+    <div class="text-[10px] text-[#8A8AA0] mb-3">${subtitle}</div>
+    <div class="space-y-1.5 text-xs">
+      ${items.map((it, i) => `
+        <div class="flex items-center justify-between p-2 rounded ${i===0?'':''}" style="background:${i===0?q+'14':'transparent'}">
+          <span class="${i===0?'text-[#E8E8F0]':'text-[#8A8AA0]'}">${it[0]}</span>
+          <span class="${i===0?'':'text-[#8A8AA0]'} font-bold" style="${i===0?`color:${q}`:''}">${it[1]}</span>
+        </div>`).join('')}
+    </div>
+    <div class="mt-3 pt-3 border-t border-[#2A2A3E] text-[10px] text-[#8A8AA0]">${countries}</div>
+  </div>`;
+}
+function renderAlloc() {
+  document.getElementById('allocCards').innerHTML = [
+    allocCard('#43A047','📈',['Q1 · RECOVERY','复苏期'],'经济↑ 通胀↓ · 降息周期',
+      [['①股票','⭐⭐⭐⭐⭐'],['②债券','⭐⭐⭐'],['③现金','⭐⭐'],['④商品','⭐']],
+      '🇨🇳 中国 · 🇬🇧 英国 · 🇰🇷 韩国 — 股票为王'),
+    allocCard('#E53935','🔥',['Q2 · OVERHEAT','过热期'],'经济↑ 通胀↑ · 加息周期',
+      [['①商品','⭐⭐⭐⭐⭐'],['②股票','⭐⭐⭐'],['③债券','⭐⭐'],['④现金','⭐']],
+      '🇯🇵 日本 · 🇷🇺 俄罗斯 — 商品为王'),
+    allocCard('#9C27B0','⚠️',['Q3 · STAGFLATION','滞胀期'],'经济↓ 通胀↑ · 经济危机',
+      [['①现金','⭐⭐⭐⭐⭐'],['②商品','⭐⭐⭐'],['③债券','⭐⭐'],['④股票','⚠ 暴跌']],
+      '🇺🇸 美国 · 🇮🇷 伊朗 — 现金为王'),
+    allocCard('#4FC3F7','❄️',['Q4 · RECESSION','衰退期'],'经济↓ 通胀↓ · 减息周期',
+      [['①债券','⭐⭐⭐⭐⭐'],['②现金','⭐⭐⭐'],['③股票','⭐⭐'],['④商品','⚠ 暴跌']],
+      '🇩🇪 德国 — 债券为王'),
+  ].join('');
+}
+
+/* =============== 历史周期切换时间线 =============== */
+/* 相位键: rec=复苏 heat=过热 stag=滞胀 recs=衰退 */
+const PHASE_META = {
+  rec:  { name:'复苏期', color:'#43A047', icon:'📈' },
+  heat: { name:'过热期', color:'#E53935', icon:'🔥' },
+  stag: { name:'滞胀期', color:'#9C27B0', icon:'⚠️' },
+  recs: { name:'衰退期', color:'#4FC3F7', icon:'❄️' },
+};
+const TL_YEARS = Array.from({length:17}, (_, i) => 2010 + i); // 2010-2026
+
+const TIMELINES = {
+  cn: [
+    [2010,'heat','四万亿后通胀过热'],[2011,'stag','CPI 峰值 6.4%'],[2012,'recs','增长破8 软着陆'],
+    [2013,'rec','新常态转型'],[2014,'rec','改革牛起步'],[2015,'heat','股灾+811汇改'],
+    [2016,'rec','供给侧改革'],[2017,'rec','金融去杠杆'],[2018,'stag','中美贸易摩擦'],
+    [2019,'rec','L型企稳'],[2020,'recs','疫情冲击'],[2021,'rec','出口高景气'],
+    [2022,'rec','地产调整'],[2023,'rec','疫后复苏'],[2024,'rec','政策发力'],
+    [2025,'rec','AI+新质生产力'],[2026,'rec','复苏延续'],
+  ],
+  us: [
+    [2010,'rec','QE2 复苏'],[2011,'rec','QE 延续'],[2012,'rec','财政悬崖'],
+    [2013,'rec','Taper 恐慌'],[2014,'rec','QE 结束'],[2015,'rec','首次加息'],
+    [2016,'rec','Trump 当选'],[2017,'heat','税改+过热'],[2018,'heat','加息周期'],
+    [2019,'rec','贸易战+降息'],[2020,'recs','疫情熔断'],[2021,'heat','通胀启动'],
+    [2022,'stag','40年高通胀'],[2023,'rec','软着陆预期'],[2024,'rec','降息预期'],
+    [2025,'stag','关税+滞胀'],[2026,'stag','滞胀阴影'],
+  ],
+  jp: [
+    [2010,'recs','通缩衰退'],[2011,'recs','大地震海啸'],[2012,'rec','安倍经济学'],
+    [2013,'rec','QQE 启动'],[2014,'stag','消费税冲击'],[2015,'rec','QQE 续期'],
+    [2016,'rec','负利率'],[2017,'rec','YCC 引入'],[2018,'rec','增长平稳'],
+    [2019,'rec','消费税再调'],[2020,'recs','疫情冲击'],[2021,'rec','温和复苏'],
+    [2022,'rec','输入性通胀'],[2023,'heat','春斗加薪'],[2024,'heat','YCC 退出'],
+    [2025,'heat','加息 25bp'],[2026,'heat','过热延续'],
+  ],
+  gb: [
+    [2010,'recs','欧债危机'],[2011,'stag','通胀破5'],[2012,'rec','双底衰退后'],
+    [2013,'rec','复苏启动'],[2014,'rec','增长强劲'],[2015,'rec','财政紧缩'],
+    [2016,'rec','Brexit 公投'],[2017,'stag','通胀回升'],[2018,'stag','退欧僵局'],
+    [2019,'rec','大选明朗'],[2020,'recs','疫情冲击'],[2021,'heat','重开过热'],
+    [2022,'stag','能源危机'],[2023,'rec','通胀回落'],[2024,'rec','降息周期'],
+    [2025,'rec','温和复苏'],[2026,'rec','复苏延续'],
+  ],
+  de: [
+    [2010,'heat','出口强劲'],[2011,'heat','欧元区繁荣'],[2012,'recs','欧债危机'],
+    [2013,'rec','复苏'],[2014,'rec','增长平稳'],[2015,'heat','难民+宽松'],
+    [2016,'heat','经济扩张'],[2017,'heat','出口高峰'],[2018,'rec','贸易摩擦'],
+    [2019,'recs','制造业衰退'],[2020,'recs','疫情重创'],[2021,'rec','出口反弹'],
+    [2022,'stag','能源危机'],[2023,'recs','工业外流'],[2024,'recs','衰退延续'],
+    [2025,'recs','制造业疲软'],[2026,'recs','衰退持续'],
+  ],
+  kr: [
+    [2010,'heat','出口繁荣'],[2011,'heat','通胀压力'],[2012,'rec','增长放缓'],
+    [2013,'rec','复苏'],[2014,'rec','出口回暖'],[2015,'rec','MERS 冲击'],
+    [2016,'rec','增长平稳'],[2017,'heat','半导体周期'],[2018,'rec','贸易摩擦'],
+    [2019,'recs','半导体寒冬'],[2020,'rec','疫情复苏'],[2021,'heat','出口旺盛'],
+    [2022,'stag','高利率'],[2023,'rec','出口低迷'],[2024,'heat','AI 热潮'],
+    [2025,'rec','出口回暖'],[2026,'rec','复苏延续'],
+  ],
+  ir: [
+    [2010,'stag','制裁加剧'],[2011,'stag','高通胀'],[2012,'stag','制裁高峰'],
+    [2013,'stag','里亚尔暴跌'],[2014,'stag','油价下滑'],[2015,'stag','谈判窗口'],
+    [2016,'rec','JCPOA 解禁'],[2017,'rec','外资流入'],[2018,'stag','美国退约'],
+    [2019,'stag','制裁重压'],[2020,'stag','疫情+制裁'],[2021,'stag','通胀飙升'],
+    [2022,'stag','恶性通胀'],[2023,'stag','通胀 40%'],[2024,'stag','汇率崩溃'],
+    [2025,'stag','持续滞胀'],[2026,'stag','恶性滞胀'],
+  ],
+  ru: [
+    [2010,'rec','油价反弹'],[2011,'rec','增长强劲'],[2012,'rec','入世'],
+    [2013,'rec','增长放缓'],[2014,'stag','克里米亚+油价崩'],[2015,'stag','制裁+卢布崩'],
+    [2016,'rec','油价企稳'],[2017,'rec','复苏'],[2018,'rec','制裁反复'],
+    [2019,'rec','增长乏力'],[2020,'recs','疫情+油价崩'],[2021,'heat','大宗暴涨'],
+    [2022,'stag','战争+制裁'],[2023,'heat','战时经济'],[2024,'heat','国防支出'],
+    [2025,'heat','过热延续'],[2026,'heat','战时过热'],
+  ],
+};
+
+let tlTooltip = null;
+function initTimelineTooltip() {
+  tlTooltip = document.createElement('div');
+  tlTooltip.className = 'tl-tooltip';
+  document.body.appendChild(tlTooltip);
+}
+function showTlTip(e, year, phaseKey, event) {
+  const meta = PHASE_META[phaseKey];
+  tlTooltip.innerHTML = `<div class="tt-year">${year}</div><div class="tt-phase" style="color:${meta.color}">${meta.icon} ${meta.name}</div><div class="tt-event">${event}</div>`;
+  tlTooltip.style.display = 'block';
+  const pad = 16;
+  tlTooltip.style.left = Math.min(e.clientX + 14, window.innerWidth - 260) + 'px';
+  tlTooltip.style.top = (e.clientY + 14) + 'px';
+}
+function hideTlTip() { if (tlTooltip) tlTooltip.style.display = 'none'; }
+
+function renderTimeline() {
+  const list = Object.values(COUNTRIES).filter(c => selected.has(c.key));
+  // 年份刻度
+  const yrLabels = TL_YEARS.map(y => {
+    const show = [2010,2013,2016,2019,2022,2026].includes(y);
+    return `<div class="yr ${y===2026?'now':''}">${show ? (y===2026?'★ 2026':y) : ''}</div>`;
+  }).join('');
+  document.getElementById('tlYears').innerHTML = `<div></div>${yrLabels}`;
+  // 轨迹行
+  document.getElementById('timelineList').innerHTML = list.map(c => {
+    const tl = TIMELINES[c.key];
+    const cells = TL_YEARS.map((y, yi) => {
+      const cell = tl.find(t => t[0] === y);
+      const meta = PHASE_META[cell[1]];
+      const isPivot = yi > 0 && cell[1] !== tl.find(t => t[0] === TL_YEARS[yi-1])[1];
+      const isNow = y === 2026;
+      const label = isNow ? '★' : (isPivot ? String(y).slice(2) : '');
+      return `<div class="tl-cell ${isPivot?'pivot':''} ${isNow?'current':''}"
+        style="background:${meta.color}${isPivot?'CC':'88'}"
+        data-year="${y}" data-phase="${cell[1]}" data-event="${cell[2]}"
+        onmouseenter="showTlTip(event,${y},'${cell[1]}','${cell[2]}')" onmouseleave="hideTlTip()">${label}</div>`;
+    }).join('');
+    return `
+    <div class="tl-row">
+      <div class="flex items-center gap-1.5 text-xs pr-1">
+        <span>${c.flag}</span><span class="font-semibold text-[#E8E8F0]">${c.name}</span>
+      </div>
+      ${cells}
+    </div>`;
+  }).join('') || `<div class="text-center py-8 text-[#5A5A70] text-sm">请勾选至少一个国家</div>`;
+}
+
+/* =============== 事件日历 =============== */
+const EVENTS = [
+  { flag:'🇨🇳', name:'中国 7月 CPI / PPI', sub:'8月9日 09:30 · 预期 CPI +0.7% / PPI -0.8%', level:'高', color:'#E53935', id:'cEv1' },
+  { flag:'🇩🇪', name:'德国 8月 ZEW 经济景气指数', sub:'8月13日 17:00 · 制造业拖累持续', level:'中', color:'#FFB300', id:'cEv6' },
+  { flag:'🇺🇸', name:'美国 7月 CPI / 核心 CPI', sub:'8月14日 20:30 · 预期 CPI +3.0% / 核心 +3.2%', level:'高', color:'#E53935', id:'cEv2' },
+  { flag:'🇺🇸', name:'美国 7月 PPI / 零售销售', sub:'8月15日 20:30 · 关注核心 PPI', level:'中', color:'#FFB300', id:'cEv3' },
+  { flag:'🇯🇵', name:'日本 4-6月 GDP · 二次速报', sub:'8月15日 08:50 · 关注内需', level:'中', color:'#FFB300', id:'cEv4' },
+  { flag:'🇷🇺', name:'俄罗斯 8月央行利率决议', sub:'8月16日 18:00 · 目前 18% 高位', level:'中', color:'#FFB300', id:'cEv7' },
+  { flag:'🇬🇧', name:'英国 7月 CPI', sub:'8月20日 14:00 · 预期 +2.2%', level:'中', color:'#FFB300', id:'cEv8' },
+  { flag:'🇺🇸', name:'FOMC 7月会议纪要', sub:'8月22日 02:00 · 市场押注 9月降息', level:'高', color:'#E53935', id:'cEv5' },
+  { flag:'🇰🇷', name:'韩国 8月央行利率决议', sub:'8月25日 09:00 · 目前 3.00%', level:'中', color:'#FFB300', id:'cEv9' },
+];
+function renderEvents() {
+  document.getElementById('eventList').innerHTML = EVENTS.map(e => `
+    <div class="flex items-center gap-3 p-3 rounded-lg bg-[rgba(255,255,255,0.02)] border-l-2" style="border-color:${e.color}">
+      <div class="text-2xl">${e.flag}</div>
+      <div class="flex-1 min-w-0">
+        <div class="text-xs font-semibold">${e.name}</div>
+        <div class="text-[10px] text-[#8A8AA0]">${e.sub}</div>
+      </div>
+      <div class="text-right flex-shrink-0">
+        <div class="text-[10px] text-[#5A5A70] mono countdown" id="${e.id}">--:--:--</div>
+        <div class="badge mt-1" style="color:${e.color}">${e.level}</div>
+      </div>
+    </div>`).join('');
+  const n = new Date();
+  countdown('cEv1', new Date(n.getTime() + 1000*3600*92));
+  countdown('cEv6', new Date(n.getTime() + 1000*3600*192));
+  countdown('cEv2', new Date(n.getTime() + 1000*3600*216));
+  countdown('cEv3', new Date(n.getTime() + 1000*3600*240));
+  countdown('cEv4', new Date(n.getTime() + 1000*3600*232));
+  countdown('cEv7', new Date(n.getTime() + 1000*3600*264));
+  countdown('cEv8', new Date(n.getTime() + 1000*3600*360));
+  countdown('cEv5', new Date(n.getTime() + 1000*3600*408));
+  countdown('cEv9', new Date(n.getTime() + 1000*3600*480));
+}
+
+/* =============== 跨市场联动 =============== */
+function renderFx() {
+  const days = Array.from({length: 30}, (_, i) => `T-${30-i}`);
+  const fxSeries = {
+    'DXY':      { color:'#D4AF37', data:[102.1,102.3,102.5,103.1,103.4,103.8,104.2,104.5,104.8,105.2,104.9,105.1,105.4,105.8,105.6,105.3,105.5,105.7,105.9,106.2,105.8,105.5,105.3,105.1,104.9,105.0,105.2,105.4,105.3,105.32] },
+    'USD/JPY':  { color:'#BA68C8', data:[148.2,148.5,149.1,149.8,150.2,150.7,151.3,151.8,152.4,152.9,153.4,153.8,154.2,154.7,155.0,155.3,155.6,155.9,156.2,156.5,156.8,156.5,156.2,155.9,155.6,155.8,156.0,156.2,156.5,156.4] },
+    'USD/CNY':  { color:'#E53935', data:[7.25,7.24,7.23,7.22,7.21,7.20,7.19,7.18,7.17,7.16,7.17,7.18,7.19,7.20,7.19,7.18,7.17,7.16,7.17,7.18,7.19,7.20,7.19,7.18,7.17,7.18,7.18,7.17,7.18,7.18] },
+    'GBP/USD':  { color:'#FF6F00', data:[1.28,1.28,1.29,1.29,1.30,1.30,1.29,1.29,1.28,1.28,1.27,1.27,1.28,1.28,1.29,1.29,1.30,1.30,1.31,1.31,1.30,1.30,1.29,1.29,1.28,1.28,1.29,1.29,1.30,1.30] },
+    'EUR/USD':  { color:'#FDD835', data:[1.09,1.09,1.10,1.10,1.09,1.09,1.08,1.08,1.07,1.07,1.08,1.08,1.09,1.09,1.10,1.10,1.09,1.09,1.08,1.08,1.07,1.07,1.08,1.08,1.09,1.09,1.10,1.10,1.09,1.09] },
+    'USD/KRW':  { color:'#26A69A', data:[1360,1362,1358,1365,1370,1375,1380,1378,1372,1368,1365,1362,1368,1372,1378,1380,1376,1370,1366,1362,1358,1362,1368,1372,1378,1375,1370,1366,1362,1365] },
+  };
+  const fxSel = ['DXY','USD/JPY','USD/CNY','GBP/USD','EUR/USD','USD/KRW'];
+  if (fxChart) fxChart.destroy();
+  fxChart = new Chart(document.getElementById('fxChart'), {
+    type: 'line',
+    data: {
+      labels: days,
+      datasets: fxSel.map(k => ({ label: k, data: fxSeries[k].data, borderColor: fxSeries[k].color, borderWidth: 1.8, tension: 0.3, pointRadius: 0 }))
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'top', labels: { color: '#8A8AA0', font: { size: 9, family: 'JetBrains Mono' }, boxWidth: 10, boxHeight: 3 } },
+        tooltip: { backgroundColor: 'rgba(13,13,15,0.95)', borderColor: '#D4AF37', borderWidth: 1, titleColor: '#D4AF37', bodyColor: '#E8E8F0', padding: 8 }
+      },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#5A5A70', font: { size: 9 }, maxRotation: 0, maxTicksLimit: 8 } },
+        y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8A8AA0', font: { size: 9 } } }
+      }
+    }
+  });
+  document.getElementById('fxSummary').innerHTML = `
+    <div><div class="text-[10px] text-[#5A5A70]">DXY</div><div class="mono text-sm font-bold text-[#E53935]">105.32 <span class="text-[10px]">+0.18%</span></div></div>
+    <div><div class="text-[10px] text-[#5A5A70]">USD/JPY</div><div class="mono text-sm font-bold text-[#BA68C8]">156.4 <span class="text-[10px]">+0.6%</span></div></div>
+    <div><div class="text-[10px] text-[#5A5A70]">USD/CNY</div><div class="mono text-sm font-bold text-[#43A047]">7.18 <span class="text-[10px]">-0.1%</span></div></div>`;
+}
+
+/* =============== 诊断 =============== */
+function renderDiagnosis() {
+  document.getElementById('signalList').innerHTML = `
+    <li class="flex gap-2"><span class="text-[#E53935]">🇨🇳</span><span class="flex-1">中国<span class="text-[#43A047] font-semibold">复苏期</span> · PMI 50.4 重回扩张 · 10Y 2.31% 全球低位</span></li>
+    <li class="flex gap-2"><span class="text-[#BA68C8]">🇺🇸</span><span class="flex-1">美国<span class="text-[#BA68C8] font-semibold">滞胀阴影</span> · CPI 3.2% + 失业 4.3% · 9月降息 78%</span></li>
+    <li class="flex gap-2"><span class="text-[#BA68C8]">🇯🇵</span><span class="flex-1">日本<span class="text-[#E53935] font-semibold">过热期</span> · CPI 2.7% · BOJ 加息 25bp · 10Y 冲破 1%</span></li>
+    <li class="flex gap-2"><span class="text-[#FF6F00]">🇬🇧</span><span class="flex-1">英国<span class="text-[#43A047] font-semibold">复苏期</span> · 通胀回落至 2.4% · 利差收敛 -24bp</span></li>
+    <li class="flex gap-2"><span class="text-[#FDD835]">🇩🇪</span><span class="flex-1">德国<span class="text-[#4FC3F7] font-semibold">衰退期</span> · GDP -0.3% · 制造业外流</span></li>
+    <li class="flex gap-2"><span class="text-[#26A69A]">🇰🇷</span><span class="flex-1">韩国<span class="text-[#43A047] font-semibold">复苏期</span> · 半导体出口拉动 · 10Y 3.12%</span></li>
+    <li class="flex gap-2"><span class="text-[#FF7043]">🇮🇷</span><span class="flex-1">伊朗<span class="text-[#9C27B0] font-semibold">恶性滞胀</span> · CPI 38.5% · 10Y 35% 极端</span></li>
+    <li class="flex gap-2"><span class="text-[#78909C]">🇷🇺</span><span class="flex-1">俄罗斯<span class="text-[#E53935] font-semibold">过热期</span> · 战时经济 · 政策利率 18%</span></li>`;
+  document.getElementById('judgmentList').innerHTML = `
+    <p><span class="text-[#D4AF37] font-semibold">周期错位矩阵</span>：全球呈现「美滞胀 / 中英韩复苏 / 日俄过热 / 德衰退 / 伊极端滞胀」五极分化。</p>
+    <p><span class="text-[#FFB300] font-semibold">利率信号</span>：10Y 收益率从伊朗 35% 到日本 1.05%，跨 34 倍利差 —— 全球资金流向由「高息国套利」主导。</p>
+    <p><span class="text-[#43A047] font-semibold">核心结论</span>：中国资产相对吸引力最强（复苏+低利率+政策宽松）；美国等待 9 月降息确认；日本正常化引发 carry unwind 风险。</p>`;
+  document.getElementById('actionList').innerHTML = `
+    <li class="flex gap-2"><span class="text-[#D4AF37]">①</span><span class="flex-1"><span class="font-semibold">A 股</span>：中等仓位 · 高股息 + 科技自主可控</span></li>
+    <li class="flex gap-2"><span class="text-[#D4AF37]">②</span><span class="flex-1"><span class="font-semibold">美股</span>：减长久期 · 增配价值股 + 短债</span></li>
+    <li class="flex gap-2"><span class="text-[#D4AF37]">③</span><span class="flex-1"><span class="font-semibold">日股</span>：保留金融 + 出口 · 警惕日元升值冲击</span></li>
+    <li class="flex gap-2"><span class="text-[#D4AF37]">④</span><span class="flex-1"><span class="font-semibold">美债</span>：9月前逢高加久期 · 等待降息确认</span></li>
+    <li class="flex gap-2"><span class="text-[#D4AF37]">⑤</span><span class="flex-1"><span class="font-semibold">英债/德债</span>：欧洲利差收敛 · 配置价值显现</span></li>
+    <li class="flex gap-2"><span class="text-[#D4AF37]">⑥</span><span class="flex-1"><span class="font-semibold">高息避险</span>：伊朗/俄罗斯利率极高 · 仅限对冲策略</span></li>
+    <li class="flex gap-2"><span class="text-[#D4AF37]">⑦</span><span class="flex-1"><span class="font-semibold">黄金</span>：跨周期对冲 · 组合 5-10%</span></li>`;
+}
+
+/* =============== Ticker =============== */
+function renderTicker() {
+  const items = [
+    ['SSE','3,182','+0.34%',1],['SPX','5,642','-0.34%',-1],['NKY','38,946','-1.23%',-1],['FTSE','8,320','+0.2%',1],
+    ['DAX','18,742','-0.4%',-1],['KOSPI','2,648','+0.8%',1],['DXY','105.32','+0.18%',1],
+    ['USDJPY','156.4','+0.6%',1],['USDCNY','7.18','-0.1%',-1],['GBPUSD','1.30','+0.3%',1],
+    ['10Y US','4.42%','+3.2bp',1],['10Y JGB','1.05%','+2bp',1],['10Y DE','2.55%','-1bp',-1],['10Y GB','4.18%','+1bp',1],
+    ['GOLD','2,412','+0.6%',1],['WTI','78.4','+1.2%',1],
+  ];
+  const html = items.map(i => `<span><span class="text-[#E53935]">${i[0]}</span> ${i[1]} <span class="${i[2]>0?'text-[#E53935]':'text-[#43A047]'}">${i[3]>0?'+':'−'}${Math.abs(i[2])}</span></span>`).join('');
+  document.getElementById('tickerContent').innerHTML = html;
+  document.getElementById('tickerContent2').innerHTML = html;
+}
+
+/* =============== 总刷新 =============== */
+function renderAll() {
+  renderSelector();
+  renderClocks();
+  renderYieldRank();
+  renderSpreadTable();
+  renderYieldCharts();
+  renderIndicatorTable();
+  renderAlloc();
+  renderTimeline();
+  renderEvents();
+  renderFx();
+  renderDiagnosis();
+  renderTicker();
+}
+function refreshAll() {
+  renderClocks();
+  renderYieldRank();
+  renderYieldCharts();
+}
+function toggleAuto() {
+  auto = !auto;
+  document.getElementById('autoBtn').textContent = auto ? '⏸ 暂停自动' : '▶ 启动自动';
+}
+setInterval(() => { if (auto) refreshAll(); }, 10000);
+
+/* =============== 初始化 =============== */
+initTimelineTooltip();
+renderAll();
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Econ-Sentiment Twin Think Tank · Zhou Jintao Tri-Nation Cycle Analysis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Noto+Serif+SC:wght@500;700;900&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root {
+    --bg-primary: #0D0D0F;
+    --bg-secondary: #0A1628;
+    --bg-card: #1A1A2E;
+    --bg-deep: #060D18;
+    --border: #2A2A3E;
+    --gold: #D4AF37;
+    --gold-light: #E6C65C;
+    --gold-dark: #8B6914;
+    --text-primary: #E8E8F0;
+    --text-secondary: #8A8AA0;
+    --text-muted: #5A5A70;
+    --up: #E53935;
+    --down: #43A047;
+    --warn: #FFB300;
+  }
+  * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  html, body { background: var(--bg-primary); color: var(--text-primary); font-family: 'Noto Sans SC', 'Inter', sans-serif; scroll-behavior: smooth; }
+  body {
+    background:
+      radial-gradient(ellipse 80% 40% at 50% -10%, rgba(212,175,55,0.08) 0%, transparent 60%),
+      linear-gradient(180deg, #0D0D0F 0%, #060D18 100%);
+  }
+  .gold-text {
+    background: linear-gradient(135deg, #D4AF37 0%, #E6C65C 50%, #D4AF37 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .glass {
+    background: rgba(26,26,46,0.5);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(212,175,55,0.15);
+  }
+  .card-base {
+    background: linear-gradient(135deg, rgba(10,22,40,0.9) 0%, rgba(6,13,24,0.9) 100%);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card-base::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent 0%, var(--accent, #D4AF37) 50%, transparent 100%);
+  }
+  .mono { font-family: 'JetBrains Mono', monospace; font-feature-settings: 'tnum'; }
+  .serif { font-family: 'Noto Serif SC', serif; }
+  .num-up { color: var(--up); }
+  .num-down { color: var(--down); }
+
+  .taiji {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: conic-gradient(from 0deg, #0D0D0F 0deg 180deg, #D4AF37 180deg 360deg);
+    position: relative; overflow: hidden;
+  }
+  .taiji::before, .taiji::after { content: ''; position: absolute; width: 14px; height: 14px; border-radius: 50%; }
+  .taiji::before { top: 0; left: 50%; transform: translateX(-50%); background: #D4AF37; }
+  .taiji::after { bottom: 0; left: 50%; transform: translateX(-50%); background: #0D0D0F; }
+  .taiji-dot-light, .taiji-dot-dark { position: absolute; width: 4.5px; height: 4.5px; border-radius: 50%; z-index: 2; }
+  .taiji-dot-light { top: 5px; left: 50%; transform: translateX(-50%); background: #0D0D0F; }
+  .taiji-dot-dark { bottom: 5px; left: 50%; transform: translateX(-50%); background: #D4AF37; }
+
+  .grid-bg {
+    background-image:
+      linear-gradient(rgba(212,175,55,0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(212,175,55,0.035) 1px, transparent 1px);
+    background-size: 44px 44px;
+  }
+  .top-edge { height: 1px; background: linear-gradient(90deg, transparent 0%, var(--gold) 50%, transparent 100%); }
+
+  /* 目录 */
+  .toc-link { transition: all 0.3s; border-left: 2px solid transparent; padding-left: 12px; }
+  .toc-link:hover { color: var(--gold); border-left-color: var(--gold); }
+
+  /* 引文块 */
+  .quote-block {
+    border-left: 3px solid var(--gold);
+    padding: 16px 20px;
+    background: rgba(212,175,55,0.04);
+    border-radius: 0 12px 12px 0;
+    font-family: 'Noto Serif SC', serif;
+  }
+
+  /* 数据表 */
+  .data-table th { text-align: left; padding: 10px 14px; font-size: 11px; color: var(--text-secondary); border-bottom: 1px solid var(--border); }
+  .data-table td { padding: 10px 14px; font-size: 12.5px; border-bottom: 1px solid rgba(42,42,62,0.5); }
+  .data-table tr:hover td { background: rgba(212,175,55,0.03); }
+
+  /* 进度条 */
+  .bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.06); overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 3px; }
+
+  /* 圆环进度 */
+  .ring-progress { transform: rotate(-90deg); }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: var(--bg-primary); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--gold-dark); }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  .fade-up { animation: fadeUp 0.7s ease-out backwards; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 10px; border-radius: 4px;
+    font-size: 11px; font-weight: 500; letter-spacing: 0.5px;
+    border: 1px solid currentColor; background: rgba(255,255,255,0.02);
+  }
+
+  /* ===== 模块导航 ===== */
+  .nav-link {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 5px 11px; border-radius: 7px;
+    font-size: 11px; color: var(--text-secondary);
+    white-space: nowrap; transition: all 0.3s;
+    border: 1px solid transparent; font-weight: 500;
+    letter-spacing: 0.3px;
+  }
+  .nav-link:hover {
+    color: var(--gold); background: rgba(212,175,55,0.08);
+    border-color: rgba(212,175,55,0.25);
+  }
+  .nav-link.active {
+    color: #0D0D0F;
+    background: linear-gradient(135deg, #D4AF37 0%, #E6C65C 100%);
+    font-weight: 700;
+    box-shadow: 0 2px 14px rgba(212,175,55,0.35);
+  }
+  .nav-group-sep {
+    width: 1px; height: 16px; background: rgba(255,255,255,0.1);
+    margin: 0 6px; flex-shrink: 0;
+  }
+  section[id] { scroll-margin-top: 96px; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* 返回顶部 */
+  .back-top {
+    position: fixed; right: 28px; bottom: 32px; z-index: 90;
+    width: 44px; height: 44px; border-radius: 50%;
+    background: linear-gradient(135deg, #D4AF37 0%, #E6C65C 100%);
+    color: #0D0D0F; display: flex; align-items: center; justify-content: center;
+    font-size: 18px; cursor: pointer; opacity: 0; pointer-events: none;
+    transition: all 0.4s; box-shadow: 0 8px 28px rgba(212,175,55,0.4);
+    border: none;
+  }
+  .back-top.show { opacity: 1; pointer-events: auto; }
+  .back-top:hover { transform: translateY(-4px); box-shadow: 0 12px 36px rgba(212,175,55,0.5); }
+
+  /* 财情双生 logo + 导航 */
+  .logo-img { width:36px; height:36px; border-radius:50%; transition: transform 0.6s ease; display:inline-block; }
+  .logo-img:hover { transform: rotate(360deg); }
+  .logo-img-wrap { line-height:0; display:inline-block; }
+  .home-btn { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; margin-right:6px; font-size:11px; border:1px solid #D4AF37; color:#D4AF37; border-radius:6px; transition: all 0.2s; }
+  .home-btn:hover { background:rgba(212,175,55,0.12); color:#D4AF37; }
+
+  .en-brand-sm { font-size: 9px; opacity: .6; letter-spacing: 1px; font-weight: 400; margin-left: 4px; color: var(--gold, #D4AF37); }
+  @media (max-width: 640px) { .en-brand-sm { display: none; } }
+
+  .lang-pair-sub { display:inline-flex; align-items:center; gap:4px; padding:3px 8px; border:1px solid rgba(212,175,55,.4); border-radius:6px; font-size:10px; margin-right:6px; vertical-align:middle; }
+  .lang-pair-sub a { padding:1px 7px; border-radius:4px; color:#8A8AA0; text-decoration:none; }
+  .lang-pair-sub a:hover { color:#D4AF37; }
+  .lang-pair-sub a.active { color:#0D0D0F; background:#D4AF37; font-weight:600; }
+  .lang-pair-sub .sep { color:#5A5A70; }
+</style>
+</head>
+<body class="grid-bg">
+
+<!-- ============ 顶部导航 ============ -->
+<header class="sticky top-0 z-50 glass border-b border-[#2A2A3E]">
+  <div class="max-w-[1200px] mx-auto px-6 py-2.5 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="../../index-en.html" class="logo-img-wrap" title="Back to Main"><img src="../../_assets/logo.png" alt="Econ-Sentiment" class="logo-img"/></a>
+      <div>
+        <div class="text-sm font-semibold tracking-wide">Econ-Sentiment Twin Think Tank · <span class="gold-text">Cycle Research Report</span> <span class="en-brand-sm">· Econ-Sentiment Twin Think Tank</span></div>
+        <div class="text-[10px] text-[#5A5A70] tracking-widest uppercase">Zhou Jintao Perspective · Kondratieff Cycle</div>
+      </div>
+    </div>
+    <div class="hidden md:flex items-center gap-4 text-xs text-[#8A8AA0]">
+      <span class="mono">2026-08-05</span>
+      <span class="signal-light inline-block w-2 h-2 rounded-full bg-[#43A047] shadow-[0_0_8px_#43A047] animate-pulse"></span>
+      <span class="text-[#43A047]">Data Verified</span>
+    </div>
+  </div>
+  <!-- 模块导航 -->
+  <a href="../../index-en.html" class="home-btn">🏠 Main Nav</a><span class="lang-pair-sub"><a href="../../apps/03-zhoujintao-cycle/index.html">中</a><span class="sep">|</span><a href="index.html" class="active">EN</a></span><nav class="border-t border-[rgba(212,175,55,0.12)] bg-[rgba(6,13,24,0.4)]">
+    <div class="max-w-[1200px] mx-auto px-6 overflow-x-auto no-scrollbar">
+      <div class="flex items-center py-1.5" id="moduleNav">
+        <a class="nav-link" href="#summary" data-sec="summary">◉ Core Conclusions</a>
+        <span class="nav-group-sep"></span>
+        <a class="nav-link" href="#chapter1" data-sec="chapter1">① Kondratieff Map</a>
+        <a class="nav-link" href="#chapter2" data-sec="chapter2">② Key Variables</a>
+        <span class="nav-group-sep"></span>
+        <a class="nav-link" href="#chapter3" data-sec="chapter3">🇺🇸 United States</a>
+        <a class="nav-link" href="#chapter4" data-sec="chapter4">🇨🇳 China</a>
+        <a class="nav-link" href="#chapter5" data-sec="chapter5">🇯🇵 Japan</a>
+        <span class="nav-group-sep"></span>
+        <a class="nav-link" href="#chapter6" data-sec="chapter6">⑥ Resonance Matrix</a>
+        <a class="nav-link" href="#chapter7" data-sec="chapter7">⑦ Asset Allocation</a>
+        <a class="nav-link" href="#chapter8" data-sec="chapter8">⑧ Timeline</a>
+        <a class="nav-link" href="#chapter9" data-sec="chapter9">⑨ Limits</a>
+        <a class="nav-link" href="#ending" data-sec="ending">⑩ Epilogue</a>
+      </div>
+    </div>
+  </nav>
+  <div class="top-edge"></div>
+</header>
+
+<!-- ============ 封面 ============ -->
+<section class="max-w-[1200px] mx-auto px-6 pt-16 pb-10 text-center relative" id="cover">
+  <div class="text-[10px] tracking-[0.4em] text-[#8B6914] mb-4 mono">KONDRATIEFF · KUZNETS · JUGLAR · KITCHIN</div>
+  <h1 class="text-4xl md:text-6xl font-black tracking-tight leading-tight serif">
+    China-US-Japan Tri-Nation<br/>
+    <span class="gold-text">Kondratieff Cycle Deep Analysis</span>
+  </h1>
+  <p class="mt-5 text-[#8A8AA0] max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
+    Using the 4-cycle nested framework，from Kondratieff long-wave positioning，down to Kuznets、Juglar、Kitchin cycles，
+    对 <span class="text-[#E8E8F0]">🇨🇳 China · 🇺🇸 United States · 🇯🇵 Japan</span> systematic cycle positioning & allocation for the 3 economies。
+  </p>
+  <div class="mt-8 flex items-center justify-center gap-3 flex-wrap">
+    <span class="badge text-[#D4AF37]"><span class="w-1.5 h-1.5 rounded-full bg-[#D4AF37] shadow-[0_0_6px_#D4AF37]"></span>Zhou Jintao Cycle Framework</span>
+    <span class="badge text-[#8A8AA0]">Data as of 2026-08-04</span>
+    <span class="badge text-[#8A8AA0]">10 Grand Methodology</span>
+    <span class="badge text-[#8A8AA0]">4-Cycle Nesting</span>
+  </div>
+  <div class="quote-block max-w-2xl mx-auto mt-10 text-left">
+    <p class="text-sm text-[#E8E8F0] leading-relaxed italic">
+      「Wealth comes from Kondratieff。A person's wealth level，80% is set by which Kondratieff stage you are born into——
+      Catch one Kondratieff window，middle class；two，wealthy；miss all three，and your life is set。」
+    </p>
+    <p class="text-[10px] text-[#D4AF37] mt-2 mono">—— King of Cycles · Zhou Jintao</p>
+  </div>
+</section>
+
+<!-- ============ 目录 ============ -->
+<section class="max-w-[1200px] mx-auto px-6 mb-10">
+  <div class="card-base p-6 md:p-8" style="--accent:#D4AF37;">
+    <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><span class="w-1 h-5 bg-[#D4AF37] rounded"></span>Contents</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-[#8A8AA0]">
+      <a href="#summary" class="toc-link py-1.5">〇、Core Conclusions · Cycle Positioning Overview</a>
+      <a href="#chapter1" class="toc-link py-1.5">一、Kondratieff Phase Judgment · Global Macro Base</a>
+      <a href="#chapter2" class="toc-link py-1.5">二、Key Observation Variables · Gold/Oil Ratio & USD Cycle</a>
+      <a href="#chapter3" class="toc-link py-1.5">三、🇺🇸 United States · Stagflation Confirmed in Kondratieff Depression</a>
+      <a href="#chapter4" class="toc-link py-1.5">四、🇨🇳 China · Relative Strength in Depression</a>
+      <a href="#chapter5" class="toc-link py-1.5">五、🇯🇵 Japan · Normalization, Overheating & Stagflation Risk</a>
+      <a href="#chapter6" class="toc-link py-1.5">六、Tri-Nation Resonance · Nested-Cycle Matrix</a>
+      <a href="#chapter7" class="toc-link py-1.5">七、Asset Allocation · Kondratieff Asset Clock</a>
+      <a href="#chapter8" class="toc-link py-1.5">八、Timeline & Scenarios</a>
+      <a href="#chapter9" class="toc-link py-1.5">九、Honest Limits · Limitations of Analysis</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Core Conclusions ============ -->
+<section class="max-w-[1200px] mx-auto px-6 mb-12" id="summary">
+  <div class="card-base p-6 md:p-8 fade-up" style="--accent:#D4AF37;">
+    <h2 class="text-xl font-bold mb-5 flex items-center gap-2"><span class="w-1 h-5 bg-[#D4AF37] rounded"></span>〇、Core Conclusions · Cycle Positioning Overview</h2>
+
+    <div class="quote-block mb-6">
+      <p class="text-base text-[#E8E8F0] leading-relaxed serif">
+        The global economy remains in<strong class="text-[#D4AF37]">the depression phase of the 5th Kondratieff</strong>（2015starting around，expected to extend to2030around）。
+        2026the US-Israel-Iran war of，the most typical<strong class="text-[#E8E8F0]">exogenous shock</strong>——
+        It won't erase the cycle，but it will<strong class="text-[#E8E8F0]">distort the rhythm</strong>：oil spike pushes inflation up，flipping markets from"rate-cut trades"overnight into"rate-hike trades"。
+        The more one studies cycles，the more one believes in fate——This time，the war merely pulled forward an inevitable stagflation。
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <!-- United States -->
+      <div class="card-base p-5" style="--accent:#4FC3F7;">
+        <div class="flex items-center justify-between mb-3">
+          <div class="text-2xl">🇺🇸</div>
+          <span class="badge text-[#9C27B0]">Stagflation · Kondratieff Depression</span>
+        </div>
+        <div class="text-2xl font-black gold-text mb-2">Stagflation confirmed</div>
+        <ul class="text-[11px] text-[#8A8AA0] space-y-1.5 leading-relaxed">
+          <li>· CPI 1月2.4% → 5月 <span class="num-up">4.2%</span></li>
+          <li>· NFP weakening · Unemployment 4.2%</li>
+          <li>· Markets pivot <span class="text-[#E53935]">hike expectations</span></li>
+          <li>· 30Y UST breaks 5.0%</li>
+        </ul>
+      </div>
+      <!-- China -->
+      <div class="card-base p-5" style="--accent:#E53935;">
+        <div class="flex items-center justify-between mb-3">
+          <div class="text-2xl">🇨🇳</div>
+          <span class="badge text-[#43A047]">Recovery · Strong in depression</span>
+        </div>
+        <div class="text-2xl font-black gold-text mb-2">relatively optimal</div>
+        <ul class="text-[11px] text-[#8A8AA0] space-y-1.5 leading-relaxed">
+          <li>· GDP H1 <span class="num-up">+4.7%</span> resilience</li>
+          <li>· CPI +1.0% · low-price cycle</li>
+          <li>· property still clearing lower</li>
+          <li>· CNY appreciation 3%</li>
+        </ul>
+      </div>
+      <!-- Japan -->
+      <div class="card-base p-5" style="--accent:#BA68C8;">
+        <div class="flex items-center justify-between mb-3">
+          <div class="text-2xl">🇯🇵</div>
+          <span class="badge text-[#E53935]">Overheating · Normalization</span>
+        </div>
+        <div class="text-2xl font-black gold-text mb-2">stagflation risk</div>
+        <ul class="text-[11px] text-[#8A8AA0] space-y-1.5 leading-relaxed">
+          <li>· BOJ hiked to <span class="num-up">1.0%</span>（31year high）</li>
+          <li>· JPY breaks below <span class="num-up">164</span>（40year low）</li>
+          <li>· 10Y JGB 2.80%</li>
+          <li>· Debt = GDP 的 240%</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div class="card-base p-5" style="--accent:#FFB300;">
+        <h3 class="text-sm font-bold mb-3 flex items-center gap-2"><span class="w-1 h-4 bg-[#FFB300] rounded"></span>Core Asset Verdict（Per Kondratieff asset clock）</h3>
+        <div class="text-xs text-[#E8E8F0] leading-relaxed space-y-2">
+          <p><span class="text-[#D4AF37] font-bold">Gold > Cash > Bonds > Equities > Commodities</span> —— This is the asset order of Kondratieff depression。</p>
+          <p>Gold price 2015 up over since 60%，2026 standing above in <span class="text-[#E8E8F0]">4000-5400 USD</span>，the main gold bull wave may continue 2-3 年。</p>
+          <p>2026 year-end gold consensus range <span class="text-[#E8E8F0]">5000 above USD</span>（higher case 6300）。</p>
+        </div>
+      </div>
+      <div class="card-base p-5" style="--accent:#43A047;">
+        <h3 class="text-sm font-bold mb-3 flex items-center gap-2"><span class="w-1 h-4 bg-[#43A047] rounded"></span>Three Questions That Must Be Answered</h3>
+        <div class="text-xs text-[#E8E8F0] leading-relaxed space-y-2">
+          <p>① <strong>US: Stagflation or Recession?？</strong> —— This episode is"oil-shock stagflation"，Historically 1970 the oil crises of the tell us：inflation first, recession later，stagflation is the waystation to recession。</p>
+          <p>② <strong>When will China exit low prices?？</strong> —— Morgan Stanley expects 2027 as the inflection point，deflationary clearing takes time。</p>
+          <p>③ <strong>Will BOJ hikes detonate the carry?？</strong> —— 2024 年 8 previewed once in，Once BOJ accelerated hikes，JPY carry reversal is the next storm center。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 第一章：康波阶段 ============ -->
+<section class="max-w-[1200px] mx-auto px-6 mb-12" id="chapter1">
+  <div class="card-base p-6 md:p-8 fade-up" style="--accent:#D4AF37;">
+    <h2 class="text-xl font-bold mb-5 flex items-center gap-2"><span class="w-1 h-5 bg-[#D4AF37] rounded"></span>一、Kondratieff Phase Judgment · Global Macro Base</h2>
+
+    <p class="text-sm text-[#E8E8F0] leading-relaxed mb-6">
+      Analyzing any economy，step one is always：<strong class="text-[#D4AF37]">which Kondratieff and which phase。</strong>
+      This is the root of all judgments。If the root is wrong，all branch analysis is wrong no matter how fine。
+    </p>
+
+    <!-- 康波阶段示意 -->
+    <div class="card-base p-5 mb-6" style="--accent:#D4AF37;">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-bold">5th Kondratieff · 4-phase positioning（1980s → 2030s）</h3>
+        <span class="text-[10px] text-[#5A5A70] mono">5th round · IT-driven</span>
+      </div>
+      <div class="grid grid-cols-4 gap-2">
+        <div class="p-3 rounded-lg bg-[rgba(67,160,71,0.1)] border border-[rgba(67,160,71,0.3)]">
+          <div class="text-[10px] text-[#43A047] font-bold">1980s-1990s</div>
+          <div class="text-sm font-bold mt-1">Revival</div>
+          <div class="text-[10px] text-[#8A8AA0] mt-0.5">PC Revolution · Informatization begins</div>
+        </div>
+        <div class="p-3 rounded-lg bg-[rgba(229,57,53,0.1)] border border-[rgba(229,57,53,0.3)]">
+          <div class="text-[10px] text-[#E53935] font-bold">1990s-2008</div>
+          <div class="text-sm font-bold mt-1">Prosperity</div>
+          <div class="text-[10px] text-[#8A8AA0] mt-0.5">Internet bubble · Globalization peak</div>
+        </div>
+        <div class="p-3 rounded-lg bg-[rgba(255,179,0,0.1)] border border-[rgba(255,179,0,0.3)]">
+          <div class="text-[10px] text-[#FFB300] font-bold">2008-2015</div>
+          <div class="text-sm font-bold mt-1">Recession</div>
+          <div class="text-[10px] text-[#8A8AA0] mt-0.5">Subprime crisis · Capacity clearing</div>
+        </div>
+        <div class="p-3 rounded-lg bg-[rgba(156,39,176,0.25)] border-2 border-[#9C27B0]">
+          <div class="text-[10px] text-[#CE93D8] font-bold">2015-2030s ★</div>
+          <div class="text-sm font-bold mt-1 text-[#CE93D8]">Depression · Current</div>
+          <div class="text-[10px] text-[#8A8AA0] mt-0.5">Debt clearing · deflationary pressure</div>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="text-sm font-bold mb-3">Why still depression?？—— Three hard proofs</h3>
+    <div class="space-y-4">
+      <div class="card-base p-5" style="--accent:#D4AF37;">
+        <div class="flex items-start gap-4">
+          <div class="text-3xl">🥇</div>
+          <div class="flex-1">
+            <div class="text-sm font-bold mb-1">Proof 1：Gold main bull wave —— the signature asset trait of depression</div>
+            <p class="text-xs text-[#8A8AA0] leading-relaxed">
+              Zhou Jintao in 2015 asserted in：real rates trend lower through depression，<strong class="text-[#E8E8F0]">gold's outperformance vs commodities persists</strong>。
+              2026 the reality of fully validated this：Gold rose from 2015 of 1100 USDto 2026 of 4000-5400 USD，
+              gain over 60%+，and still in the main wave。Gold is the best asset in Kondratieff depression——This is cyclical law，not market sentiment。
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="card-base p-5" style="--accent:#D4AF37;">
+        <div class="flex items-start gap-4">
+          <div class="text-3xl">💸</div>
+          <div class="flex-1">
+            <div class="text-sm font-bold mb-1">Proof 2：UST interest exceeds defense —— end-of-debt-cycle signal</div>
+            <p class="text-xs text-[#8A8AA0] leading-relaxed">
+              US federal interest now exceeds defense spending，30 10Y treasury yield breaks 5.0%——a classic sovereign debt spiral。
+              USD credibility loss drives global CB gold buying（2026 年 4 resumed net buying in），fracture in the monetary system，is the deepest thread of depression。
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="card-base p-5" style="--accent:#D4AF37;">
+        <div class="flex items-start gap-4">
+          <div class="text-3xl">⚖️</div>
+          <div class="flex-1">
+            <div class="text-sm font-bold mb-1">Proof 3：Gold/Oil ratio extreme divergence —— the classic Kondratieff gauge</div>
+            <p class="text-xs text-[#8A8AA0] leading-relaxed">
+              the Gold/Oil pivot is 16 倍。2022 年 7 from to 2026 年 2 月，Gold/Oil from 15.9 spiked to 70.6（approaching 2020 pandemic peak 72.1），
+              then eased to as oil rebounded on war 39-50 range——<strong class="text-[#E8E8F0]">still historically high</strong>。
+              every historical large deviation，eventually converged via oil catch-up（1998 LTCM、2008 crisis、2011 EU debt crises alike）。
+              oil industry capex has fallen for 10 consecutive years，supply elasticity extremely low，oil pivot lifting is high-probability。
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="quote-block mt-6">
+      <p class="text-sm text-[#E8E8F0] leading-relaxed">
+        「Cycles eventually end，but before that，we will live through another Kondratieff。」 Depression is not the end of the world，It is the reckoning of boom。
+        During depression，target #1 is preservation, not growth，target #2 is liquidity。Whoever understands this first，wins the race before it starts。
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 第二章：Key Observation Variables ============ -->
+<section class="max-w-[1200px] mx-auto px-6 mb-12" id="chapter2">
+  <div class="card-base p-6 md:p-8 fade-up" style="--accent:#FFB300;">
+    <h2 class="text-xl font-bold mb-5 flex items-center gap-2"><span class="w-1 h-5 bg-[#FFB300] rounded"></span>二、Key Observation Variables · Gold/Oil Ratio & USD Cycle</h2>
+    <p class="text-sm text-[#E8E8F0] leading-relaxed mb-6">
+      No need to track hundreds of indicators。grasp a few"wind vanes"variables，and direction is clear。
+      2026 core variables of，are flashing yellow simultaneously。
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div class="card-base p-5" style="--accent:#D4AF37;">
+        <div class="text-[10px] text-[#5A5A70] mono mb-1">VARIABLE 01 · GOLD/OIL RATIO</div>
+        <div class="text-sm font-bold mb-2">Gold/Oil</div>
+        <div class="flex items-baseline gap-2 mb-2">
+          <div class="text-3xl font-black gold-text mono">39~50</div>
+          <div class="text-[10px] text-[#FFB300]">pivot 16x</div>
+        </div>
+        <div class="bar mb-2"><div class="bar-fill" style="width:62%; background:linear-gradient(90deg,#43A047,#FFB300,#E53935);"></div></div>
+        <div class="text-[10px] text-[#8A8AA0] leading-relaxed">
+          2022-2026.2 spiked to 70.6（historical extreme），post-war pullback, still high。<strong class="text-[#E8E8F0]">Historical pattern：divergence must converge，likely via oil catch-up。</strong>
+        </div>
+      </div>
+      <div class="card-base p-5" style="--accent:#4FC3F7;">
+        <div class="text-[10px] text-[#5A5A70] mono mb-1">VARIABLE 02 · DOLLAR CYCLE</div>
+        <div class="text-sm font-bold mb-2">USD cycle</div>
+        <div class="flex items-baseline gap-2 mb-2">
+          <div class="text-3xl font-black gold-text mono">100.9</div>
+          <div class="text-[10px] text-[#E53935]">H1 +5.2%</div>
+        </div>
+        <div class="bar mb-2"><div class="bar-fill" style="width:52%; background:linear-gradient(90deg,#43A047,#FFB300,#E53935);"></div></div>
+        <div class="text-[10px] text-[#8A8AA0] leading-relaxed">
+          2025 fell from in 110 to 97（weak-USD cycle），2026 H1 war-driven+hike expectations rebounded to 101。
+          <strong class="text-[#E8E8F0]">a shock bounce，not a trend reversal，H2 97-103 chopping。</strong>
+        </div>
+      </div>
+      <div class="card-base p-5" style="--accent:#E53935;">
+        <div class="text-[10px] text-[#5A5A70] mono mb-1">VARIABLE 03 · COMMODITY</div>
+        <div class="text-sm font-bold mb-2">Commodities</div>
+        <div class="flex items-baseline gap-2 mb-2">
+          <div class="text-3xl font-black gold-text mono">Oil 76</div>
+          <div class="text-[10px] text-[#43A047]">8/4 single-day -5.7%</div>
+        </div>
+        <div class="bar mb-2"><div class="bar-fill" style="width:45%; background:linear-gradient(90deg,#43A047,#FFB300,#E53935);"></div></div>
+        <div class="text-[10px] text-[#8A8AA0] leading-relaxed">
+          spiked to during war 114 USD，eased to after ceasefire 76。
+          Capex 10 consecutive years + strategic reserves low → <strong class="text-[#E8E8F0]">oil pivot higher，hard to return to 60-70 pre-conflict levels。</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-base p-5" style="--accent:#FFB300;">
+      <h3 class="text-sm font-bold mb-3">Uniqueness of this episode：Gold-Crude"See-saw"——Historical patternexception</h3>
+      <p class="text-xs text-[#8A8AA0] leading-relaxed">
+        2026 年 3 Since，gold-oil negatively correlated（oil up gold down、oil down gold up），breaking nearly half a century of"geopoliticalcrisisgold-oil positive correlation"pattern。
+        Three reasons:：① Goldpricing shifted from"real rates"to"CB-buying-driven monetary attribute"；② Gold pricehighs trigger profit-taking；
+        ③ Oilspike causes energy margin gaps（liquidity absorption）。
+        This reminds us：<strong class="text-[#E8E8F0]">当Gold与USDcredibility decoupling、and from geopolitical hedging，it is no longer"a safe haven"，but"pricing of monetary-system risk"。</strong>
+        best forGoldmacro scenario，is never risk-off，butStagflation——而 2026 年，exactlyStagflation年。
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 第三章：United States ============ -->
+<section class="max-w-[1200px] mx-auto px-6 mb-12" id="chapter3">
+  <div class="card-base p-6 md:p-8 fade-up" style="--accent:#4FC3F7;">
+    <h2 class="text-xl font-bold mb-2 flex items-center gap-2"><span class="w-1 h-5 bg-[#4FC3F7] rounded"></span>三、🇺🇸 United States · Stagflation Confirmed in Kondratieff Depression</h2>
+    <div class="badge text-[#9C27B0] mb-5">Positioning：Stagflation期 · Economy↓ Inflation↑ · Cashking</div>
+
+    <!-- 关键data -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+      <div class="card-base p-4 text-center" style="--accent:#E53935;">
+        <div class="text-[10px] text-[#5A5A70]">CPI YoY（5month peak）</div>
+        <div class="text-2xl font-black num-up mt-1">4.2%</div>
+        <div class="text-[10px] text-[#8A8AA0] mt-1">1only in 2.4%</div>
+      </div>
+      <div class="card-base p-4 text-center" style="--accent:#FFB300;">
+        <div class="text-[10px] text-[#5A5A70]">Unemployment（6月）</div>
+        <div class="text-2xl font-black text-[#FFB300] mt-1">4.2%</div>
+        <div class="text-[10px] text-[#8A8AA0] mt-1">NFP +5.7万（far below expectations）</div>
+      </div>
+      <div class="card-base p-4 text-center" style="--accent:#E53935;">
+        <div class="text-[10px] text-[#5A5A70]">10Y UST</div>
+        <div class="text-2xl font-black num-up mt-1">4.5~4.6%</div>
+        <div class="text-[10px] text-[#8A8AA0] mt-1">30Y 破 5.0%</div>
+      </div>
+      <div class="card-base p-4 text-center" style="--accent:#E53935;">
+        <div class="text-[10px] text-[#5A5A70]">market rate expectations</div>
+        <div class="text-2xl font-black num-up mt-1">pivot to hikes</div>
+        <div class="text-[10px] text-[#8A8AA0] mt-1">12month hike priced 25bp</div>
+      </div>
+    </div>
+
+    <h3 class="text-sm font-bold mb-3">Cycle Positioning：a textbook"oil-shock stagflation"</h3>
+    <div class="text-xs text-[#8A8AA0] leading-relaxed space-y-3 mb-5">
+      <p>
+        <strong class="text-[#E8E8F0]">growth-side weakening</strong>：6 NFP added only 5.7 k jobs（market expected 11.5 万），past 12 month average only 3.6 万，
+        Unemploymentrose to 4.2%。2026 full year GDP forecast only +2.3%（front-loaded）。Economyno longerOverheatingmomentum。
+      </p>
+      <p>
+        <strong class="text-[#E8E8F0]">inflation-side rebound</strong>：CPI 从 1 of 2.4% rose to 5 of 4.2%，core CPI 2.8%。
+        three drivers——① US-Israel-Iran war liftsOil（briefly 114 USD）；② tariff costs fully pass through；③ AI costs into software/cloud hosting/electronics
+        （software share of core PCE weight ~ 1.2%，lifted 4M annualized by ~ 0.66pct）。Goldman sees 2026 core in PCE staying above 3%。
+      </p>
+      <p>
+        <strong class="text-[#E8E8F0]">policy dilemma</strong>：Fed leadership change（Powell 5 steps down in、Warsh takes over），
+        markets from early-year"cuts 2-3 次"expectations 180 flipped，traders fully price 12 month hike 25bp，10 month hike odds 60%。
+        Goldman abandons 2026 cut expectations，delays cuts to 2027 年 6 月、12 月。This isStagflation-phase policy dilemma——
+        <strong class="text-[#E8E8F0]">can't cut（fear inflation），can't hike（fear collapse）</strong>。
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div class="card-base p-5" style="--accent:#4FC3F7;">
+        <h4 class="text-sm font-bold mb-3 flex items-center gap-2">📜 Historical analogy · 1970 oil crises ofcrisis</h4>
+        <p class="text-xs text-[#8A8AA0] leading-relaxed">
+          1973 and 1979 年twoOilcrisis，alsooil-shock stagflation：stagflation + high inflation + policy wavering。
+          History tells us：<strong class="text-[#E8E8F0]">oil-shock-typeStagflationends in recession</strong>——
+          CBs forced tohiked torates aboveInflation（Volcker-style brutal hikes），demand force-cleared，only thenRecovery。
+          1970 US stocks 10 year flat（"lost decade"），Goldrising 20 倍。
+          This time's difference：United Statesnow net oil/gas exporter，terms-of-trade damage < EUJapan，但Debtscale far exceeds then。
+        </p>
+      </div>
+      <div class="card-base p-5" style="--accent:#D4AF37;">
+        <h4 class="text-sm font-bold mb-3 flex items-center gap-2">🧭 Asset implications</h4>
+        <div class="space-y-2 text-xs">
+          <div class="flex justify-between p-2 rounded bg-[rgba(255,255,255,0.03)]"><span class="text-[#8A8AA0]">①Cash</span><span class="text-[#9C27B0] font-bold">⭐⭐⭐⭐⭐ optimal</span></div>
+          <div class="flex justify-between p-2 rounded bg-[rgba(255,255,255,0.03)]"><span class="text-[#8A8AA0]">②Gold</span><span class="text-[#D4AF37] font-bold">⭐⭐⭐⭐⭐ Stagflationoptimal</span></div>
+          <div class="flex justify-between p-2 rounded bg-[rgba(255,255,255,0.03)]"><span class="text-[#8A8AA0]">③Bonds</span><span class="text-[#FFB300] font-bold">⭐⭐⭐ long end 10Y>4.6% allocation window</span></div>
+          <div class="flex justify-between p-2 rounded bg-[rgba(255,255,255,0.03)]"><span class="text-[#8A8AA0]">④Equities</span><span class="text-[#E53935] font-bold">⭐⭐ trim long-duration tech</span></div>
+          <div class="flex justify-between p-2 rounded bg-[rgba(255,255,255,0.03)]"><span class="text-[#8A8AA0]">⑤Commodities</span><span class="text-[#FFB300] font-bold">⭐⭐⭐ oil pivot higher</span></div>
+        </div>
+        <p class="text-[10px] text-[#5A5A70] mt-3 leading-relaxed">
+          Special note：AI Inflation（Software/cloud hosting/power costs）not fully into CPI data，若 Q3-Q4 data confirmation，
+          Marketshike expectationswill re-heat——This is 2026 H2biggestexpectations差。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 第四章：China ============ -->
+<section class="max-w-[1200px] mx-auto px-6 mb-12" id="chapter4">
+  <div class="card-base p-6 md:p-8 fade-up" style="--accent:#E53935;">
+    <h2 class="text-xl font-bold mb-2 flex items-center gap-2"><span class="w-1 h-5 bg-[#E53935] rounded"></span>四、🇨🇳 China · Relative Strength in Depression</h2>
+    <div class="badge text-[#43A047] mb-5">Positioning：Recovery期 · Economy↑ Inflation↓ · Equitiesking</div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+      <div class="card-base p-4 text-center" style="--accent:#43A047;">
+        <div class="text-[10px] text-[#5A5A70]">GDP H1</div>
+        <div class="text-2xl font-black text-[#43A047] mt-1">+4.7%</div>
+        <div class="text-[10px] text-[#8A8AA0] mt-1">new-economy contribution 40%+</div>
+      </div>
+      <div class="card-base p-4 text-center" style="--accent:#43A047;">
+        <div class="text-[10px] text-[#5A5A70]">CPI H1</div>
+        <div class="text-2xl font-black text-[#43A047] mt-1">+1.0%</div>
+        <div class="text-[10px] text-[#8A8AA0] mt-1">core CPI +1.2%</div>
+      </div>
+      <div class="card-base p-4 text-center" style="--accent:#4FC3F7;">
+        <div class="text-[10px] text-[#5A5A70]">10Y Treasuries</div>
+        <div class="text-2xl font-black text-[#4FC3F7] mt-1">2.31%</div>
+        <div class="text-[10px] text-[#8A8AA0] mt-1">among world's lowest yields</div>
+      </div>
+      <div class="card-base p-4 text-center" style="--accent:#43A047;">
+        <div class="text-[10px] text-[#5A5A70]">CNY</div>
+        <div class="text-2xl font-black text-[#43A047] mt-1">6.77</div>
+        <div class="text-[10px] text-[#8A8AA0] mt-1">year-to-date appreciation 3%</div>
+      </div>
+    </div>
+
+    <h3 class="text-sm font-bold mb-3">Cycle Positioning：Depression的"alternative"——rare global economy stillRecoverymajorEconomy体</h3>
+    <div class="text-xs text-[#8A8AA0] leading-relaxed space-y-3 mb-5">
+      <p>
+        <strong class="text-[#E8E8F0]">growthresilience</strong>：2025 年 GDP 达 140.19 trillion CNY（+5.0%），2026 H1 +4.7%。
+        new-economy contribution超 40%，services contribution up to 66.1%。as US/EU/JP growth slow together，IMF actually raisedChinafull yeargrowth forecasts——
+        <strong class="text-[#E8E8F0]">This is"Global Kondratieff sets direction，Chinalocal cycles set rhythm"localization adaptation</strong>：Chinacycle lags US/EU，
+        while US/EUDuring depressionstruggle deeply，Chinais in its own inventory upcycle。
+      </p>
+      <p>
+        <strong class="text-[#E8E8F0]">low-price cycle</strong>：CPI H1 +1.0%（Mild），PPI still negative（2025 full year -2.6%，2026 Forecast -0.9~-1.1%）。
+        Morgan Stanley expectslow-price cycle 2027 inflection only in。<strong class="text-[#E8E8F0]">在Kondratieff Depression期，Deflation is"the norm"，Inflationis"the surprise"</strong>——
+        Chinalow prices are not the problem，exactlyDepressionas it should be；而"Anti-involution"policy pushes price repair via supply，PPI H2high probability of turning positive。
+      </p>
+      <p>
+        <strong class="text-[#E8E8F0]">property still clearing（Kuznets down-phase）</strong>：2025 property development investment -17.2%，2026 Forecast -8.03%。
+        Commoditieshousing sales area ~ 9 100m m2，比 2020 down ~ from high 50%，near 2009 level；development investment fell to 2013 level。
+        按Zhou Jintaoframework，China 1999 housing inCommoditiesstarted this Kuznets cycle，2010-2015 is the demand peak（1965-1975 birth peak + 25 home-buying age），
+        2020 down-phase after——<strong class="text-[#E8E8F0]">Currentmid-clearing，volume leads price，prices stabilize after volume，full bottoming takes longer</strong>。
+      </p>
+      <p>
+        <strong class="text-[#E8E8F0]">Policy & FX</strong>：deficit ratio 4% + ultra-long specialTreasuriesadditional issuance + cutsRRR cut（"moderate easing"）——
+        在Kondratieff Depression期，Chinaamong the few with ample policy roomEconomy体。CNYyear-to-date appreciation 3%（弱USD + US-China relations ease + asset appeal），
+        CNY strength is capital-flow voting。
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div class="card-base p-5" style="--accent:#E53935;">
+        <h4 class="text-sm font-bold mb-3 flex items-center gap-2">📜 Historical analogy · Japanimplications</h4>
+        <p class="text-xs text-[#8A8AA0] leading-relaxed">
+          Zhou Jintao 2005 CN-JP comparison since：用Japan 1960 industrialization projection ofChinaindustrialization path。
+          CurrentChinafacing low prices + property clearing + demographic peak，与Japan 1990 era"balance-sheet recession"has parallels，
+          but three differences：① Chinapolicy room far larger thanJapan（rates、fiscal、FX all flexible）；
+          ② Chinaurbanization still low（66%），domestic depth remains；③ Chinamanufacturing position far higherJapan。
+          Conclusion：<strong class="text-[#E8E8F0]">Chinawill not repeatJapan"the lost 30 years"，but must accept"low-price clearing"long process。</strong>
+        </p>
+      </div>
+      <div class="card-base p-5" style="--accent:#D4AF37;">
+        <h4 class="text-sm font-bold mb-3 flex items-center gap-2">🧭 Asset implications</h4>
+        <div class="space-y-2 text-xs">
+          <div class="flex justify-between p-2 rounded bg-[rgba(255,255,255,0.03)]"><span class="text-[#8A8AA0]">①Equities</span><span class="text-[#43A047] font-bold">⭐⭐⭐⭐ Recovery期optimal · high dividend+tech self-reliance</span></div>
+          <div class="flex justify-between p-2 rounded bg-[rgba(255,255,255,0.03)]"><span class="text-[#8A8AA0]">②Bonds</span><span class="text-[#4FC3F7] font-bold">⭐⭐⭐⭐ 低Inflation+easing → bond bull continues</span></div>
+          <div class="flex justify-between p-2 rounded bg-[rgba(255,255,255,0.03)]"><span class="text-[#8A8AA0]">③Cash</span><span class="text-[#8A8AA0] font-bold">⭐⭐⭐</span></div>
+          <div class="flex justify-between p-2 rounded bg-[rgba(255,255,255,0.03)]"><span class="text-[#8A8AA0]">④Commodities</span><span class="text-[#FFB300] font-bold">⭐⭐ Copper benefits from AI+power grid</span></div>
+        </div>
+        <p class="text-[10px] text-[#5A5A70] mt-3 leading-relaxed">
+          corelogic：China是Currentglobal cycle position"optimal解"——Recovery期 + 低Inflation + loose policy + CNY appreciation，
+          globallyAsset Allocationpossesses"safe-haven+offensive"dual attributes。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 第五章：Japan ============ -->
+<section class="max-w-[1200px] mx-auto px-6 mb-12" id="chapter5">
+  <div class="card-base p-6 md:p-8 fade-up" style="--accent:#BA68C8;">
+    <h2 class="text-xl font-bold mb-2 flex items-center gap-2"><span class="w-1 h-5 bg-[#BA68C8] rounded"></span>五、🇯🇵 Japan · Normalization, Overheating & Stagflation Risk</h2>
+    <div class="badge text-[#E53935] mb-5">Positioning：Overheating期（Policy view）→ stagflation risk（real pressure）· Cashverge of king</div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+      <div class="card-base p-4 text-center" style="--accent:#E53935;">
+        <div class="text-[10px] text-[#5A5A70]">BOJ policy rate</div>
+        <div class="text-2xl font-black num-up mt-1">1.00%</div>
+        <div class="text-[10px] text-[#8A8AA0] mt-1">31 year high · by year-end or 1.25%</div>
+      </div>
+      <div class="card-base p-4 text-center" style="--accent:#E53935;">
+        <div class="text-[10px] text-[#5A5A70]">JPY perUSD</div>
+        <div class="text-2xl font-black num-up mt-1">164</div>
+        <div class="text-[10px] text-[#8A8AA0] mt-1">40 year low点 · intervention 11.7trillion</div>
+      </div>
+      <div class="card-base p-4 text-center" style="--accent:#E53935;">
+        <div class="text-[10px] text-[#5A5A70]">10Y JGB</div>
+        <div class="text-2xl font-black num-up mt-1">2.80%</div>
+        <div class="text-[10px] text-[#8A8AA0] mt-1">30Y approaching 3.97%</div>
+      </div>
+      <div class="card-base p-4 text-center" style="--accent:#BA68C8;">
+        <div class="text-[10px] text-[#5A5A70]">Nikkei225</div>
+        <div class="text-2xl font-black text-[#BA68C8] mt-1">60000</div>
+        <div class="text-[10px] text-[#8A8AA0] mt-1">record high · bubble andNormalizationcoexist</div>
+      </div>
+    </div>
+
+    <h3 class="text-sm font-bold mb-3">Cycle Positioning：GlobalKondratieff Depressionphase"alternativelandscape"——30 end of deflation</h3>
+    <div class="text-xs text-[#8A8AA0] leading-relaxed space-y-3 mb-5">
+      <p>
+        <strong class="text-[#E8E8F0]">Normalizationfruits of</strong>：Japanemerging from 30 years of deflation，BOJ policy rate from -0.1% rose to 1.0%
+        （2024.3 exiting NIRP → 2024.7 至 0.25% → 2025 hiked multiple times → 2026.6 至 1.0%），为 1995 highest since。
+        "Wages-price virtuous cycle"established，7 Tokyo incore CPI 1.9% beat expectations，ex-energy & foodcorecore CPI rose to 2.0%，
+        BOJ raised 2026 财core inInflationforecast to 2.8%，and hints 9 possible hike in months。
+        This isJapanBOJ 31 first entry in years into"Normalizationhike"track——<strong class="text-[#E8E8F0]">Japan用 30 cleared its Kuznets cycle by</strong>。
+      </p>
+      <p>
+        <strong class="text-[#E8E8F0]">Stagflationreal pressure</strong>：Middle East war makesJapanhit by importedInflation + double blow of slowing growth——
+        JapanME oil dependence as high as 95.2%，4 月 BOJ has cut 2026 FY GDP forecast from 1.0% lowered to 0.5%、Inflationforecast from 1.9% raised to 2.8%，
+        <strong class="text-[#E8E8F0]">"Inflationrising + growth falling"divergence，BOJ itself admits possible drift toStagflation</strong>。
+        GovtDebtexpanded to GDP 的 240%，2026 FY budget 122.3 trillion JPY，onlydebt-service"Treasuries费"reaches 31.3 trillion——
+        each rate rise 1pp，interest burden grows geometrically。This is 3 structural weaknesses（energy dependence + 高Debt + weak growth）resonance。
+      </p>
+      <p>
+        <strong class="text-[#E8E8F0]">carry-trade storm center</strong>：JPY breaks below 164（40 year low点），hedge funds & bank desks massively short JPY。
+        MoF 4-5 record intervention in 11.7 trillion JPY + 7 intervened again in。Historical pattern：Whenever"JPY surges"chain breaks——
+        1998 LTCM、2008 Financialcrisis、2020 Pandemic、2024.8 BOJ hike——JPY spikes often accompany risk-asset selling，
+        forming"JPY demand surge—asset selling"positive feedback。<strong class="text-[#E8E8F0]">若 BOJ 9 as scheduled inhiked to 1.25%，the biggest global liquidity tail risk。</strong>
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div class="card-base p-5" style="--accent:#BA68C8;">
+        <h4 class="text-sm font-bold mb-3 flex items-center gap-2">📜 Historical analogy · Four JPY carry shocks</h4>
+        <div class="space-y-2 text-xs text-[#8A8AA0] leading-relaxed">
+          <p><span class="text-[#E53935] font-bold">1998</span> LTCM crash · JPY 147→115 · Russia default</p>
+          <p><span class="text-[#E53935] font-bold">2008</span> Lehmancrisis · carry unwinding speeds global deleveraging</p>
+          <p><span class="text-[#E53935] font-bold">2020.3</span> pandemic liquiditycrisis · indiscriminate selling</p>
+          <p><span class="text-[#E53935] font-bold">2024.8</span> BOJ hike 25bp · global equity flash crash（Nikkeisingle-day -12% record）</p>
+          <p class="pt-2 text-[#E8E8F0]">2026 年 BOJ hiked to 1.25% on the path to，a 5th shock may come anytime。</p>
+        </div>
+      </div>
+      <div class="card-base p-5" style="--accent:#D4AF37;">
+        <h4 class="text-sm font-bold mb-3 flex items-center gap-2">🧭 Asset implications</h4>
+        <div class="space-y-2 text-xs">
+          <div class="flex justify-between p-2 rounded bg-[rgba(255,255,255,0.03)]"><span class="text-[#8A8AA0]">Japan equities</span><span class="text-[#FFB300] font-bold">⭐⭐ high-level risk · 60000 level is bubble zone</span></div>
+          <div class="flex justify-between p-2 rounded bg-[rgba(255,255,255,0.03)]"><span class="text-[#8A8AA0]">JGBs</span><span class="text-[#E53935] font-bold">⚠ 10Y 2.8% hike pressure · negative convexity risk</span></div>
+          <div class="flex justify-between p-2 rounded bg-[rgba(255,255,255,0.03)]"><span class="text-[#8A8AA0]">JPY</span><span class="text-[#D4AF37] font-bold">⭐⭐⭐⭐ 164 low level + intervention + hike → mid-term appreciation</span></div>
+          <div class="flex justify-between p-2 rounded bg-[rgba(255,255,255,0.03)]"><span class="text-[#8A8AA0]">carry</span><span class="text-[#E53935] font-bold">⚠ the biggest global liquidity tail risk</span></div>
+        </div>
+        <p class="text-[10px] text-[#5A5A70] mt-3 leading-relaxed">
+          Japanstory is essentially：Kondratieff Depressiondepression tail，can still see asset bubbles（JPY weakness + Nikkei highs），
+          and bubbles are cleared，usually via carry reversal。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 第六章：Tri-Nation Resonance ============ -->
+<section class="max-w-[1200px] mx-auto px-6 mb-12" id="chapter6">
+  <div class="card-base p-6 md:p-8 fade-up" style="--accent:#D4AF37;">
+    <h2 class="text-xl font-bold mb-5 flex items-center gap-2"><span class="w-1 h-5 bg-[#D4AF37] rounded"></span>六、Tri-Nation Resonance · Nested-Cycle Matrix</h2>
+
+    <p class="text-sm text-[#E8E8F0] leading-relaxed mb-6">
+      The ultimate truth is resonance。1 Kondratieff = 3 Kuznets = 6 Juglar = 18 Kitchin——
+      when cycles align，extreme moves；when cycles diverge，it is"paradoxical moves"。2026 年，three nations on different phases。
+    </p>
+
+    <!-- 嵌套矩阵表 -->
+    <div class="overflow-x-auto mb-5">
+      <table class="data-table w-full min-w-[760px]">
+        <thead>
+          <tr>
+            <th>Cycle hierarchy</th>
+            <th>🇺🇸 United States</th>
+            <th>🇨🇳 China</th>
+            <th>🇯🇵 Japan</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="font-bold text-[#D4AF37]">Kondratieff（55-60年）</td>
+            <td>Depression · deep zone</td>
+            <td>Depression · mid-stage</td>
+            <td>Depression · tail clearing done</td>
+          </tr>
+          <tr>
+            <td class="font-bold text-[#D4AF37]">Kuznets（~20年）</td>
+            <td>downtrend · high rates suppress property</td>
+            <td><span class="text-[#E53935]">mid-down-clearing</span> · volume leads price</td>
+            <td>cleared · 30bubble digestion</td>
+          </tr>
+          <tr>
+            <td class="font-bold text-[#D4AF37]">Juglar（~10年）</td>
+            <td><span class="text-[#43A047]">AI Capexrising</span> · Overheating</td>
+            <td>equipment renewal · manufacturing upgrade</td>
+            <td>Normalizationinvestment · overseas substitution</td>
+          </tr>
+          <tr>
+            <td class="font-bold text-[#D4AF37]">Kitchin（3-4年）</td>
+            <td><span class="text-[#E53935]">passive restocking</span> · Inflationstickiness</td>
+            <td><span class="text-[#43A047]">early active restocking</span> · PPI rebound</td>
+            <td>imported restocking · Oildominant</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+      <div class="card-base p-5" style="--accent:#4FC3F7;">
+        <div class="text-[10px] text-[#5A5A70] mb-1 mono">US · STAGFLATION</div>
+        <div class="text-base font-bold mb-2">United States · Stagflation</div>
+        <div class="text-2xl mb-2"><span class="text-[#9C27B0]">●</span><span class="text-[#E53935]">●</span><span class="text-[#FFB300]">●</span></div>
+        <p class="text-[10px] text-[#8A8AA0] leading-relaxed">
+          Kondratieff Depression × Kuznets down × Kitchin passive restock × AI JuglarOverheating → growth stall + Inflationstubborn + hike expectations。
+        </p>
+      </div>
+      <div class="card-base p-5" style="--accent:#E53935;">
+        <div class="text-[10px] text-[#5A5A70] mb-1 mono">CN · RECOVERY</div>
+        <div class="text-base font-bold mb-2">China · Recovery</div>
+        <div class="text-2xl mb-2"><span class="text-[#43A047]">●</span><span class="text-[#4FC3F7]">●</span><span class="text-[#FFB300]">●</span></div>
+        <p class="text-[10px] text-[#8A8AA0] leading-relaxed">
+          Kondratieff Depressionmid-stage × property clearing × Kitchin active restock → sole low-inflation recovery in global depressionInflationRecovery体，most policy room。
+        </p>
+      </div>
+      <div class="card-base p-5" style="--accent:#BA68C8;">
+        <div class="text-[10px] text-[#5A5A70] mb-1 mono">JP · NORMALIZATION</div>
+        <div class="text-base font-bold mb-2">Japan · Normalization</div>
+        <div class="text-2xl mb-2"><span class="text-[#E53935]">●</span><span class="text-[#BA68C8]">●</span><span class="text-[#FFB300]">●</span></div>
+        <p class="text-[10px] text-[#8A8AA0] leading-relaxed">
+          Kuznets clearing done × policyNormalization × importedInflation → 31 first hike in + carry storm center。
+        </p>
+      </div>
+    </div>
+
+    <div class="quote-block">
+      <p class="text-sm text-[#E8E8F0] leading-relaxed">
+        meaning of cycle misalignment：<strong class="text-[#D4AF37]">global capital is"voting with feet"——</strong>
+        从United StatesStagflationflowing toChinaRecovery（CNY appreciation 3%），from JPY carry to EM（Nikkei highs + SE-Asia inflows）。
+        this misalignment won't last，when one nation shifts phase（e.g. Fed forced to hike、BOJ hike detonates carry），
+        misalignment instantly becomes resonance——<strong class="text-[#E8E8F0]">resonance direction，is always toward depression。</strong>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 第七章：Asset Allocation ============ -->
+<section class="max-w-[1200px] mx-auto px-6 mb-12" id="chapter7">
+  <div class="card-base p-6 md:p-8 fade-up" style="--accent:#D4AF37;">
+    <h2 class="text-xl font-bold mb-5 flex items-center gap-2"><span class="w-1 h-5 bg-[#D4AF37] rounded"></span>七、Asset Allocation · Kondratieff Asset Clock</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div class="card-base p-4" style="--accent:#43A047;">
+        <div class="text-[10px] text-[#43A047] mb-1 mono">CN · Recovery期</div>
+        <div class="text-sm font-bold mb-2">🇨🇳 ChinaAllocation</div>
+        <ul class="text-[10px] text-[#8A8AA0] space-y-1">
+          <li>· <span class="text-[#E8E8F0]">A 股</span>：high dividend + tech self-reliance</li>
+          <li>· <span class="text-[#E8E8F0]">CN bonds</span>：bond bull continues · extend duration</li>
+          <li>· <span class="text-[#E8E8F0]">CNY</span>：hold through appreciation cycle</li>
+        </ul>
+      </div>
+      <div class="card-base p-4" style="--accent:#9C27B0;">
+        <div class="text-[10px] text-[#BA68C8] mb-1 mono">US · Stagflation期</div>
+        <div class="text-sm font-bold mb-2">🇺🇸 United StatesAllocation</div>
+        <ul class="text-[10px] text-[#8A8AA0] space-y-1">
+          <li>· <span class="text-[#E8E8F0]">Cash</span>：5%+ yield is king</li>
+          <li>· <span class="text-[#E8E8F0]">USTlong end</span>：10Y>4.6% allocation window</li>
+          <li>· <span class="text-[#E8E8F0]">US equities</span>：trim long-duration tech</li>
+        </ul>
+      </div>
+      <div class="card-base p-4" style="--accent:#BA68C8;">
+        <div class="text-[10px] text-[#BA68C8] mb-1 mono">JP · Overheatingedge</div>
+        <div class="text-sm font-bold mb-2">🇯🇵 JapanAllocation</div>
+        <ul class="text-[10px] text-[#8A8AA0] space-y-1">
+          <li>· <span class="text-[#E8E8F0]">Japan equities</span>：highs · trim & realize</li>
+          <li>· <span class="text-[#E8E8F0]">JPY</span>：mid-term appreciation view</li>
+          <li>· <span class="text-[#E8E8F0]">carry</span>：firmly avoid reversal</li>
+        </ul>
+      </div>
+      <div class="card-base p-4" style="--accent:#D4AF37;">
+        <div class="text-[10px] text-[#D4AF37] mb-1 mono">GLOBAL · Depression</div>
+        <div class="text-sm font-bold mb-2">🌍 Global hedge</div>
+        <ul class="text-[10px] text-[#8A8AA0] space-y-1">
+          <li>· <span class="text-[#E8E8F0]">Gold</span>：core 10-15%</li>
+          <li>· <span class="text-[#E8E8F0]">Crude</span>：pivotlifting · swing</li>
+          <li>· <span class="text-[#E8E8F0]">Silver</span>：shadowGold 59.75</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card-base p-5 mb-5" style="--accent:#D4AF37;">
+      <h3 class="text-sm font-bold mb-3">Kondratieff Depression-phase asset priority table</h3>
+      <div class="overflow-x-auto">
+        <table class="data-table w-full min-w-[640px]">
+          <thead>
+            <tr><th>Priority</th><th>Asset</th><th>logic</th><th>Proxy/Position</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="text-[#D4AF37] font-bold">①</span></td>
+              <td class="font-bold text-[#E8E8F0]">Gold</td>
+              <td class="text-[#8A8AA0]">Kondratieff Depressionoptimal · CB gold buying · USDcredibility damage</td>
+              <td class="mono text-[#D4AF37]">4134$/oz（8/4）· year-end target 5000+</td>
+            </tr>
+            <tr>
+              <td><span class="text-[#D4AF37] font-bold">②</span></td>
+              <td class="font-bold text-[#E8E8F0]">Cash</td>
+              <td class="text-[#8A8AA0]">USTyields 4-5% · risk-free & liquid</td>
+              <td class="mono text-[#43A047]">short bonds / money market funds</td>
+            </tr>
+            <tr>
+              <td><span class="text-[#D4AF37] font-bold">③</span></td>
+              <td class="font-bold text-[#E8E8F0]">long endUST</td>
+              <td class="text-[#8A8AA0]">10Y>4.6% historical high · recession hedge</td>
+              <td class="mono text-[#43A047]">10Y UST 4.59% · 30Y 5.0%</td>
+            </tr>
+            <tr>
+              <td><span class="text-[#D4AF37] font-bold">④</span></td>
+              <td class="font-bold text-[#E8E8F0]">ChinaAsset</td>
+              <td class="text-[#8A8AA0]">Recovery期 · 低Inflation · policy easing · appreciation</td>
+              <td class="mono text-[#43A047]">Aequity high dividend / CN bonds 2.31%</td>
+            </tr>
+            <tr>
+              <td><span class="text-[#D4AF37] font-bold">⑤</span></td>
+              <td class="font-bold text-[#E8E8F0]">Crude</td>
+              <td class="text-[#8A8AA0]">Gold/Oilconvergence · supply elasticity extremely low</td>
+              <td class="mono text-[#FFB300]">Brent 79（8/4）· pivot 87</td>
+            </tr>
+            <tr>
+              <td><span class="text-[#E53935] font-bold">⚠</span></td>
+              <td class="font-bold text-[#E53935]">US tech</td>
+              <td class="text-[#8A8AA0]">AI Inflationcost inflation · hike expectationscaps valuation</td>
+              <td class="mono text-[#E53935]">trim duration · guard expectation gap</td>
+            </tr>
+            <tr>
+              <td><span class="text-[#E53935] font-bold">⚠</span></td>
+              <td class="font-bold text-[#E53935]">Japan equities/JPY carry</td>
+              <td class="text-[#8A8AA0]">60000 bubble zone + carry storm center</td>
+              <td class="mono text-[#E53935]">BOJ 9meeting is key</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="quote-block">
+      <p class="text-sm text-[#E8E8F0] leading-relaxed">
+        Asset Allocation的coreis not"picking the right asset"，but"doing the right thing in the right cycle"。
+        Depressionfirst goal is preservation，target #2 is liquidity，third is growth。
+        Whoever 2026 understood this in，gets early access to 2027-2028 entry ticket for。
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 第八章：Timeline ============ -->
+<section class="max-w-[1200px] mx-auto px-6 mb-12" id="chapter8">
+  <div class="card-base p-6 md:p-8 fade-up" style="--accent:#4FC3F7;">
+    <h2 class="text-xl font-bold mb-5 flex items-center gap-2"><span class="w-1 h-5 bg-[#4FC3F7] rounded"></span>八、Timeline & Scenarios</h2>
+
+    <div class="space-y-4 mb-6">
+      <div class="flex items-start gap-4">
+        <div class="flex flex-col items-center">
+          <div class="w-3 h-3 rounded-full bg-[#43A047] shadow-[0_0_8px_#43A047] mt-1"></div>
+          <div class="w-px h-full bg-[#2A2A3E]"></div>
+        </div>
+        <div class="pb-6 flex-1">
+          <div class="text-sm font-bold text-[#43A047] mb-1">2026 H2 · ceasefire andInflationpeak</div>
+          <p class="text-xs text-[#8A8AA0] leading-relaxed">
+            if US-Iran ceasefire lands → Oileases to 70-90 → United States CPI peaked and easing → hike expectationscooling → USDeasing → Goldsteps up again。
+            key validation：9 月 FOMC dots、11 月United Statesmidterm elections（GOP eager to exit war）。
+          </p>
+        </div>
+      </div>
+      <div class="flex items-start gap-4">
+        <div class="flex flex-col items-center">
+          <div class="w-3 h-3 rounded-full bg-[#FFB300] shadow-[0_0_8px_#FFB300] mt-1"></div>
+          <div class="w-px h-full bg-[#2A2A3E]"></div>
+        </div>
+        <div class="pb-6 flex-1">
+          <div class="text-sm font-bold text-[#FFB300] mb-1">2026 Q4-2027 · Chinainflection & Fedto</div>
+          <p class="text-xs text-[#8A8AA0] leading-relaxed">
+            China：PPI H2high probability of turning positive，"Anti-involution"supply clearing，Morgan Stanley expects 2027 exits inlow-price cycleinflection。
+            United States：Goldmandelays cuts to 2027 年 6 月/12 月——若 AI Inflationconfirmation，hiked to 4.0%+ 后，Stagflationpivots to recession，
+            that will beUST的Goldallocation window（similar to 1982 Volcker pivotto）。
+          </p>
+        </div>
+      </div>
+      <div class="flex items-start gap-4">
+        <div class="flex flex-col items-center">
+          <div class="w-3 h-3 rounded-full bg-[#E53935] shadow-[0_0_8px_#E53935] mt-1"></div>
+          <div class="w-px h-full bg-[#2A2A3E]"></div>
+        </div>
+        <div class="pb-6 flex-1">
+          <div class="text-sm font-bold text-[#E53935] mb-1">2027-2028 · storm-center window</div>
+          <p class="text-xs text-[#8A8AA0] leading-relaxed">
+            biggest tail risk：Japancarry unwind（BOJ hiked to 1.25%+）+ United StatesStagflationpivot-to-recession resonance。
+            Oncetriggered，global assets faceDepression的"the final drop"——a Kondratieff-level buying point，
+            1985 first Kondratieff chance for post- generation，maybe then。
+          </p>
+        </div>
+      </div>
+      <div class="flex items-start gap-4">
+        <div class="flex flex-col items-center">
+          <div class="w-3 h-3 rounded-full bg-[#D4AF37] shadow-[0_0_8px_#D4AF37] mt-1"></div>
+        </div>
+        <div class="flex-1">
+          <div class="text-sm font-bold text-[#D4AF37] mb-1">2030s · new Kondratieff revival</div>
+          <p class="text-xs text-[#8A8AA0] leading-relaxed">
+            after depression clearing，the 6th Kondratieff will open with AI industrialization（not yet validated）+ new-energy system leadingRevival。
+            every current depression position，is kindling for the next revival。
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="quote-block">
+      <p class="text-sm text-[#E8E8F0] leading-relaxed">
+        「2019 is 1985 first wealth chance for post- generation。only three Kondratieff chances in life，
+        catch onemiddle class，twowealthy，miss all three，and your life is set。」
+        2026 depression of，is time to stock ammunition。
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 第九章：Honest Limits ============ -->
+<section class="max-w-[1200px] mx-auto px-6 mb-12" id="chapter9">
+  <div class="card-base p-6 md:p-8 fade-up" style="--accent:#8A8AA0;">
+    <h2 class="text-xl font-bold mb-5 flex items-center gap-2"><span class="w-1 h-5 bg-[#8A8AA0] rounded"></span>九、Honest Limits · Limitations of Analysis</h2>
+    <div class="space-y-3 text-xs text-[#8A8AA0] leading-relaxed">
+      <p><span class="text-[#D4AF37] font-bold">① Cannot predict short-term moves：</span>This report focuses on 1-5 trends，for day/周/month price levels, no power。Oilsingle-day ±5% normal volatility。</p>
+      <p><span class="text-[#D4AF37] font-bold">② Exogenousvariablesdistort the rhythm：</span>the US-Israel-Iran war is 2026 biggest ofexogenous shock，it makesStagflationearlier but cannot set direction。if war spirals to 135-150 USDOil，all scenarios need re-rating。</p>
+      <p><span class="text-[#D4AF37] font-bold">③ dataData currency：</span>analysis based on data as of 2026-08-04 publicdata，Keydata点（United States CPI、China PPI、BOJ decisions）need dynamic updates after release。</p>
+      <p><span class="text-[#D4AF37] font-bold">④ allocation advice is generic：</span>Gold 10-15% sizing must fit personal risk tolerance、capital size、and horizon。</p>
+      <p><span class="text-[#D4AF37] font-bold">⑤ Zhou Jintaooriginal framework ended 2016：</span>thereafter 10 years of evolution（AI、war、去USD化）not in his original analysis，this is an extension of his methodology。</p>
+      <p><span class="text-[#D4AF37] font-bold">⑥ cannot replace independentJudgment：</span>Cycle analysis offers"high-probability direction"，not a substitute for deep research on assets/and industries。</p>
+      <p class="pt-2 text-[#5A5A70]">This reportonlyFor research reference，Not investment advice。Markets carry risk，decide with caution。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Epilogue ============ -->
+<section class="max-w-[1200px] mx-auto px-6 mb-16 text-center" id="ending">
+  <div class="quote-block max-w-3xl mx-auto text-center" style="border-left:none; border-radius:12px;">
+    <p class="text-lg text-[#E8E8F0] leading-relaxed serif italic">
+      「Cycles eventually end，but before that，we will live through another Kondratieff。<br/>
+      When fortune smiles, heaven itself helps，When fortune fades, even heroes struggle。」<br/>
+      <span class="text-[#D4AF37] text-base not-italic mt-3 inline-block">—— Zhou Jintao（1972-2016）</span>
+    </p>
+  </div>
+  <div class="mt-8 flex items-center justify-center gap-2 text-[10px] text-[#5A5A70] mono">
+    <span class="taiji relative inline-block" style="width:16px;height:16px">
+      <div class="taiji-dot-light" style="width:2.5px;height:2.5px;top:1px"></div>
+      <div class="taiji-dot-dark" style="width:2.5px;height:2.5px;bottom:1px"></div>
+    </span>
+    <span>Econ-Sentiment Twin Think Tank · Zhou Jintao Cycle Framework · Wisdom with Warmth</span>
+  </div>
+</section>
+
+<!-- ============ Back to Top ============ -->
+<button class="back-top" id="backTop" title="Back to Top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+/* =============== 模块导航 · 滚动高亮 (scrollspy) =============== */
+(function() {
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-link[data-sec]');
+
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const secId = entry.target.id === 'cover' ? 'summary' : entry.target.id;
+          navLinks.forEach(l => l.classList.toggle('active', l.dataset.sec === secId));
+        }
+      });
+    }, { rootMargin: '-35% 0px -60% 0px' });
+    sections.forEach(s => observer.observe(s));
+  } else {
+    // 降级：滚动监听
+    window.addEventListener('scroll', () => {
+      let current = 'summary';
+      sections.forEach(s => {
+        if (window.scrollY >= s.offsetTop - 120) current = s.id === 'cover' ? 'summary' : s.id;
+      });
+      navLinks.forEach(l => l.classList.toggle('active', l.dataset.sec === current));
+    }, { passive: true });
+  }
+  // 默认高亮核心结论
+  navLinks.forEach(l => l.classList.toggle('active', l.dataset.sec === 'summary'));
+
+  // 返回顶部按钮显隐
+  const backTop = document.getElementById('backTop');
+  window.addEventListener('scroll', () => {
+    backTop.classList.toggle('show', window.scrollY > 600);
+  }, { passive: true });
+})();
+</script>
+
+
+
+<script>
+/* 英文版 · 强制英文化（框架文本） */
+(function(){
+  const DICT = {"◉ 核心结论": "◉ Core Conclusions", "① 康波定位": "① Kondratieff Positioning", "② 核心变量": "② Key Variables", "🇺🇸 美国": "🇺🇸 United States", "🇨🇳 中国": "🇨🇳 China", "🇯🇵 日本": "🇯🇵 Japan", "⑥ 共振矩阵": "⑥ Resonance Matrix", "⑦ 资产配置": "⑦ Asset Allocation", "⑧ 时间表": "⑧ Timeline", "⑨ 边界": "⑨ Limits", "⑩ 结语": "⑩ Epilogue", "报告目录": "Table of Contents", "〇、核心结论 · 周期定位总纲": "0. Core Conclusions · Cycle Positioning", "一、康波阶段判断 · 全球宏观底座": "1. Kondratieff Phase · Global Macro Base", "二、核心观察变量 · 金油比与美元周期": "2. Key Variables · Gold/Oil Ratio & USD Cycle", "三、🇺🇸 美国 · 康波萧条中的滞胀确认": "3. US · Stagflation in Kondratieff Depression", "四、🇨🇳 中国 · 萧条期中的相对强势": "4. China · Relative Strength in Depression", "五、🇯🇵 日本 · 正常化的过热与滞胀风险": "5. Japan · Normalized Overheating & Stagflation Risk", "六、三国共振 · 多周期嵌套矩阵": "6. Three-Nation Resonance · Nested Cycles", "七、资产配置 · 康波资产时钟": "7. Asset Allocation · Kondratieff Clock", "八、时间表与情景推演": "8. Timeline & Scenario Projection", "九、诚实边界 · 分析的局限": "9. Honest Limits · Limitations of Analysis"};
+  function applyEn(){
+    document.querySelectorAll('h2, h3, nav a').forEach(el => {
+      el.childNodes.forEach(node => {
+        if (node.nodeType === 3) {
+          const zh = node.textContent.trim();
+          if (zh && DICT[zh] !== undefined) node.textContent = DICT[zh];
+        }
+      });
+    });
+  }
+  try {
+    if (typeof window.renderAll === 'function') { const _r = window.renderAll; window.renderAll = function(){ _r(); applyEn(); }; }
+    if (typeof window.refreshAll === 'function') { const _r = window.refreshAll; window.refreshAll = function(){ _r(); applyEn(); }; }
+  } catch(e) {}
+  setTimeout(applyEn, 120);
+  setInterval(applyEn, 5000);
+})();
+</script>
+</body>
+</html>

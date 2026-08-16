@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>三国周期深度分析报告 · 周金涛周期思维 · 财情双生智库</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Noto+Serif+SC:wght@500;700;900&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root {
+    --bg-primary: #0D0D0F;
+    --bg-secondary: #0A1628;
+    --bg-card: #1A1A2E;
+    --bg-deep: #060D18;
+    --border: #2A2A3E;
+    --gold: #D4AF37;
+    --gold-light: #E6C65C;
+    --gold-dark: #8B6914;
+    --text-primary: #E8E8F0;
+    --text-secondary: #8A8AA0;
+    --text-muted: #5A5A70;
+    --up: #E53935;
+    --down: #43A047;
+    --warn: #FFB300;
+  }
+  * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  html, body { background: var(--bg-primary); color: var(--text-primary); font-family: 'Noto Sans SC', 'Inter', sans-serif; scroll-behavior: smooth; }
+  body {
+    background:
+      radial-gradient(ellipse 80% 40% at 50% -10%, rgba(212,175,55,0.08) 0%, transparent 60%),
+      linear-gradient(180deg, #0D0D0F 0%, #060D18 100%);
+  }
+  .gold-text {
+    background: linear-gradient(135deg, #D4AF37 0%, #E6C65C 50%, #D4AF37 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .glass {
+    background: rgba(26,26,46,0.5);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(212,175,55,0.15);
+  }
+  .card-base {
+    background: linear-gradient(135deg, rgba(10,22,40,0.9) 0%, rgba(6,13,24,0.9) 100%);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card-base::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent 0%, var(--accent, #D4AF37) 50%, transparent 100%);
+  }
+  .mono { font-family: 'JetBrains Mono', monospace; font-feature-settings: 'tnum'; }
+  .serif { font-family: 'Noto Serif SC', serif; }
+  .num-up { color: var(--up); }
+  .num-down { color: var(--down); }
+
+  .taiji {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: conic-gradient(from 0deg, #0D0D0F 0deg 180deg, #D4AF37 180deg 360deg);
+    position: relative; overflow: hidden;
+  }
+  .taiji::before, .taiji::after { content: ''; position: absolute; width: 14px; height: 14px; border-radius: 50%; }
+  .taiji::before { top: 0; left: 50%; transform: translateX(-50%); background: #D4AF37; }
+  .taiji::after { bottom: 0; left: 50%; transform: translateX(-50%); background: #0D0D0F; }
+  .taiji-dot-light, .taiji-dot-dark { position: absolute; width: 4.5px; height: 4.5px; border-radius: 50%; z-index: 2; }
+  .taiji-dot-light { top: 5px; left: 50%; transform: translateX(-50%); background: #0D0D0F; }
+  .taiji-dot-dark { bottom: 5px; left: 50%; transform: translateX(-50%); background: #D4AF37; }
+
+  .grid-bg {
+    background-image:
+      linear-gradient(rgba(212,175,55,0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(212,175,55,0.035) 1px, transparent 1px);
+    background-size: 44px 44px;
+  }
+  .top-edge { height: 1px; background: linear-gradient(90deg, transparent 0%, var(--gold) 50%, transparent 100%); }
+
+  /* 目录 */
+  .toc-link { transition: all 0.3s; border-left: 2px solid transparent; padding-left: 12px; }
+  .toc-link:hover { color: var(--gold); border-left-color: var(--gold); }
+
+  /* 引文块 */
+  .quote-block {
+    border-left: 3px solid var(--gold);
+    padding: 16px 20px;
+    background: rgba(212,175,55,0.04);
+    border-radius: 0 12px 12px 0;
+    font-family: 'Noto Serif SC', serif;
+  }
+
+  /* 数据表 */
+  .data-table th { text-align: left; padding: 10px 14px; font-size: 11px; color: var(--text-secondary); border-bottom: 1px solid var(--border); }
+  .data-table td { padding: 10px 14px; font-size: 12.5px; border-bottom: 1px solid rgba(42,42,62,0.5); }
+  .data-table tr:hover td { background: rgba(212,175,55,0.03); }
+
+  /* 进度条 */
+  .bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.06); overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 3px; }
+
+  /* 圆环进度 */
+  .ring-progress { transform: rotate(-90deg); }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: var(--bg-primary); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--gold-dark); }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  .fade-up { animation: fadeUp 0.7s ease-out backwards; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 10px; border-radius: 4px;
+    font-size: 11px; font-weight: 500; letter-spacing: 0.5px;
+    border: 1px solid currentColor; background: rgba(255,255,255,0.02);
+  }
+
+  /* ===== 模块导航 ===== */
+  .nav-link {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 5px 11px; border-radius: 7px;
+    font-size: 11px; color: var(--text-secondary);
+    white-space: nowrap; transition: all 0.3s;
+    border: 1px solid transparent; font-weight: 500;
+    letter-spacing: 0.3px;
+  }
+  .nav-link:hover {
+    color: var(--gold); background: rgba(212,175,55,0.08);
+    border-color: rgba(212,175,55,0.25);
+  }
+  .nav-link.active {
+    color: #0D0D0F;
+    background: linear-gradient(135deg, #D4AF37 0%, #E6C65C 100%);
+    font-weight: 700;
+    box-shadow: 0 2px 14px rgba(212,175,55,0.35);
+  }
+  .nav-group-sep {
+    width: 1px; height: 16px; background: rgba(255,255,255,0.1);
+    margin: 0 6px; flex-shrink: 0;
+  }
+  section[id] { scroll-margin-top: 96px; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* 返回顶部 */
+  .back-top {
+    position: fixed; right: 28px; bottom: 32px; z-index: 90;
+    width: 44px; height: 44px; border-radius: 50%;
+    background: linear-gradient(135deg, #D4AF37 0%, #E6C65C 100%);
+    color: #0D0D0F; display: flex; align-items: center; justify-content: center;
+    font-size: 18px; cursor: pointer; opacity: 0; pointer-events: none;
+    transition: all 0.4s; box-shadow: 0 8px 28px rgba(212,175,55,0.4);
+    border: none;
+  }
+  .back-top.show { opacity: 1; pointer-events: auto; }
+  .back-top:hover { transform: translateY(-4px); box-shadow: 0 12px 36px rgba(212,175,55,0.5); }
+
+  /* 财情双生 logo + 导航 */
+  .logo-img { width:36px; height:36px; border-radius:50%; transition: transform 0.6s ease; display:inline-block; }
+  .logo-img:hover { transform: rotate(360deg); }
+  .logo-img-wrap { line-height:0; display:inline-block; }
+  .home-btn { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; margin-right:6px; font-size:11px; border:1px solid #D4AF37; color:#D4AF37; border-radius:6px; transition: all 0.2s; }
+  .home-btn:hover { background:rgba(212,175,55,0.12); color:#D4AF37; }
+
+  .en-brand-sm { font-size: 9px; opacity: .6; letter-spacing: 1px; font-weight: 400; margin-left: 4px; color: var(--gold, #D4AF37); }
+  @media (max-width: 640px) { .en-brand-sm { display: none; } }
+
+  .lang-pair-sub { display:inline-flex; align-items:center; gap:4px; padding:3px 8px; border:1px solid rgba(212,175,55,.4); border-radius:6px; font-size:10px; margin-right:6px; vertical-align:middle; }
+  .lang-pair-sub a { padding:1px 7px; border-radius:4px; color:#8A8AA0; text-decoration:none; }
+  .lang-pair-sub a:hover { color:#D4AF37; }
+  .lang-pair-sub a.active { color:#0D0D0F; background:#D4AF37; font-weight:600; }
+  .lang-pair-sub .sep { color:#5A5A70; }
+</style>
+</head>
+<body class="grid-bg">
+
+<!-- ============ 顶部导航 ============ -->
+<header class="sticky top-0 z-50 glass border-b border-[#2A2A3E]">
+  <div class="max-w-[1200px] mx-auto px-6 py-2.5 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="../../index.html" class="logo-img-wrap" title="返回主导航"><img src="../../_assets/logo.png" alt="财情双生" class="logo-img"/></a>
+      <div>
+        <div class="text-sm font-semibold tracking-wide">财情双生智库 · <span class="gold-text">周期研究报告</span> <span class="en-brand-sm">· Econ-Sentiment Twin Think Tank</span></div>
+        <div class="text-[10px] text-[#5A5A70] tracking-widest uppercase">Zhou Jintao Perspective · Kondratieff Cycle</div>
+      </div>
+    </div>
+    <div class="hidden md:flex items-center gap-4 text-xs text-[#8A8AA0]">
+      <span class="mono">2026-08-05</span>
+      <span class="signal-light inline-block w-2 h-2 rounded-full bg-[#43A047] shadow-[0_0_8px_#43A047] animate-pulse"></span>
+      <span class="text-[#43A047]">数据已验证</span>
+    </div>
+  </div>
+  <!-- 模块导航 -->
+  <a href="../../index.html" class="home-btn">🏠 主导航</a><span class="lang-pair-sub"><a href="index.html" class="active">中</a><span class="sep">|</span><a href="../../apps-en/03-zhoujintao-cycle/index.html">EN</a></span><nav class="border-t border-[rgba(212,175,55,0.12)] bg-[rgba(6,13,24,0.4)]">
+    <div class="max-w-[1200px] mx-auto px-6 overflow-x-auto no-scrollbar">
+      <div class="flex items-center py-1.5" id="moduleNav">
+        <a class="nav-link" href="#summary" data-sec="summary">◉ 核心结论</a>
+        <span class="nav-group-sep"></span>
+        <a class="nav-link" href="#chapter1" data-sec="chapter1">① 康波定位</a>
+        <a class="nav-link" href="#chapter2" data-sec="chapter2">② 核心变量</a>
+        <span class="nav-group-sep"></span>
+        <a class="nav-link" href="#chapter3" data-sec="chapter3">🇺🇸 美国</a>
+        <a class="nav-link" href="#chapter4" data-sec="chapter4">🇨🇳 中国</a>
+        <a class="nav-link" href="#chapter5" data-sec="chapter5">🇯🇵 日本</a>
+        <span class="nav-group-sep"></span>
+        <a class="nav-link" href="#chapter6" data-sec="chapter6">⑥ 共振矩阵</a>
+        <a class="nav-link" href="#chapter7" data-sec="chapter7">⑦ 资产配置</a>
+        <a class="nav-link" href="#chapter8" data-sec="chapter8">⑧ 时间表</a>
+        <a class="nav-link" href="#chapter9" data-sec="chapter9">⑨ 边界</a>
+        <a class="nav-link" href="#ending" data-sec="ending">⑩ 结语</a>
+      </div>
+    </div>
+  </nav>
+  <div class="top-edge"></div>
+</header>
+
+<!-- ============ 封面 ============ -->
+<section class="max-w-[1200px] mx-auto px-6 pt-16 pb-10 text-center relative" id="cover">
+  <div class="text-[10px] tracking-[0.4em] text-[#8B6914] mb-4 mono">KONDRATIEFF · KUZNETS · JUGLAR · KITCHIN</div>
+  <h1 class="text-4xl md:text-6xl font-black tracking-tight leading-tight serif">
+    中美日三国<br/>
+    <span class="gold-text">康波周期深度分析报告</span>
+  </h1>
+  <p class="mt-5 text-[#8A8AA0] max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
+    以四周期嵌套框架，从康波长波定位出发，层层下沉至库兹涅茨、朱格拉、基钦周期，
+    对 <span class="text-[#E8E8F0]">🇨🇳 中国 · 🇺🇸 美国 · 🇯🇵 日本</span> 三国经济进行系统周期定位与资产配置推演。
+  </p>
+  <div class="mt-8 flex items-center justify-center gap-3 flex-wrap">
+    <span class="badge text-[#D4AF37]"><span class="w-1.5 h-1.5 rounded-full bg-[#D4AF37] shadow-[0_0_6px_#D4AF37]"></span>周金涛周期思维框架</span>
+    <span class="badge text-[#8A8AA0]">数据截止 2026-08-04</span>
+    <span class="badge text-[#8A8AA0]">10 大方法论</span>
+    <span class="badge text-[#8A8AA0]">四周期嵌套</span>
+  </div>
+  <div class="quote-block max-w-2xl mx-auto mt-10 text-left">
+    <p class="text-sm text-[#E8E8F0] leading-relaxed italic">
+      「人生发财靠康波。一个人的财富量级，80% 由你出生在哪一个康波阶段决定——
+      抓住一次康波机会，中产；两次，富裕；三次都抓不住，这辈子就定型了。」
+    </p>
+    <p class="text-[10px] text-[#D4AF37] mt-2 mono">—— 周期天王 · 周金涛</p>
+  </div>
+</section>
+
+<!-- ============ 目录 ============ -->
+<section class="max-w-[1200px] mx-auto px-6 mb-10">
+  <div class="card-base p-6 md:p-8" style="--accent:#D4AF37;">
+    <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><span class="w-1 h-5 bg-[#D4AF37] rounded"></span>报告目录</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-[#8A8AA0]">
+      <a href="#summary" class="toc-link py-1.5">〇、核心结论 · 周期定位总纲</a>
+      <a href="#chapter1" class="toc-link py-1.5">一、康波阶段判断 · 全球宏观底座</a>
+      <a href="#chapter2" class="toc-link py-1.5">二、核心观察变量 · 金油比与美元周期</a>
+      <a href="#chapter3" class="toc-link py-1.5">三、🇺🇸 美国 · 康波萧条中的滞胀确认</a>
+      <a href="#chapter4" class="toc-link py-1.5">四、🇨🇳 中国 · 萧条期中的相对强势</a>
+      <a href="#chapter5" class="toc-link py-1.5">五、🇯🇵 日本 · 正常化的过热与滞胀风险</a>
+      <a href="#chapter6" class="toc-link py-1.5">六、三国共振 · 多周期嵌套矩阵</a>
+      <a href="#chapter7" class="toc-link py-1.5">七、资产配置 · 康波资产时钟</a>
+      <a href="#chapter8" class="toc-link py-1.5">八、时间表与情景推演</a>
+      <a href="#chapter9" class="toc-link py-1.5">九、诚实边界 · 分析的局限</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 核心结论 ============ -->
+<section class="max-w-[1200px] mx-auto px-6 mb-12" id="summary">
+  <div class="card-base p-6 md:p-8 fade-up" style="--accent:#D4AF37;">
+    <h2 class="text-xl font-bold mb-5 flex items-center gap-2"><span class="w-1 h-5 bg-[#D4AF37] rounded"></span>〇、核心结论 · 周期定位总纲</h2>
+
+    <div class="quote-block mb-6">
+      <p class="text-base text-[#E8E8F0] leading-relaxed serif">
+        当前全球仍处于<strong class="text-[#D4AF37]">第五次康波周期的萧条期</strong>（2015年前后启动，预计延续至2030年前后）。
+        2026年的美以伊战争，是这个萧条期中最典型的一次<strong class="text-[#E8E8F0]">外生冲击</strong>——
+        它不会让周期消失，但会<strong class="text-[#E8E8F0]">扭曲节奏</strong>：油价暴涨推升通胀，让市场从"降息交易"一夜之间翻转为"加息交易"。
+        越是研究周期，越是相信宿命——这一次，战争只是让已经注定要发生的滞胀提前了。
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <!-- 美国 -->
+      <div class="card-base p-5" style="--accent:#4FC3F7;">
+        <div class="flex items-center justify-between mb-3">
+          <div class="text-2xl">🇺🇸</div>
+          <span class="badge text-[#9C27B0]">滞胀 · 康波萧条</span>
+        </div>
+        <div class="text-2xl font-black gold-text mb-2">滞胀确认</div>
+        <ul class="text-[11px] text-[#8A8AA0] space-y-1.5 leading-relaxed">
+          <li>· CPI 1月2.4% → 5月 <span class="num-up">4.2%</span></li>
+          <li>· 非农走弱 · 失业率 4.2%</li>
+          <li>· 市场转向 <span class="text-[#E53935]">加息预期</span></li>
+          <li>· 30Y 美债冲破 5.0%</li>
+        </ul>
+      </div>
+      <!-- 中国 -->
+      <div class="card-base p-5" style="--accent:#E53935;">
+        <div class="flex items-center justify-between mb-3">
+          <div class="text-2xl">🇨🇳</div>
+          <span class="badge text-[#43A047]">复苏 · 萧条中强势</span>
+        </div>
+        <div class="text-2xl font-black gold-text mb-2">相对最优</div>
+        <ul class="text-[11px] text-[#8A8AA0] space-y-1.5 leading-relaxed">
+          <li>· GDP 上半年 <span class="num-up">+4.7%</span> 韧性</li>
+          <li>· CPI +1.0% · 低物价循环</li>
+          <li>· 房地产仍在下行出清</li>
+          <li>· 人民币升值 3%</li>
+        </ul>
+      </div>
+      <!-- 日本 -->
+      <div class="card-base p-5" style="--accent:#BA68C8;">
+        <div class="flex items-center justify-between mb-3">
+          <div class="text-2xl">🇯🇵</div>
+          <span class="badge text-[#E53935]">过热 · 正常化</span>
+        </div>
+        <div class="text-2xl font-black gold-text mb-2">滞胀风险</div>
+        <ul class="text-[11px] text-[#8A8AA0] space-y-1.5 leading-relaxed">
+          <li>· BOJ 加息至 <span class="num-up">1.0%</span>（31年最高）</li>
+          <li>· 日元跌破 <span class="num-up">164</span>（40年低）</li>
+          <li>· 10Y JGB 2.80%</li>
+          <li>· 债务 = GDP 的 240%</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div class="card-base p-5" style="--accent:#FFB300;">
+        <h3 class="text-sm font-bold mb-3 flex items-center gap-2"><span class="w-1 h-4 bg-[#FFB300] rounded"></span>核心资产判断（按康波资产时钟）</h3>
+        <div class="text-xs text-[#E8E8F0] leading-relaxed space-y-2">
+          <p><span class="text-[#D4AF37] font-bold">黄金 > 现金 > 债券 > 股票 > 商品</span> —— 这就是康波萧条期的资产秩序。</p>
+          <p>金价 2015 年以来已上涨超 60%，2026 年站上 <span class="text-[#E8E8F0]">4000-5400 美元</span>，本轮黄金牛市主升浪或仍持续 2-3 年。</p>
+          <p>2026 年底黄金目标价主流区间 <span class="text-[#E8E8F0]">5000 美元以上</span>（高者 6300）。</p>
+        </div>
+      </div>
+      <div class="card-base p-5" style="--accent:#43A047;">
+        <h3 class="text-sm font-bold mb-3 flex items-center gap-2"><span class="w-1 h-4 bg-[#43A047] rounded"></span>三个必须回答的问题</h3>
+        <div class="text-xs text-[#E8E8F0] leading-relaxed space-y-2">
+          <p>① <strong>美国是滞胀还是衰退？</strong> —— 本轮是"油价冲击型滞胀"，历史上 1970 年代石油危机告诉我们：先通胀后衰退，滞胀是衰退的过渡站。</p>
+          <p>② <strong>中国何时走出低物价？</strong> —— 摩根士丹利判断 2027 年才是拐点，低物价循环的出清需要时间。</p>
+          <p>③ <strong>日本加息会不会引爆套息？</strong> —— 2024 年 8 月已预演过一次，一旦 BOJ 加快加息，全球日元套息反向就是下一个风暴眼。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 第一章：康波阶段 ============ -->
+<section class="max-w-[1200px] mx-auto px-6 mb-12" id="chapter1">
+  <div class="card-base p-6 md:p-8 fade-up" style="--accent:#D4AF37;">
+    <h2 class="text-xl font-bold mb-5 flex items-center gap-2"><span class="w-1 h-5 bg-[#D4AF37] rounded"></span>一、康波阶段判断 · 全球宏观底座</h2>
+
+    <p class="text-sm text-[#E8E8F0] leading-relaxed mb-6">
+      分析任何经济体，第一步永远是：<strong class="text-[#D4AF37]">当前处于第几次康波的什么阶段。</strong>
+      这是所有判断的根。如果连根都定错了，枝干上的分析再精细也是错的。
+    </p>
+
+    <!-- 康波阶段示意 -->
+    <div class="card-base p-5 mb-6" style="--accent:#D4AF37;">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-bold">第五次康波 · 四阶段定位（1980s → 2030s）</h3>
+        <span class="text-[10px] text-[#5A5A70] mono">第五轮 · 信息技术驱动</span>
+      </div>
+      <div class="grid grid-cols-4 gap-2">
+        <div class="p-3 rounded-lg bg-[rgba(67,160,71,0.1)] border border-[rgba(67,160,71,0.3)]">
+          <div class="text-[10px] text-[#43A047] font-bold">1980s-1990s</div>
+          <div class="text-sm font-bold mt-1">回升期</div>
+          <div class="text-[10px] text-[#8A8AA0] mt-0.5">PC 革命 · 信息化启动</div>
+        </div>
+        <div class="p-3 rounded-lg bg-[rgba(229,57,53,0.1)] border border-[rgba(229,57,53,0.3)]">
+          <div class="text-[10px] text-[#E53935] font-bold">1990s-2008</div>
+          <div class="text-sm font-bold mt-1">繁荣期</div>
+          <div class="text-[10px] text-[#8A8AA0] mt-0.5">互联网泡沫 · 全球化高峰</div>
+        </div>
+        <div class="p-3 rounded-lg bg-[rgba(255,179,0,0.1)] border border-[rgba(255,179,0,0.3)]">
+          <div class="text-[10px] text-[#FFB300] font-bold">2008-2015</div>
+          <div class="text-sm font-bold mt-1">衰退期</div>
+          <div class="text-[10px] text-[#8A8AA0] mt-0.5">次贷危机 · 产能出清</div>
+        </div>
+        <div class="p-3 rounded-lg bg-[rgba(156,39,176,0.25)] border-2 border-[#9C27B0]">
+          <div class="text-[10px] text-[#CE93D8] font-bold">2015-2030s ★</div>
+          <div class="text-sm font-bold mt-1 text-[#CE93D8]">萧条期 · 当前</div>
+          <div class="text-[10px] text-[#8A8AA0] mt-0.5">债务出清 · 通缩压力</div>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="text-sm font-bold mb-3">为什么判断仍处于萧条期？—— 三个铁证</h3>
+    <div class="space-y-4">
+      <div class="card-base p-5" style="--accent:#D4AF37;">
+        <div class="flex items-start gap-4">
+          <div class="text-3xl">🥇</div>
+          <div class="flex-1">
+            <div class="text-sm font-bold mb-1">铁证一：黄金主升浪 —— 萧条期最鲜明的资产特征</div>
+            <p class="text-xs text-[#8A8AA0] leading-relaxed">
+              周金涛在 2015 年就断言：整个萧条期实际利率走低是大方向，<strong class="text-[#E8E8F0]">黄金对大宗商品的超越依然存在</strong>。
+              2026 年的现实完全验证了这个判断：金价从 2015 年的 1100 美元一路上涨至 2026 年的 4000-5400 美元，
+              涨幅超 60%+，且仍在主升浪。黄金是康波萧条期表现最优的资产——这是周期规律，不是市场情绪。
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="card-base p-5" style="--accent:#D4AF37;">
+        <div class="flex items-start gap-4">
+          <div class="text-3xl">💸</div>
+          <div class="flex-1">
+            <div class="text-sm font-bold mb-1">铁证二：美债利息支出超越国防开支 —— 债务周期末端信号</div>
+            <p class="text-xs text-[#8A8AA0] leading-relaxed">
+              美国联邦债务利息支出已超越国防开支，30 年期国债收益率突破 5.0%——这是主权债务螺旋的典型特征。
+              美元信用受损推动全球央行持续净购金（2026 年 4 月恢复净购），货币体系的裂痕，正是萧条期最深层的主线。
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="card-base p-5" style="--accent:#D4AF37;">
+        <div class="flex items-start gap-4">
+          <div class="text-3xl">⚖️</div>
+          <div class="flex-1">
+            <div class="text-sm font-bold mb-1">铁证三：金油比极端偏离 —— 康波研究最经典的观测指标</div>
+            <p class="text-xs text-[#8A8AA0] leading-relaxed">
+              金油比中枢是 16 倍。2022 年 7 月至 2026 年 2 月，金油比从 15.9 飙升至 70.6（逼近 2020 年疫情峰值 72.1），
+              随后因战争油价反弹回落至 39-50 区间——<strong class="text-[#E8E8F0]">即便如此仍处历史高位</strong>。
+              历史上每一次金油比大幅偏离，最终都以油价补涨收敛（1998 LTCM、2008 危机、2011 欧债均如此）。
+              石油行业资本开支已连续 10 年收缩，供给弹性极低，油价中枢抬升是大概率事件。
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="quote-block mt-6">
+      <p class="text-sm text-[#E8E8F0] leading-relaxed">
+        「周期终将幻灭，但在此之前，我们仍将经历一次康波。」 萧条期不是世界末日，它只是繁荣的清算。
+        在萧条期，第一目标是保值而非增值，第二目标是流动性。谁先理解这一点，谁就赢在了起跑线上。
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 第二章：核心观察变量 ============ -->
+<section class="max-w-[1200px] mx-auto px-6 mb-12" id="chapter2">
+  <div class="card-base p-6 md:p-8 fade-up" style="--accent:#FFB300;">
+    <h2 class="text-xl font-bold mb-5 flex items-center gap-2"><span class="w-1 h-5 bg-[#FFB300] rounded"></span>二、核心观察变量 · 金油比与美元周期</h2>
+    <p class="text-sm text-[#E8E8F0] leading-relaxed mb-6">
+      不需要跟踪几百个指标。抓住少数几个"风向标"变量，就能判断大方向。
+      2026 年的几个核心变量，正在同时亮起黄灯。
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div class="card-base p-5" style="--accent:#D4AF37;">
+        <div class="text-[10px] text-[#5A5A70] mono mb-1">VARIABLE 01 · GOLD/OIL RATIO</div>
+        <div class="text-sm font-bold mb-2">金油比</div>
+        <div class="flex items-baseline gap-2 mb-2">
+          <div class="text-3xl font-black gold-text mono">39~50</div>
+          <div class="text-[10px] text-[#FFB300]">中枢 16x</div>
+        </div>
+        <div class="bar mb-2"><div class="bar-fill" style="width:62%; background:linear-gradient(90deg,#43A047,#FFB300,#E53935);"></div></div>
+        <div class="text-[10px] text-[#8A8AA0] leading-relaxed">
+          2022-2026.2 飙升至 70.6（历史极值），战争后回落但仍处高位。<strong class="text-[#E8E8F0]">历史规律：偏离必收敛，大概率以油价补涨实现。</strong>
+        </div>
+      </div>
+      <div class="card-base p-5" style="--accent:#4FC3F7;">
+        <div class="text-[10px] text-[#5A5A70] mono mb-1">VARIABLE 02 · DOLLAR CYCLE</div>
+        <div class="text-sm font-bold mb-2">美元周期</div>
+        <div class="flex items-baseline gap-2 mb-2">
+          <div class="text-3xl font-black gold-text mono">100.9</div>
+          <div class="text-[10px] text-[#E53935]">上半年 +5.2%</div>
+        </div>
+        <div class="bar mb-2"><div class="bar-fill" style="width:52%; background:linear-gradient(90deg,#43A047,#FFB300,#E53935);"></div></div>
+        <div class="text-[10px] text-[#8A8AA0] leading-relaxed">
+          2025 年从 110 跌至 97（弱美元周期），2026 上半年因战争+加息预期反弹至 101。
+          <strong class="text-[#E8E8F0]">这是冲击型反弹，非趋势反转，下半年 97-103 震荡。</strong>
+        </div>
+      </div>
+      <div class="card-base p-5" style="--accent:#E53935;">
+        <div class="text-[10px] text-[#5A5A70] mono mb-1">VARIABLE 03 · COMMODITY</div>
+        <div class="text-sm font-bold mb-2">大宗商品</div>
+        <div class="flex items-baseline gap-2 mb-2">
+          <div class="text-3xl font-black gold-text mono">油价 76</div>
+          <div class="text-[10px] text-[#43A047]">8/4 单日 -5.7%</div>
+        </div>
+        <div class="bar mb-2"><div class="bar-fill" style="width:45%; background:linear-gradient(90deg,#43A047,#FFB300,#E53935);"></div></div>
+        <div class="text-[10px] text-[#8A8AA0] leading-relaxed">
+          战争期间飙至 114 美元，停火后回落至 76。
+          资本开支 10 年收缩 + 战略储备低位 → <strong class="text-[#E8E8F0]">油价中枢抬升，难回 60-70 的冲突前水平。</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-base p-5" style="--accent:#FFB300;">
+      <h3 class="text-sm font-bold mb-3">本轮的特殊性：黄金与原油的"跷跷板"——历史规律的例外</h3>
+      <p class="text-xs text-[#8A8AA0] leading-relaxed">
+        2026 年 3 月以来，金油呈负相关（油涨金跌、油跌金涨），打破了近半个世纪"地缘危机中金油强正相关"的规律。
+        原因有三：① 黄金定价逻辑已从"实际利率"转向"央行购金主导的货币属性"；② 金价历史高位引发获利了结；
+        ③ 油价暴涨导致配置型基金能源头寸保证金缺口（流动性吸纳）。
+        这提醒我们：<strong class="text-[#E8E8F0]">当黄金与美元信用脱钩、与地缘避险脱钩，它就不再是"避险资产"，而是"货币体系的风险定价"。</strong>
+        最有利于黄金的宏观情形，从来不是避险，而是滞胀——而 2026 年，恰恰是滞胀年。
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 第三章：美国 ============ -->
+<section class="max-w-[1200px] mx-auto px-6 mb-12" id="chapter3">
+  <div class="card-base p-6 md:p-8 fade-up" style="--accent:#4FC3F7;">
+    <h2 class="text-xl font-bold mb-2 flex items-center gap-2"><span class="w-1 h-5 bg-[#4FC3F7] rounded"></span>三、🇺🇸 美国 · 康波萧条中的滞胀确认</h2>
+    <div class="badge text-[#9C27B0] mb-5">定位：滞胀期 · 经济↓ 通胀↑ · 现金为王</div>
+
+    <!-- 关键数据 -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+      <div class="card-base p-4 text-center" style="--accent:#E53935;">
+        <div class="text-[10px] text-[#5A5A70]">CPI 同比（5月峰值）</div>
+        <div class="text-2xl font-black num-up mt-1">4.2%</div>
+        <div class="text-[10px] text-[#8A8AA0] mt-1">1月仅 2.4%</div>
+      </div>
+      <div class="card-base p-4 text-center" style="--accent:#FFB300;">
+        <div class="text-[10px] text-[#5A5A70]">失业率（6月）</div>
+        <div class="text-2xl font-black text-[#FFB300] mt-1">4.2%</div>
+        <div class="text-[10px] text-[#8A8AA0] mt-1">非农 +5.7万（远低于预期）</div>
+      </div>
+      <div class="card-base p-4 text-center" style="--accent:#E53935;">
+        <div class="text-[10px] text-[#5A5A70]">10Y 美债</div>
+        <div class="text-2xl font-black num-up mt-1">4.5~4.6%</div>
+        <div class="text-[10px] text-[#8A8AA0] mt-1">30Y 破 5.0%</div>
+      </div>
+      <div class="card-base p-4 text-center" style="--accent:#E53935;">
+        <div class="text-[10px] text-[#5A5A70]">市场利率预期</div>
+        <div class="text-2xl font-black num-up mt-1">转加息</div>
+        <div class="text-[10px] text-[#8A8AA0] mt-1">12月加息定价 25bp</div>
+      </div>
+    </div>
+
+    <h3 class="text-sm font-bold mb-3">周期定位：一次教科书级的"油价冲击型滞胀"</h3>
+    <div class="text-xs text-[#8A8AA0] leading-relaxed space-y-3 mb-5">
+      <p>
+        <strong class="text-[#E8E8F0]">增长端走弱</strong>：6 月非农仅增 5.7 万人（市场预期 11.5 万），过去 12 个月月均仅 3.6 万，
+        失业率升至 4.2%。2026 全年 GDP 预测仅 +2.3%（前高后低）。经济已无过热动能。
+      </p>
+      <p>
+        <strong class="text-[#E8E8F0]">通胀端反弹</strong>：CPI 从 1 月的 2.4% 一路升至 5 月的 4.2%，核心 CPI 2.8%。
+        三重推手——① 美以伊战争推高油价（一度 114 美元）；② 关税成本全面传导；③ AI 成本向软件/托管/电子产品传导
+        （软件分项占核心 PCE 权重约 1.2%，曾将四个月年化增速推高约 0.66pct）。高盛判断 2026 年核心 PCE 将持续站上 3%。
+      </p>
+      <p>
+        <strong class="text-[#E8E8F0]">政策端两难</strong>：美联储换帅（鲍威尔 5 月卸任、沃什接任），
+        市场从年初"降息 2-3 次"的预期 180 度翻转，交易员已完全定价 12 月加息 25bp，10 月加息概率 60%。
+        高盛彻底放弃 2026 降息预期，将降息推迟至 2027 年 6 月、12 月。这就是滞胀期的典型政策困境——
+        <strong class="text-[#E8E8F0]">既不能降息（怕通胀失控），又不能加息（怕经济崩盘）</strong>。
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div class="card-base p-5" style="--accent:#4FC3F7;">
+        <h4 class="text-sm font-bold mb-3 flex items-center gap-2">📜 历史类比 · 1970 年代石油危机</h4>
+        <p class="text-xs text-[#8A8AA0] leading-relaxed">
+          1973 年与 1979 年两次石油危机，同样是油价冲击型滞胀：经济停滞 + 通胀高企 + 政策摇摆。
+          历史告诉我们：<strong class="text-[#E8E8F0]">石油冲击型滞胀的最终归宿是衰退</strong>——
+          央行被迫加息至利率超过通胀（沃尔克式暴力加息），需求被强制出清，随后才进入复苏。
+          1970 年代美股 10 年横盘（"失去的十年"），黄金上涨 20 倍。
+          本次的区别：美国已是油气净出口国，贸易条件受损小于欧洲日本，但债务规模远超当年。
+        </p>
+      </div>
+      <div class="card-base p-5" style="--accent:#D4AF37;">
+        <h4 class="text-sm font-bold mb-3 flex items-center gap-2">🧭 资产含义</h4>
+        <div class="space-y-2 text-xs">
+          <div class="flex justify-between p-2 rounded bg-[rgba(255,255,255,0.03)]"><span class="text-[#8A8AA0]">①现金</span><span class="text-[#9C27B0] font-bold">⭐⭐⭐⭐⭐ 最优</span></div>
+          <div class="flex justify-between p-2 rounded bg-[rgba(255,255,255,0.03)]"><span class="text-[#8A8AA0]">②黄金</span><span class="text-[#D4AF37] font-bold">⭐⭐⭐⭐⭐ 滞胀最优</span></div>
+          <div class="flex justify-between p-2 rounded bg-[rgba(255,255,255,0.03)]"><span class="text-[#8A8AA0]">③债券</span><span class="text-[#FFB300] font-bold">⭐⭐⭐ 长端 10Y>4.6% 配置窗口</span></div>
+          <div class="flex justify-between p-2 rounded bg-[rgba(255,255,255,0.03)]"><span class="text-[#8A8AA0]">④股票</span><span class="text-[#E53935] font-bold">⭐⭐ 减长久期科技</span></div>
+          <div class="flex justify-between p-2 rounded bg-[rgba(255,255,255,0.03)]"><span class="text-[#8A8AA0]">⑤商品</span><span class="text-[#FFB300] font-bold">⭐⭐⭐ 油价中枢抬升</span></div>
+        </div>
+        <p class="text-[10px] text-[#5A5A70] mt-3 leading-relaxed">
+          特别提示：AI 通胀（软件/托管/电力成本）尚未完全进入 CPI 数据，若 Q3-Q4 数据确认，
+          市场加息预期将再次升温——这是 2026 下半年最大的预期差。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 第四章：中国 ============ -->
+<section class="max-w-[1200px] mx-auto px-6 mb-12" id="chapter4">
+  <div class="card-base p-6 md:p-8 fade-up" style="--accent:#E53935;">
+    <h2 class="text-xl font-bold mb-2 flex items-center gap-2"><span class="w-1 h-5 bg-[#E53935] rounded"></span>四、🇨🇳 中国 · 萧条期中的相对强势</h2>
+    <div class="badge text-[#43A047] mb-5">定位：复苏期 · 经济↑ 通胀↓ · 股票为王</div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+      <div class="card-base p-4 text-center" style="--accent:#43A047;">
+        <div class="text-[10px] text-[#5A5A70]">GDP 上半年</div>
+        <div class="text-2xl font-black text-[#43A047] mt-1">+4.7%</div>
+        <div class="text-[10px] text-[#8A8AA0] mt-1">新动能贡献率 40%+</div>
+      </div>
+      <div class="card-base p-4 text-center" style="--accent:#43A047;">
+        <div class="text-[10px] text-[#5A5A70]">CPI 上半年</div>
+        <div class="text-2xl font-black text-[#43A047] mt-1">+1.0%</div>
+        <div class="text-[10px] text-[#8A8AA0] mt-1">核心 CPI +1.2%</div>
+      </div>
+      <div class="card-base p-4 text-center" style="--accent:#4FC3F7;">
+        <div class="text-[10px] text-[#5A5A70]">10Y 国债</div>
+        <div class="text-2xl font-black text-[#4FC3F7] mt-1">2.31%</div>
+        <div class="text-[10px] text-[#8A8AA0] mt-1">全球最低息之一</div>
+      </div>
+      <div class="card-base p-4 text-center" style="--accent:#43A047;">
+        <div class="text-[10px] text-[#5A5A70]">人民币</div>
+        <div class="text-2xl font-black text-[#43A047] mt-1">6.77</div>
+        <div class="text-[10px] text-[#8A8AA0] mt-1">年内升值 3%</div>
+      </div>
+    </div>
+
+    <h3 class="text-sm font-bold mb-3">周期定位：萧条期的"另类"——全球少见仍在复苏的主要经济体</h3>
+    <div class="text-xs text-[#8A8AA0] leading-relaxed space-y-3 mb-5">
+      <p>
+        <strong class="text-[#E8E8F0]">增长的韧性</strong>：2025 年 GDP 达 140.19 万亿元（+5.0%），2026 上半年 +4.7%。
+        新动能贡献率超 40%，服务业贡献提升至 66.1%。在美欧日增速集体放缓的背景下，IMF 反而上调了中国全年增速预期——
+        <strong class="text-[#E8E8F0]">这就是"全球康波定方向，中国本土周期定节奏"的本土化适配</strong>：中国周期滞后于欧美，
+        当欧美在萧条期深处挣扎时，中国正处于自身的库存周期回升段。
+      </p>
+      <p>
+        <strong class="text-[#E8E8F0]">低物价循环</strong>：CPI 上半年 +1.0%（温和），PPI 仍为负值（2025 全年 -2.6%，2026 预测 -0.9~-1.1%）。
+        摩根士丹利判断低物价循环 2027 年才有望走出拐点。<strong class="text-[#E8E8F0]">在康波萧条期，通缩是"常态"，通胀才是"意外"</strong>——
+        中国的低物价不是问题，恰恰是萧条期应有的样子；而"反内卷"政策正在从供给端推动价格修复，PPI 下半年转正概率较大。
+      </p>
+      <p>
+        <strong class="text-[#E8E8F0]">房地产仍在出清（库兹涅茨周期下行段）</strong>：2025 年房地产开发投资 -17.2%，2026 预测 -8.03%。
+        商品房销售面积约 9 亿平，比 2020 年高点下滑近 50%，接近 2009 年水平；开发投资规模回落至 2013 年水平。
+        按周金涛的框架，中国 1999 年住房商品化启动本轮库兹涅茨周期，2010-2015 是需求峰值（1965-1975 出生高峰 + 25 年购房年龄），
+        2020 年后进入下行段——<strong class="text-[#E8E8F0]">当前仍在出清中段，量先于价，量稳价才会稳，全面触底仍需更长时间</strong>。
+      </p>
+      <p>
+        <strong class="text-[#E8E8F0]">政策与汇率</strong>：赤字率 4% + 超长期特别国债增发 + 降息降准（"适度宽松"）——
+        在康波萧条期，中国是少数还有充足政策空间的经济体。人民币年内升值 3%（弱美元 + 中美关系阶段性缓和 + 资产吸引力），
+        汇率走强本身就是资本流动的投票。
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div class="card-base p-5" style="--accent:#E53935;">
+        <h4 class="text-sm font-bold mb-3 flex items-center gap-2">📜 历史类比 · 日本的启示</h4>
+        <p class="text-xs text-[#8A8AA0] leading-relaxed">
+          周金涛 2005 年起做中日比较研究：用日本 1960 年代的产业化进程推演中国工业化走向。
+          当前中国面对的低物价 + 房地产出清 + 人口拐点，与日本 1990 年代"资产负债表衰退"有相似之处，
+          但有三点不同：① 中国政策空间远大于当年的日本（利率、财政、汇率皆可动）；
+          ② 中国城镇化率仍低（66%），内需纵深仍在；③ 中国制造业在全球产业链地位远高于当年的日本。
+          结论：<strong class="text-[#E8E8F0]">中国不会重蹈日本"失去的三十年"，但需要接受"低物价出清"的漫长过程。</strong>
+        </p>
+      </div>
+      <div class="card-base p-5" style="--accent:#D4AF37;">
+        <h4 class="text-sm font-bold mb-3 flex items-center gap-2">🧭 资产含义</h4>
+        <div class="space-y-2 text-xs">
+          <div class="flex justify-between p-2 rounded bg-[rgba(255,255,255,0.03)]"><span class="text-[#8A8AA0]">①股票</span><span class="text-[#43A047] font-bold">⭐⭐⭐⭐ 复苏期最优 · 高股息+科技自主</span></div>
+          <div class="flex justify-between p-2 rounded bg-[rgba(255,255,255,0.03)]"><span class="text-[#8A8AA0]">②债券</span><span class="text-[#4FC3F7] font-bold">⭐⭐⭐⭐ 低通胀+宽松 → 债牛延续</span></div>
+          <div class="flex justify-between p-2 rounded bg-[rgba(255,255,255,0.03)]"><span class="text-[#8A8AA0]">③现金</span><span class="text-[#8A8AA0] font-bold">⭐⭐⭐</span></div>
+          <div class="flex justify-between p-2 rounded bg-[rgba(255,255,255,0.03)]"><span class="text-[#8A8AA0]">④商品</span><span class="text-[#FFB300] font-bold">⭐⭐ 铜受益于 AI+电网</span></div>
+        </div>
+        <p class="text-[10px] text-[#5A5A70] mt-3 leading-relaxed">
+          核心逻辑：中国是当前全球周期位置的"最优解"——复苏期 + 低通胀 + 宽松政策 + 汇率升值，
+          在全球资产配置中具备"避风港+进攻性"双重属性。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 第五章：日本 ============ -->
+<section class="max-w-[1200px] mx-auto px-6 mb-12" id="chapter5">
+  <div class="card-base p-6 md:p-8 fade-up" style="--accent:#BA68C8;">
+    <h2 class="text-xl font-bold mb-2 flex items-center gap-2"><span class="w-1 h-5 bg-[#BA68C8] rounded"></span>五、🇯🇵 日本 · 正常化的过热与滞胀风险</h2>
+    <div class="badge text-[#E53935] mb-5">定位：过热期（政策视角）→ 滞胀风险（现实压力）· 现金为王的边缘</div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+      <div class="card-base p-4 text-center" style="--accent:#E53935;">
+        <div class="text-[10px] text-[#5A5A70]">BOJ 政策利率</div>
+        <div class="text-2xl font-black num-up mt-1">1.00%</div>
+        <div class="text-[10px] text-[#8A8AA0] mt-1">31 年最高 · 年底或 1.25%</div>
+      </div>
+      <div class="card-base p-4 text-center" style="--accent:#E53935;">
+        <div class="text-[10px] text-[#5A5A70]">日元兑美元</div>
+        <div class="text-2xl font-black num-up mt-1">164</div>
+        <div class="text-[10px] text-[#8A8AA0] mt-1">40 年低点 · 干预 11.7万亿</div>
+      </div>
+      <div class="card-base p-4 text-center" style="--accent:#E53935;">
+        <div class="text-[10px] text-[#5A5A70]">10Y JGB</div>
+        <div class="text-2xl font-black num-up mt-1">2.80%</div>
+        <div class="text-[10px] text-[#8A8AA0] mt-1">30Y 逼近 3.97%</div>
+      </div>
+      <div class="card-base p-4 text-center" style="--accent:#BA68C8;">
+        <div class="text-[10px] text-[#5A5A70]">日经225</div>
+        <div class="text-2xl font-black text-[#BA68C8] mt-1">60000</div>
+        <div class="text-[10px] text-[#8A8AA0] mt-1">历史新高 · 泡沫与正常化并存</div>
+      </div>
+    </div>
+
+    <h3 class="text-sm font-bold mb-3">周期定位：全球康波萧条期的"另类风景"——30 年通缩的终结</h3>
+    <div class="text-xs text-[#8A8AA0] leading-relaxed space-y-3 mb-5">
+      <p>
+        <strong class="text-[#E8E8F0]">正常化的成果</strong>：日本走出持续 30 年的通缩，BOJ 政策利率从 -0.1% 一路升至 1.0%
+        （2024.3 结束负利率 → 2024.7 至 0.25% → 2025 多次上调 → 2026.6 至 1.0%），为 1995 年以来最高。
+        "工资-物价良性循环"已经确立，7 月东京核心 CPI 1.9% 超预期，剔除能源食品的核心核心 CPI 升至 2.0%，
+        BOJ 上调 2026 财年核心通胀预测至 2.8%，并暗示 9 月后可能再次加息。
+        这是日本央行 31 年来首次进入"正常化加息"轨道——<strong class="text-[#E8E8F0]">日本用 30 年出清了它的库兹涅茨周期</strong>。
+      </p>
+      <p>
+        <strong class="text-[#E8E8F0]">滞胀的现实压力</strong>：中东战争使日本遭遇输入性通胀 + 增长下行的双重打击——
+        日本对中东原油依存度高达 95.2%，4 月 BOJ 已把 2026 财年 GDP 预测从 1.0% 下调至 0.5%、通胀预测从 1.9% 上调至 2.8%，
+        <strong class="text-[#E8E8F0]">"通胀上行 + 增长下行"的背离，BOJ 自己也承认可能走向滞胀</strong>。
+        政府债务膨胀至 GDP 的 240%，2026 财年预算 122.3 万亿日元，仅偿还旧债的"国债费"就达 31.3 万亿——
+        利率每升 1pp，利息负担几何级增长。这是 3 个结构性弱点（能源依赖 + 高债务 + 增长乏力）的共振。
+      </p>
+      <p>
+        <strong class="text-[#E8E8F0]">套息交易的风暴眼</strong>：日元跌破 164（40 年低点），全球对冲基金与银行自营在日元空头上有巨量敞口。
+        财务省 4-5 月干预创纪录的 11.7 万亿日元 + 7 月再次干预。历史规律：每当"日元快速升值"链条断裂——
+        1998 LTCM、2008 金融危机、2020 疫情、2024.8 BOJ 加息——日元升值往往伴随全球风险资产抛售，
+        形成"日元需求激增—资产抛售"的正反馈。<strong class="text-[#E8E8F0]">若 BOJ 9 月如期加息至 1.25%，这是全球流动性最大的尾部风险。</strong>
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div class="card-base p-5" style="--accent:#BA68C8;">
+        <h4 class="text-sm font-bold mb-3 flex items-center gap-2">📜 历史类比 · 日元套息的四次冲击</h4>
+        <div class="space-y-2 text-xs text-[#8A8AA0] leading-relaxed">
+          <p><span class="text-[#E53935] font-bold">1998</span> LTCM 崩盘 · 日元 147→115 · 俄罗斯违约</p>
+          <p><span class="text-[#E53935] font-bold">2008</span> 雷曼危机 · 日元套息平仓加速全球去杠杆</p>
+          <p><span class="text-[#E53935] font-bold">2020.3</span> 疫情流动性危机 · 全球资产无差别抛售</p>
+          <p><span class="text-[#E53935] font-bold">2024.8</span> BOJ 加息 25bp · 全球股市闪崩（日经单日 -12% 纪录）</p>
+          <p class="pt-2 text-[#E8E8F0]">2026 年 BOJ 加息至 1.25% 的路上，第五次冲击随时可能降临。</p>
+        </div>
+      </div>
+      <div class="card-base p-5" style="--accent:#D4AF37;">
+        <h4 class="text-sm font-bold mb-3 flex items-center gap-2">🧭 资产含义</h4>
+        <div class="space-y-2 text-xs">
+          <div class="flex justify-between p-2 rounded bg-[rgba(255,255,255,0.03)]"><span class="text-[#8A8AA0]">日股</span><span class="text-[#FFB300] font-bold">⭐⭐ 高位风险 · 60000 点已是泡沫区</span></div>
+          <div class="flex justify-between p-2 rounded bg-[rgba(255,255,255,0.03)]"><span class="text-[#8A8AA0]">日债</span><span class="text-[#E53935] font-bold">⚠ 10Y 2.8% 加息压制 · 负凸性风险</span></div>
+          <div class="flex justify-between p-2 rounded bg-[rgba(255,255,255,0.03)]"><span class="text-[#8A8AA0]">日元</span><span class="text-[#D4AF37] font-bold">⭐⭐⭐⭐ 164 低位 + 干预 + 加息 → 中期升值</span></div>
+          <div class="flex justify-between p-2 rounded bg-[rgba(255,255,255,0.03)]"><span class="text-[#8A8AA0]">套息</span><span class="text-[#E53935] font-bold">⚠ 全球最大的流动性尾部风险</span></div>
+        </div>
+        <p class="text-[10px] text-[#5A5A70] mt-3 leading-relaxed">
+          日本的故事本质是：康波萧条期的尾部，也会出现资产泡沫（日元贬值 + 日股新高），
+          而泡沫的清算方式，往往是从套息交易的反向开始的。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 第六章：三国共振 ============ -->
+<section class="max-w-[1200px] mx-auto px-6 mb-12" id="chapter6">
+  <div class="card-base p-6 md:p-8 fade-up" style="--accent:#D4AF37;">
+    <h2 class="text-xl font-bold mb-5 flex items-center gap-2"><span class="w-1 h-5 bg-[#D4AF37] rounded"></span>六、三国共振 · 多周期嵌套矩阵</h2>
+
+    <p class="text-sm text-[#E8E8F0] leading-relaxed mb-6">
+      周期的终极奥义是共振。1 康波 = 3 库兹涅茨 = 6 朱格拉 = 18 基钦——
+      当多个周期同向时，极致行情；当周期背离时，就是"看似矛盾的波动"。2026 年，三国恰好站在完全不同的相位上。
+    </p>
+
+    <!-- 嵌套矩阵表 -->
+    <div class="overflow-x-auto mb-5">
+      <table class="data-table w-full min-w-[760px]">
+        <thead>
+          <tr>
+            <th>周期层级</th>
+            <th>🇺🇸 美国</th>
+            <th>🇨🇳 中国</th>
+            <th>🇯🇵 日本</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="font-bold text-[#D4AF37]">康波（55-60年）</td>
+            <td>萧条期 · 深水区</td>
+            <td>萧条期 · 中段</td>
+            <td>萧条期 · 尾部出清完成</td>
+          </tr>
+          <tr>
+            <td class="font-bold text-[#D4AF37]">库兹涅茨（~20年）</td>
+            <td>下行 · 高利率压制地产</td>
+            <td><span class="text-[#E53935]">下行出清中段</span> · 量先于价</td>
+            <td>已出清 · 30年泡沫消化</td>
+          </tr>
+          <tr>
+            <td class="font-bold text-[#D4AF37]">朱格拉（~10年）</td>
+            <td><span class="text-[#43A047]">AI 资本开支上行</span> · 过热</td>
+            <td>设备更新 · 制造业升级</td>
+            <td>正常化投资 · 出海替代</td>
+          </tr>
+          <tr>
+            <td class="font-bold text-[#D4AF37]">基钦（3-4年）</td>
+            <td><span class="text-[#E53935]">被动补库</span> · 通胀粘性</td>
+            <td><span class="text-[#43A047]">主动补库早期</span> · PPI 回升</td>
+            <td>输入性补库 · 油价主导</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+      <div class="card-base p-5" style="--accent:#4FC3F7;">
+        <div class="text-[10px] text-[#5A5A70] mb-1 mono">US · STAGFLATION</div>
+        <div class="text-base font-bold mb-2">美国 · 滞胀</div>
+        <div class="text-2xl mb-2"><span class="text-[#9C27B0]">●</span><span class="text-[#E53935]">●</span><span class="text-[#FFB300]">●</span></div>
+        <p class="text-[10px] text-[#8A8AA0] leading-relaxed">
+          康波萧条 × 库兹涅茨下行 × 基钦被动补库 × AI 朱格拉过热 → 增长停滞 + 通胀顽固 + 加息预期。
+        </p>
+      </div>
+      <div class="card-base p-5" style="--accent:#E53935;">
+        <div class="text-[10px] text-[#5A5A70] mb-1 mono">CN · RECOVERY</div>
+        <div class="text-base font-bold mb-2">中国 · 复苏</div>
+        <div class="text-2xl mb-2"><span class="text-[#43A047]">●</span><span class="text-[#4FC3F7]">●</span><span class="text-[#FFB300]">●</span></div>
+        <p class="text-[10px] text-[#8A8AA0] leading-relaxed">
+          康波萧条中段 × 地产出清 × 基钦主动补库 → 全球萧条中唯一低通胀复苏体，政策空间最充足。
+        </p>
+      </div>
+      <div class="card-base p-5" style="--accent:#BA68C8;">
+        <div class="text-[10px] text-[#5A5A70] mb-1 mono">JP · NORMALIZATION</div>
+        <div class="text-base font-bold mb-2">日本 · 正常化</div>
+        <div class="text-2xl mb-2"><span class="text-[#E53935]">●</span><span class="text-[#BA68C8]">●</span><span class="text-[#FFB300]">●</span></div>
+        <p class="text-[10px] text-[#8A8AA0] leading-relaxed">
+          库兹涅茨出清完成 × 政策正常化 × 输入性通胀 → 31 年首次加息 + 套息风暴眼。
+        </p>
+      </div>
+    </div>
+
+    <div class="quote-block">
+      <p class="text-sm text-[#E8E8F0] leading-relaxed">
+        三国周期错位的含义：<strong class="text-[#D4AF37]">全球资金正在"用脚投票"——</strong>
+        从美国滞胀流向中国复苏（人民币升值 3%），从日元套息流向新兴市场（日股新高 + 东南亚资金流入）。
+        但这种错位不会永远持续，当某一国的相位发生切换（如美联储被迫加息、BOJ 加息引爆套息），
+        错位就会瞬间变成共振——<strong class="text-[#E8E8F0]">共振的方向，永远是萧条的方向。</strong>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 第七章：资产配置 ============ -->
+<section class="max-w-[1200px] mx-auto px-6 mb-12" id="chapter7">
+  <div class="card-base p-6 md:p-8 fade-up" style="--accent:#D4AF37;">
+    <h2 class="text-xl font-bold mb-5 flex items-center gap-2"><span class="w-1 h-5 bg-[#D4AF37] rounded"></span>七、资产配置 · 康波资产时钟</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div class="card-base p-4" style="--accent:#43A047;">
+        <div class="text-[10px] text-[#43A047] mb-1 mono">CN · 复苏期</div>
+        <div class="text-sm font-bold mb-2">🇨🇳 中国配置</div>
+        <ul class="text-[10px] text-[#8A8AA0] space-y-1">
+          <li>· <span class="text-[#E8E8F0]">A 股</span>：高股息 + 科技自主</li>
+          <li>· <span class="text-[#E8E8F0]">中债</span>：债牛延续 · 加久期</li>
+          <li>· <span class="text-[#E8E8F0]">人民币</span>：升值周期持有</li>
+        </ul>
+      </div>
+      <div class="card-base p-4" style="--accent:#9C27B0;">
+        <div class="text-[10px] text-[#BA68C8] mb-1 mono">US · 滞胀期</div>
+        <div class="text-sm font-bold mb-2">🇺🇸 美国配置</div>
+        <ul class="text-[10px] text-[#8A8AA0] space-y-1">
+          <li>· <span class="text-[#E8E8F0]">现金</span>：5%+ 收益为王</li>
+          <li>· <span class="text-[#E8E8F0]">美债长端</span>：10Y>4.6% 配置窗口</li>
+          <li>· <span class="text-[#E8E8F0]">美股</span>：减长久期科技</li>
+        </ul>
+      </div>
+      <div class="card-base p-4" style="--accent:#BA68C8;">
+        <div class="text-[10px] text-[#BA68C8] mb-1 mono">JP · 过热边缘</div>
+        <div class="text-sm font-bold mb-2">🇯🇵 日本配置</div>
+        <ul class="text-[10px] text-[#8A8AA0] space-y-1">
+          <li>· <span class="text-[#E8E8F0]">日股</span>：高位 · 减仓兑现</li>
+          <li>· <span class="text-[#E8E8F0]">日元</span>：中期看升值</li>
+          <li>· <span class="text-[#E8E8F0]">套息</span>：坚决回避反向</li>
+        </ul>
+      </div>
+      <div class="card-base p-4" style="--accent:#D4AF37;">
+        <div class="text-[10px] text-[#D4AF37] mb-1 mono">GLOBAL · 萧条期</div>
+        <div class="text-sm font-bold mb-2">🌍 全球对冲</div>
+        <ul class="text-[10px] text-[#8A8AA0] space-y-1">
+          <li>· <span class="text-[#E8E8F0]">黄金</span>：核心 10-15%</li>
+          <li>· <span class="text-[#E8E8F0]">原油</span>：中枢抬升 · 波段</li>
+          <li>· <span class="text-[#E8E8F0]">白银</span>：影子黄金 59.75</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card-base p-5 mb-5" style="--accent:#D4AF37;">
+      <h3 class="text-sm font-bold mb-3">康波萧条期资产优先级总表</h3>
+      <div class="overflow-x-auto">
+        <table class="data-table w-full min-w-[640px]">
+          <thead>
+            <tr><th>优先级</th><th>资产</th><th>逻辑</th><th>参考标的/位置</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="text-[#D4AF37] font-bold">①</span></td>
+              <td class="font-bold text-[#E8E8F0]">黄金</td>
+              <td class="text-[#8A8AA0]">康波萧条最优 · 央行购金 · 美元信用受损</td>
+              <td class="mono text-[#D4AF37]">4134$/oz（8/4）· 年底目标 5000+</td>
+            </tr>
+            <tr>
+              <td><span class="text-[#D4AF37] font-bold">②</span></td>
+              <td class="font-bold text-[#E8E8F0]">现金</td>
+              <td class="text-[#8A8AA0]">美债收益率 4-5% · 无风险且流动</td>
+              <td class="mono text-[#43A047]">短债 / 货币基金</td>
+            </tr>
+            <tr>
+              <td><span class="text-[#D4AF37] font-bold">③</span></td>
+              <td class="font-bold text-[#E8E8F0]">长端美债</td>
+              <td class="text-[#8A8AA0]">10Y>4.6% 历史高位 · 衰退对冲</td>
+              <td class="mono text-[#43A047]">10Y UST 4.59% · 30Y 5.0%</td>
+            </tr>
+            <tr>
+              <td><span class="text-[#D4AF37] font-bold">④</span></td>
+              <td class="font-bold text-[#E8E8F0]">中国资产</td>
+              <td class="text-[#8A8AA0]">复苏期 · 低通胀 · 政策宽松 · 升值</td>
+              <td class="mono text-[#43A047]">A股高股息 / 中债 2.31%</td>
+            </tr>
+            <tr>
+              <td><span class="text-[#D4AF37] font-bold">⑤</span></td>
+              <td class="font-bold text-[#E8E8F0]">原油</td>
+              <td class="text-[#8A8AA0]">金油比收敛 · 供给弹性极低</td>
+              <td class="mono text-[#FFB300]">布油 79（8/4）· 中枢 87</td>
+            </tr>
+            <tr>
+              <td><span class="text-[#E53935] font-bold">⚠</span></td>
+              <td class="font-bold text-[#E53935]">美股科技</td>
+              <td class="text-[#8A8AA0]">AI 通胀抬成本 · 加息预期压制估值</td>
+              <td class="mono text-[#E53935]">减长久期 · 防预期差</td>
+            </tr>
+            <tr>
+              <td><span class="text-[#E53935] font-bold">⚠</span></td>
+              <td class="font-bold text-[#E53935]">日股/日元套息</td>
+              <td class="text-[#8A8AA0]">60000 点泡沫 + 套息风暴眼</td>
+              <td class="mono text-[#E53935]">BOJ 9月会议是关键</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="quote-block">
+      <p class="text-sm text-[#E8E8F0] leading-relaxed">
+        资产配置的核心不是"选对标的"，而是"在对的周期做对的事"。
+        萧条期的第一目标是保值，第二目标是流动性，第三目标才是增值。
+        谁在 2026 年理解了这句话，谁就提前拿到了 2027-2028 年布局的入场券。
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 第八章：时间表 ============ -->
+<section class="max-w-[1200px] mx-auto px-6 mb-12" id="chapter8">
+  <div class="card-base p-6 md:p-8 fade-up" style="--accent:#4FC3F7;">
+    <h2 class="text-xl font-bold mb-5 flex items-center gap-2"><span class="w-1 h-5 bg-[#4FC3F7] rounded"></span>八、时间表与情景推演</h2>
+
+    <div class="space-y-4 mb-6">
+      <div class="flex items-start gap-4">
+        <div class="flex flex-col items-center">
+          <div class="w-3 h-3 rounded-full bg-[#43A047] shadow-[0_0_8px_#43A047] mt-1"></div>
+          <div class="w-px h-full bg-[#2A2A3E]"></div>
+        </div>
+        <div class="pb-6 flex-1">
+          <div class="text-sm font-bold text-[#43A047] mb-1">2026 H2 · 停火与通胀见顶</div>
+          <p class="text-xs text-[#8A8AA0] leading-relaxed">
+            美伊停火若落地 → 油价回落至 70-90 → 美国 CPI 见顶回落 → 加息预期降温 → 美元回落 → 黄金再上台阶。
+            关键验证点：9 月 FOMC 点阵图、11 月美国中期选举（共和党急于退出战争）。
+          </p>
+        </div>
+      </div>
+      <div class="flex items-start gap-4">
+        <div class="flex flex-col items-center">
+          <div class="w-3 h-3 rounded-full bg-[#FFB300] shadow-[0_0_8px_#FFB300] mt-1"></div>
+          <div class="w-px h-full bg-[#2A2A3E]"></div>
+        </div>
+        <div class="pb-6 flex-1">
+          <div class="text-sm font-bold text-[#FFB300] mb-1">2026 Q4-2027 · 中国拐点与美联储转向</div>
+          <p class="text-xs text-[#8A8AA0] leading-relaxed">
+            中国：PPI 下半年转正概率较大，"反内卷"供给出清，摩根士丹利判断 2027 年走出低物价循环拐点。
+            美国：高盛将降息推迟至 2027 年 6 月/12 月——若 AI 通胀确认，加息至 4.0%+ 后，滞胀将向衰退切换，
+            那将是美债的黄金配置窗口（类似 1982 年沃尔克转向）。
+          </p>
+        </div>
+      </div>
+      <div class="flex items-start gap-4">
+        <div class="flex flex-col items-center">
+          <div class="w-3 h-3 rounded-full bg-[#E53935] shadow-[0_0_8px_#E53935] mt-1"></div>
+          <div class="w-px h-full bg-[#2A2A3E]"></div>
+        </div>
+        <div class="pb-6 flex-1">
+          <div class="text-sm font-bold text-[#E53935] mb-1">2027-2028 · 风暴眼窗口</div>
+          <p class="text-xs text-[#8A8AA0] leading-relaxed">
+            最大的尾部风险：日本套息 unwind（BOJ 加息至 1.25%+）+ 美国滞胀转衰退共振。
+            一旦触发，全球资产将迎来萧条期的"最后一跌"——那是康波级别的买点，
+            1985 年后生人的第一次康波机会，或许就在那时。
+          </p>
+        </div>
+      </div>
+      <div class="flex items-start gap-4">
+        <div class="flex flex-col items-center">
+          <div class="w-3 h-3 rounded-full bg-[#D4AF37] shadow-[0_0_8px_#D4AF37] mt-1"></div>
+        </div>
+        <div class="flex-1">
+          <div class="text-sm font-bold text-[#D4AF37] mb-1">2030s · 新一轮康波回升</div>
+          <p class="text-xs text-[#8A8AA0] leading-relaxed">
+            萧条出清完成后，第六次康波将以 AI 产业化（尚未充分验证）+ 新能源体系为牵引开启回升期。
+            现在的每一分萧条布局，都是为下一轮康波回升储备的火种。
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="quote-block">
+      <p class="text-sm text-[#E8E8F0] leading-relaxed">
+        「2019 年是 1985 年后生人的第一次财富机会。人生只有三次康波级别的机会，
+        抓住一次中产，两次富裕，三次都抓不住，这辈子就定型了。」
+        2026 年的萧条，正是为下一次康波机会储备弹药的时候。
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 第九章：诚实边界 ============ -->
+<section class="max-w-[1200px] mx-auto px-6 mb-12" id="chapter9">
+  <div class="card-base p-6 md:p-8 fade-up" style="--accent:#8A8AA0;">
+    <h2 class="text-xl font-bold mb-5 flex items-center gap-2"><span class="w-1 h-5 bg-[#8A8AA0] rounded"></span>九、诚实边界 · 分析的局限</h2>
+    <div class="space-y-3 text-xs text-[#8A8AA0] leading-relaxed">
+      <p><span class="text-[#D4AF37] font-bold">① 无法预测短期波动：</span>本报告聚焦 1-5 年趋势，对日/周/月级别价格无能为力。油价单日 ±5% 属正常波动。</p>
+      <p><span class="text-[#D4AF37] font-bold">② 外生变量扭曲节奏：</span>美以伊战争是 2026 年最大的外生冲击，它让滞胀提前但无法决定周期方向。若战争失控升级至 135-150 美元油价，所有情景需重估。</p>
+      <p><span class="text-[#D4AF37] font-bold">③ 数据时效：</span>分析基于截至 2026-08-04 的公开数据，关键数据点（美国 CPI、中国 PPI、BOJ 决议）发布后需动态修正。</p>
+      <p><span class="text-[#D4AF37] font-bold">④ 配置建议是普适性的：</span>黄金 10-15% 等比例需结合个人风险承受力、资金规模、投资期限调整。</p>
+      <p><span class="text-[#D4AF37] font-bold">⑤ 周金涛原始框架截止 2016：</span>此后 10 年的演变（AI、战争、去美元化）未纳入其原始分析，本文是在其方法论上的延伸应用。</p>
+      <p><span class="text-[#D4AF37] font-bold">⑥ 不能替代独立判断：</span>周期分析提供"大概率方向"，不替代对具体资产/行业的深入研究。</p>
+      <p class="pt-2 text-[#5A5A70]">本报告仅供研究参考，不构成投资建议。市场有风险，决策需谨慎。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 结语 ============ -->
+<section class="max-w-[1200px] mx-auto px-6 mb-16 text-center" id="ending">
+  <div class="quote-block max-w-3xl mx-auto text-center" style="border-left:none; border-radius:12px;">
+    <p class="text-lg text-[#E8E8F0] leading-relaxed serif italic">
+      「周期终将幻灭，但在此之前，我们仍将经历一次康波。<br/>
+      时来天地皆同力，运去英雄不自由。」<br/>
+      <span class="text-[#D4AF37] text-base not-italic mt-3 inline-block">—— 周金涛（1972-2016）</span>
+    </p>
+  </div>
+  <div class="mt-8 flex items-center justify-center gap-2 text-[10px] text-[#5A5A70] mono">
+    <span class="taiji relative inline-block" style="width:16px;height:16px">
+      <div class="taiji-dot-light" style="width:2.5px;height:2.5px;top:1px"></div>
+      <div class="taiji-dot-dark" style="width:2.5px;height:2.5px;bottom:1px"></div>
+    </span>
+    <span>财情双生智库 · 周金涛周期思维框架 · 让智慧有温度</span>
+  </div>
+</section>
+
+<!-- ============ 返回顶部 ============ -->
+<button class="back-top" id="backTop" title="返回顶部" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+/* =============== 模块导航 · 滚动高亮 (scrollspy) =============== */
+(function() {
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-link[data-sec]');
+
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const secId = entry.target.id === 'cover' ? 'summary' : entry.target.id;
+          navLinks.forEach(l => l.classList.toggle('active', l.dataset.sec === secId));
+        }
+      });
+    }, { rootMargin: '-35% 0px -60% 0px' });
+    sections.forEach(s => observer.observe(s));
+  } else {
+    // 降级：滚动监听
+    window.addEventListener('scroll', () => {
+      let current = 'summary';
+      sections.forEach(s => {
+        if (window.scrollY >= s.offsetTop - 120) current = s.id === 'cover' ? 'summary' : s.id;
+      });
+      navLinks.forEach(l => l.classList.toggle('active', l.dataset.sec === current));
+    }, { passive: true });
+  }
+  // 默认高亮核心结论
+  navLinks.forEach(l => l.classList.toggle('active', l.dataset.sec === 'summary'));
+
+  // 返回顶部按钮显隐
+  const backTop = document.getElementById('backTop');
+  window.addEventListener('scroll', () => {
+    backTop.classList.toggle('show', window.scrollY > 600);
+  }, { passive: true });
+})();
+</script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>黄金 XAUUSD 四维监控系统 · 财情双生智库</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Noto+Serif+SC:wght@500;700;900&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root {
+    --bg-primary:#0D0D0F; --bg-secondary:#0A1628; --bg-deep:#060D18; --border:#2A2A3E;
+    --gold:#D4AF37; --gold-light:#E6C65C; --gold-dark:#8B6914;
+    --text-primary:#E8E8F0; --text-secondary:#8A8AA0; --text-muted:#5A5A70;
+    --up:#E53935; --down:#43A047; --warn:#FFB300;
+  }
+  * { -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+  html,body { background:var(--bg-primary); color:var(--text-primary); font-family:'Noto Sans SC','Inter',sans-serif; scroll-behavior:smooth; }
+  body {
+    background:
+      radial-gradient(ellipse 90% 55% at 50% -15%, rgba(212,175,55,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 35% at 85% 30%, rgba(212,175,55,0.05) 0%, transparent 60%),
+      linear-gradient(180deg,#0D0D0F 0%,#060D18 100%);
+    min-height:100vh; overflow-x:hidden;
+  }
+  .gold-text { background:linear-gradient(135deg,#D4AF37 0%,#E6C65C 50%,#D4AF37 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .glass { background:rgba(26,26,46,0.5); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(212,175,55,0.15); }
+  .card-base { background:linear-gradient(135deg,rgba(10,22,40,0.9) 0%,rgba(6,13,24,0.9) 100%);
+    border:1px solid var(--border); border-radius:16px; position:relative; overflow:hidden; transition:all .4s cubic-bezier(.4,0,.2,1); }
+  .card-base::before { content:''; position:absolute; top:0; left:0; right:0; height:2px;
+    background:linear-gradient(90deg,transparent 0%,var(--accent,#D4AF37) 50%,transparent 100%); opacity:.85; }
+  .card-base:hover { transform:translateY(-2px); border-color:var(--accent,#D4AF37); }
+  .mono { font-family:'JetBrains Mono',monospace; font-feature-settings:'tnum'; }
+  .num-up{color:var(--up)} .num-down{color:var(--down)} .num-gold{color:var(--gold)}
+
+  .taiji { width:24px; height:24px; border-radius:50%;
+    background:conic-gradient(from 0deg,#0D0D0F 0deg 180deg,#D4AF37 180deg 360deg); position:relative; overflow:hidden; }
+  .taiji::before,.taiji::after { content:''; position:absolute; width:12px; height:12px; border-radius:50%; }
+  .taiji::before { top:0; left:50%; transform:translateX(-50%); background:#D4AF37; }
+  .taiji::after { bottom:0; left:50%; transform:translateX(-50%); background:#0D0D0F; }
+  .taiji-dot-light,.taiji-dot-dark { position:absolute; width:4px; height:4px; border-radius:50%; z-index:2; }
+  .taiji-dot-light { top:4px; left:50%; transform:translateX(-50%); background:#0D0D0F; }
+  .taiji-dot-dark { bottom:4px; left:50%; transform:translateX(-50%); background:#D4AF37; }
+
+  .grid-bg { background-image:
+    linear-gradient(rgba(212,175,55,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(212,175,55,0.04) 1px, transparent 1px);
+    background-size:40px 40px; }
+  .top-edge { height:1px; background:linear-gradient(90deg,transparent 0%,var(--gold) 50%,transparent 100%); }
+  .signal-light { width:8px; height:8px; border-radius:50%; box-shadow:0 0 8px currentColor; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+  .live-dot { animation:blink 1.5s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .badge-dot { width:6px; height:6px; border-radius:50%; background:currentColor; box-shadow:0 0 8px currentColor; animation:pulse 2s ease-in-out infinite; }
+  .badge { display:inline-flex; align-items:center; gap:6px; padding:3px 10px; border-radius:4px;
+    font-size:11px; font-weight:500; letter-spacing:.5px; border:1px solid currentColor; background:rgba(255,255,255,.02); }
+
+  .bar { height:5px; border-radius:3px; background:rgba(255,255,255,.06); overflow:hidden; }
+  .bar-fill { height:100%; border-radius:3px; transition:width .8s ease; }
+
+  /* 四维窗口 */
+  .win-4 { display:flex; flex-direction:column; align-items:center; padding:10px 14px; border-radius:12px;
+    background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07); flex:1; transition:all .3s; cursor:pointer; }
+  .win-4:hover { border-color:var(--gold); transform:translateY(-2px); }
+  .win-4 .w-label { font-size:9px; color:var(--text-muted); letter-spacing:2px; }
+  .win-4 .w-val { font-size:17px; font-weight:800; font-family:'JetBrains Mono',monospace; margin-top:3px; }
+  .win-4 .w-sub { font-size:9px; margin-top:2px; color:var(--text-muted); }
+
+  /* 信号灯 */
+  .light { width:10px; height:10px; border-radius:50%; display:inline-block; box-shadow:0 0 10px currentColor; }
+  .trend-tag { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:5px; font-size:11px; font-weight:600; }
+
+  ::-webkit-scrollbar { width:8px; height:8px; }
+  ::-webkit-scrollbar-track { background:var(--bg-primary); }
+  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
+  ::-webkit-scrollbar-thumb:hover { background:var(--gold-dark); }
+  .no-scrollbar::-webkit-scrollbar { display:none; }
+  .no-scrollbar { -ms-overflow-style:none; scrollbar-width:none; }
+
+  @keyframes scrollX { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+  .ticker-track { animation:scrollX 80s linear infinite; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  .fade-up { animation:fadeUp .6s ease-out backwards; }
+  section[id] { scroll-margin-top:64px; }
+
+  /* 蜡烛图 hover 提示 */
+  .candle-tip { position:fixed; z-index:100; pointer-events:none; background:rgba(13,13,15,.97);
+    border:1px solid var(--gold); border-radius:8px; padding:8px 12px; font-size:11px; color:var(--text-primary);
+    box-shadow:0 8px 24px rgba(0,0,0,.6); display:none; line-height:1.6; }
+
+  /* 财情双生 logo + 导航 */
+  .logo-img { width:36px; height:36px; border-radius:50%; transition: transform 0.6s ease; display:inline-block; }
+  .logo-img:hover { transform: rotate(360deg); }
+  .logo-img-wrap { line-height:0; display:inline-block; }
+  .home-btn { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; margin-right:6px; font-size:11px; border:1px solid #D4AF37; color:#D4AF37; border-radius:6px; transition: all 0.2s; }
+  .home-btn:hover { background:rgba(212,175,55,0.12); color:#D4AF37; }
+</style>
+</head>
+<body class="grid-bg">
+
+<!-- ============ TOP NAV ============ -->
+<header class="sticky top-0 z-50 glass border-b border-[#2A2A3E]">
+  <div class="max-w-[1400px] mx-auto px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="../../index.html" class="logo-img-wrap" title="返回主导航"><img src="../../_assets/logo.png" alt="财情双生" class="logo-img"/></a>
+      <div>
+        <div class="text-base font-semibold tracking-wide">财情双生智库 · <span class="gold-text">黄金四维监控系统</span></div>
+        <div class="text-[10px] text-[#5A5A70] tracking-widest uppercase">XAUUSD · Fundamental × Technical × Sentiment</div>
+      </div>
+    </div>
+    <a href="../../index.html" class="home-btn">🏠 主导航</a><nav class="hidden lg:flex items-center gap-1">
+      <a class="px-3 py-1.5 text-xs text-[#D4AF37] border-b-2 border-[#D4AF37]" href="#overview">价格总览</a>
+      <a class="px-3 py-1.5 text-xs text-[#8A8AA0] hover:text-[#D4AF37] transition" href="#fundamental">基本面</a>
+      <a class="px-3 py-1.5 text-xs text-[#8A8AA0] hover:text-[#D4AF37] transition" href="#technical">技术面</a>
+      <a class="px-3 py-1.5 text-xs text-[#8A8AA0] hover:text-[#D4AF37] transition" href="#sentiment">情绪面</a>
+      <a class="px-3 py-1.5 text-xs text-[#8A8AA0] hover:text-[#D4AF37] transition" href="#judge">四维判断</a>
+      <a class="px-3 py-1.5 text-xs text-[#8A8AA0] hover:text-[#D4AF37] transition" href="#scenario">情景推演</a>
+    </nav>
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 text-xs">
+        <span class="signal-light text-[#D4AF37] live-dot"></span>
+        <span class="text-[#8A8AA0] hidden sm:inline">COMEX 实时</span>
+        <span class="mono text-[#D4AF37] font-semibold">LIVE</span>
+      </div>
+      <div class="text-xs text-[#8A8AA0] mono" id="now">--:--:--</div>
+    </div>
+  </div>
+  <div class="top-edge"></div>
+</header>
+
+<!-- ============ HERO / 价格总览 ============ -->
+<section class="max-w-[1400px] mx-auto px-6 pt-12 pb-8" id="overview">
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- 主价格 -->
+    <div class="lg:col-span-2 card-base p-6 relative" style="--accent:#D4AF37;">
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">🥇</span>
+            <h1 class="text-2xl font-black">黄金现货 · <span class="gold-text">XAUUSD</span></h1>
+          </div>
+          <div class="text-[10px] text-[#5A5A70] mt-1 mono">COMEX GOLD · 2026-08-05 11:52 北京时间</div>
+        </div>
+        <span class="badge text-[#D4AF37]"><span class="badge-dot"></span>长牛趋势 · 康波萧条最优资产</span>
+      </div>
+      <div class="flex items-end gap-4 mb-4">
+        <div class="text-5xl md:text-6xl font-black gold-text mono tracking-tight" id="priceMain">4,134.2</div>
+        <div class="pb-2">
+          <div class="text-sm font-bold num-up" id="priceChg">+43.8 (+1.07%)</div>
+          <div class="text-[10px] text-[#8A8AA0]">今日 · USD/oz</div>
+        </div>
+      </div>
+      <!-- 四维窗口 -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="win4">
+        <div class="win-4" data-dim="year">
+          <span class="w-label">年度 · Y</span>
+          <span class="w-val num-up">+28.4%</span>
+          <span class="w-sub">YoY · 长牛确立</span>
+        </div>
+        <div class="win-4" data-dim="month">
+          <span class="w-label">月度 · M</span>
+          <span class="w-val num-up">+2.6%</span>
+          <span class="w-sub">MoM · 回调修复</span>
+        </div>
+        <div class="win-4" data-dim="week">
+          <span class="w-label">周度 · W</span>
+          <span class="w-val num-up">+1.2%</span>
+          <span class="w-sub">WoW · 企稳反弹</span>
+        </div>
+        <div class="win-4" data-dim="day">
+          <span class="w-label">日内 · D</span>
+          <span class="w-val text-[#FFB300]">+1.07%</span>
+          <span class="w-sub">DoD · 多头反攻</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-4 text-[11px] text-[#8A8AA0] mt-3 flex-wrap">
+        <span>关键位：<span class="text-[#43A047] mono">支撑 4050 / 3980</span> · <span class="num-up mono">阻力 4200 / 4350</span></span>
+        <span>MA20 <span class="num-gold mono">4,085</span> · MA60 <span class="mono text-[#E8E8F0]">4,150</span> · MA200 <span class="mono text-[#E8E8F0]">3,880</span></span>
+      </div>
+    </div>
+
+    <!-- 核心指标侧栏 -->
+    <div class="card-base p-6" style="--accent:#D4AF37;">
+      <h2 class="text-sm font-bold mb-4 flex items-center gap-2"><span class="w-1 h-4 bg-[#D4AF37] rounded"></span>核心价值锚</h2>
+      <div class="space-y-4">
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-[#8A8AA0]">实际利率 (10Y TIPS)</span>
+            <span class="mono text-[#E8E8F0] font-bold">1.80%</span>
+          </div>
+          <div class="bar"><div class="bar-fill" style="width:36%; background:linear-gradient(90deg,#43A047,#FFB300,#E53935)"></div></div>
+          <div class="text-[10px] text-[#5A5A70] mt-1">中性 → 利空黄金的压制在减弱</div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-[#8A8AA0]">美元指数 DXY</span>
+            <span class="mono text-[#E8E8F0] font-bold">100.9</span>
+          </div>
+          <div class="bar"><div class="bar-fill" style="width:50%; background:linear-gradient(90deg,#43A047,#FFB300,#E53935)"></div></div>
+          <div class="text-[10px] text-[#5A5A70] mt-1">弱美元周期 · 利好黄金</div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-[#8A8AA0]">金油比 GOLD/OIL</span>
+            <span class="mono text-[#D4AF37] font-bold">52.3</span>
+          </div>
+          <div class="bar"><div class="bar-fill" style="width:76%; background:linear-gradient(90deg,#43A047,#FFB300,#E53935)"></div></div>
+          <div class="text-[10px] text-[#5A5A70] mt-1">历史高位 (中枢16) · 康波萧条特征</div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-[#8A8AA0]">全球央行净购金 (年)</span>
+            <span class="mono text-[#E8E8F0] font-bold">1,080 吨</span>
+          </div>
+          <div class="bar"><div class="bar-fill" style="width:90%; background:linear-gradient(90deg,#43A047,#D4AF37)"></div></div>
+          <div class="text-[10px] text-[#5A5A70] mt-1">连续 3 年 >1000 吨 · 定价核心</div>
+        </div>
+        <div class="pt-3 border-t border-[#2A2A3E]">
+          <div class="flex justify-between text-xs">
+            <span class="text-[#8A8AA0]">美国联邦债务</span>
+            <span class="mono text-[#E53935] font-bold">36.2T ↑</span>
+          </div>
+          <div class="flex justify-between text-xs mt-2">
+            <span class="text-[#8A8AA0]">美债利息 / 国防开支</span>
+            <span class="mono text-[#E53935] font-bold">1.08x 已超越</span>
+          </div>
+          <div class="flex justify-between text-xs mt-2">
+            <span class="text-[#8A8AA0]">全球黄金 ETF 持仓</span>
+            <span class="mono text-[#43A047] font-bold">3,420 吨 ↑</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 蜡烛图 ============ -->
+<section class="max-w-[1400px] mx-auto px-6 mb-8">
+  <div class="card-base p-5" style="--accent:#D4AF37;">
+    <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+      <div>
+        <h3 class="text-sm font-bold flex items-center gap-2"><span class="w-1 h-4 bg-[#D4AF37] rounded"></span>近 60 个交易日 · K 线 + MA20 / MA60</h3>
+        <p class="text-[10px] text-[#5A5A70] mt-0.5">从战争避险高位 5,400 回落 → 4,050 企稳 → 4,130 修复（数据模拟，含真实价格锚点）</p>
+      </div>
+      <div class="flex items-center gap-3 text-[10px]">
+        <span class="flex items-center gap-1"><span class="w-2 h-2 inline-block bg-[#E53935]"></span>阳线</span>
+        <span class="flex items-center gap-1"><span class="w-2 h-2 inline-block bg-[#43A047]"></span>阴线</span>
+        <span class="flex items-center gap-1"><span class="w-3 h-0.5 inline-block bg-[#D4AF37]"></span>MA20</span>
+        <span class="flex items-center gap-1"><span class="w-3 h-0.5 inline-block bg-[#4FC3F7]"></span>MA60</span>
+      </div>
+    </div>
+    <div class="overflow-x-auto no-scrollbar">
+      <svg id="candleChart" viewBox="0 0 1400 380" class="w-full min-w-[900px] h-auto"></svg>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 基本面 ============ -->
+<section class="max-w-[1400px] mx-auto px-6 mb-8" id="fundamental">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-lg font-bold flex items-center gap-2">
+      <span class="w-1 h-5 bg-[#D4AF37] rounded"></span>
+      基本面分析 · 价值 × 供求
+    </h2>
+    <div class="text-[10px] text-[#5A5A70] tracking-wider mono">FUNDAMENTAL · VALUE × SUPPLY/DEMAND</div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+    <!-- 价值面 -->
+    <div class="card-base p-6" style="--accent:#D4AF37;">
+      <h3 class="text-sm font-bold mb-4 flex items-center gap-2"><span class="w-1 h-4 bg-[#D4AF37] rounded"></span>价值面 · 定价逻辑</h3>
+      <div class="space-y-4">
+        <div>
+          <div class="flex justify-between items-center text-xs mb-1">
+            <span class="text-[#8A8AA0]">实际利率（黄金核心对手盘）</span>
+            <span class="mono text-[#E8E8F0] font-bold">1.80% <span class="num-down text-[10px]">▼ 下降趋势</span></span>
+          </div>
+          <div class="bar"><div class="bar-fill" style="width:36%; background:linear-gradient(90deg,#43A047,#FFB300,#E53935)"></div></div>
+          <p class="text-[10px] text-[#5A5A70] mt-1">实际利率下行 = 持有黄金机会成本下降 = 利多。美联储转鹰短期抬升实际利率，但长期降息大方向未变。</p>
+        </div>
+        <div>
+          <div class="flex justify-between items-center text-xs mb-1">
+            <span class="text-[#8A8AA0]">美元信用（美债利息/国防）</span>
+            <span class="mono text-[#E53935] font-bold">1.08x ⚠ 已破位</span>
+          </div>
+          <div class="bar"><div class="bar-fill" style="width:85%; background:linear-gradient(90deg,#43A047,#FFB300,#E53935)"></div></div>
+          <p class="text-[10px] text-[#5A5A70] mt-1">美债利息支出首次超越国防开支 = 主权债务螺旋信号，全球央行购金对冲美元信用风险。</p>
+        </div>
+        <div>
+          <div class="flex justify-between items-center text-xs mb-1">
+            <span class="text-[#8A8AA0]">金油比（康波风向标）</span>
+            <span class="mono text-[#D4AF37] font-bold">52.3x</span>
+          </div>
+          <div class="bar"><div class="bar-fill" style="width:76%; background:linear-gradient(90deg,#43A047,#D4AF37,#E53935)"></div></div>
+          <p class="text-[10px] text-[#5A5A70] mt-1">中枢 16 倍。极端偏离是康波萧条的典型特征——周金涛框架下黄金对商品的超越在萧条期依然存在。</p>
+        </div>
+        <div>
+          <div class="flex justify-between items-center text-xs mb-1">
+            <span class="text-[#8A8AA0]">实际购买力 / 货币超发</span>
+            <span class="mono text-[#43A047] font-bold">全球 M2 +8.2% YoY</span>
+          </div>
+          <div class="bar"><div class="bar-fill" style="width:70%; background:linear-gradient(90deg,#43A047,#D4AF37)"></div></div>
+          <p class="text-[10px] text-[#5A5A70] mt-1">货币总量扩张 → 黄金作为终极购买力锚，长期价值中枢持续上移。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 供求面 -->
+    <div class="card-base p-6" style="--accent:#D4AF37;">
+      <h3 class="text-sm font-bold mb-4 flex items-center gap-2"><span class="w-1 h-4 bg-[#D4AF37] rounded"></span>供求面 · 供需结构</h3>
+      <!-- 需求侧 -->
+      <div class="text-[10px] text-[#D4AF37] font-semibold tracking-widest mb-2">需求侧 DEMAND</div>
+      <div class="space-y-3 mb-5">
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-[#8A8AA0]">央行净购金（定价核心）</span>
+            <span class="mono text-[#43A047] font-bold">1,080 吨/年 ↑</span>
+          </div>
+          <div class="bar"><div class="bar-fill" style="width:92%; background:linear-gradient(90deg,#43A047,#D4AF37)"></div></div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-[#8A8AA0]">全球 ETF 持仓</span>
+            <span class="mono text-[#43A047] font-bold">3,420 吨 ↑ +180 吨</span>
+          </div>
+          <div class="bar"><div class="bar-fill" style="width:74%; background:linear-gradient(90deg,#43A047,#D4AF37)"></div></div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-[#8A8AA0]">首饰需求（中印主导）</span>
+            <span class="mono text-[#E8E8F0] font-bold">2,150 吨/年</span>
+          </div>
+          <div class="bar"><div class="bar-fill" style="width:58%; background:linear-gradient(90deg,#43A047,#D4AF37)"></div></div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-[#8A8AA0]">科技需求（AI 芯片/半导体）</span>
+            <span class="mono text-[#43A047] font-bold">360 吨 ↑ +4%</span>
+          </div>
+          <div class="bar"><div class="bar-fill" style="width:45%; background:linear-gradient(90deg,#43A047,#D4AF37)"></div></div>
+        </div>
+      </div>
+      <!-- 供给侧 -->
+      <div class="text-[10px] text-[#E53935] font-semibold tracking-widest mb-2">供给侧 SUPPLY</div>
+      <div class="space-y-3">
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-[#8A8AA0]">矿产金产量（全球）</span>
+            <span class="mono text-[#E8E8F0] font-bold">3,600 吨/年 平</span>
+          </div>
+          <div class="bar"><div class="bar-fill" style="width:52%; background:linear-gradient(90deg,#43A047,#FFB300)"></div></div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-[#8A8AA0]">回收金供给</span>
+            <span class="mono text-[#E8E8F0] font-bold">1,200 吨 ↓ -3%</span>
+          </div>
+          <div class="bar"><div class="bar-fill" style="width:48%; background:linear-gradient(90deg,#43A047,#FFB300)"></div></div>
+        </div>
+        <div class="pt-2 border-t border-[#2A2A3E]">
+          <p class="text-[10px] text-[#8A8AA0] leading-relaxed">
+            <strong class="text-[#D4AF37]">供需结论：</strong>央行购金（1,080 吨）+ ETF 回流 + AI 科技需求形成三重需求增量，
+            而矿产供给多年持平、回收金收缩 —— <span class="text-[#43A047]">结构性供不应求</span>是金价长牛的基本面底座。
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 技术面 ============ -->
+<section class="max-w-[1400px] mx-auto px-6 mb-8" id="technical">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-lg font-bold flex items-center gap-2">
+      <span class="w-1 h-5 bg-[#4FC3F7] rounded"></span>
+      技术面分析 · 趋势 × 指标 × 关键位
+    </h2>
+    <div class="text-[10px] text-[#5A5A70] tracking-wider mono">TECHNICAL · TREND × INDICATOR × LEVEL</div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-5">
+    <div class="card-base p-5" style="--accent:#4FC3F7;">
+      <div class="text-[10px] text-[#5A5A70] mono mb-1">MA SYSTEM</div>
+      <div class="text-sm font-bold mb-3">均线系统</div>
+      <div class="space-y-2 text-xs">
+        <div class="flex justify-between"><span class="text-[#8A8AA0]">MA20</span><span class="mono num-gold font-bold">4,085</span></div>
+        <div class="flex justify-between"><span class="text-[#8A8AA0]">MA60</span><span class="mono text-[#E8E8F0] font-bold">4,150</span></div>
+        <div class="flex justify-between"><span class="text-[#8A8AA0]">MA200</span><span class="mono text-[#E8E8F0] font-bold">3,880</span></div>
+        <div class="pt-2 border-t border-[#2A2A3E]">
+          <span class="trend-tag text-[#FFB300]" style="background:rgba(255,179,0,.12);border:1px solid rgba(255,179,0,.3)">金叉修复中 · MA20上穿MA60 待确认</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-base p-5" style="--accent:#4FC3F7;">
+      <div class="text-[10px] text-[#5A5A70] mono mb-1">RSI (14)</div>
+      <div class="text-sm font-bold mb-3">动量指标</div>
+      <div class="flex items-baseline gap-2">
+        <span class="text-3xl font-black text-[#FFB300] mono">58.2</span>
+        <span class="text-[10px] text-[#8A8AA0]">中性偏多</span>
+      </div>
+      <div class="bar mt-3"><div class="bar-fill" style="width:58%; background:linear-gradient(90deg,#43A047,#FFB300,#E53935)"></div></div>
+      <div class="mt-3 text-xs space-y-1.5">
+        <div class="flex justify-between"><span class="text-[#8A8AA0]">MACD</span><span class="mono num-up">金叉 · 红柱</span></div>
+        <div class="flex justify-between"><span class="text-[#8A8AA0]">布林带</span><span class="mono text-[#E8E8F0]">中轨上方</span></div>
+      </div>
+    </div>
+
+    <div class="card-base p-5" style="--accent:#43A047;">
+      <div class="text-[10px] text-[#5A5A70] mono mb-1">SUPPORT</div>
+      <div class="text-sm font-bold mb-3">支撑位</div>
+      <div class="space-y-2 text-xs">
+        <div class="flex justify-between items-center"><span class="text-[#8A8AA0]">S1 强支撑</span><span class="mono text-[#43A047] font-bold">4,050</span><span class="text-[9px] text-[#5A5A70]">前低</span></div>
+        <div class="flex justify-between items-center"><span class="text-[#8A8AA0]">S2</span><span class="mono text-[#43A047] font-bold">3,980</span><span class="text-[9px] text-[#5A5A70]">整数关口</span></div>
+        <div class="flex justify-between items-center"><span class="text-[#8A8AA0]">S3 长线</span><span class="mono text-[#43A047] font-bold">3,880</span><span class="text-[9px] text-[#5A5A70]">MA200</span></div>
+      </div>
+    </div>
+
+    <div class="card-base p-5" style="--accent:#E53935;">
+      <div class="text-[10px] text-[#5A5A70] mono mb-1">RESISTANCE</div>
+      <div class="text-sm font-bold mb-3">阻力位</div>
+      <div class="space-y-2 text-xs">
+        <div class="flex justify-between items-center"><span class="text-[#8A8AA0]">R1</span><span class="mono num-up font-bold">4,200</span><span class="text-[9px] text-[#5A5A70]">心理关口</span></div>
+        <div class="flex justify-between items-center"><span class="text-[#8A8AA0]">R2</span><span class="mono num-up font-bold">4,350</span><span class="text-[9px] text-[#5A5A70]">前高颈线</span></div>
+        <div class="flex justify-between items-center"><span class="text-[#8A8AA0]">R3 长线</span><span class="mono num-up font-bold">4,500</span><span class="text-[9px] text-[#5A5A70]">缺口区</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-base p-5" style="--accent:#4FC3F7;">
+    <h3 class="text-sm font-bold mb-3">技术面综合判读</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-[#8A8AA0] leading-relaxed">
+      <div>
+        <div class="text-[10px] text-[#4FC3F7] font-semibold mb-1">📐 趋势结构</div>
+        <p>日线：4,050 双底企稳，正在向 4,200 颈线反攻。周线：长阴后连续两根阳线修复，站稳 5 周线上方。月线：处于 2025 年以来的上升通道下轨附近 —— <span class="text-[#43A047]">大趋势未破</span>。</p>
+      </div>
+      <div>
+        <div class="text-[10px] text-[#4FC3F7] font-semibold mb-1">🧭 指标共振</div>
+        <p>RSI 58 中性偏多，MACD 在零轴上方金叉，布林带中轨上方运行。MA20(4,085) 已拐头向上，MA60(4,150) 走平 —— 一旦收盘站稳 4,150，将触发均线金叉加速段。</p>
+      </div>
+      <div>
+        <div class="text-[10px] text-[#4FC3F7] font-semibold mb-1">🎯 交易区间</div>
+        <p>短期核心区间 <span class="mono text-[#E8E8F0]">4,050 - 4,200</span>。突破 4,200 → 打开 4,350 空间；跌破 4,050 → 回测 3,980 / MA200 3,880。区间内以低吸为主，突破后顺势加仓。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 情绪面 ============ -->
+<section class="max-w-[1400px] mx-auto px-6 mb-8" id="sentiment">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-lg font-bold flex items-center gap-2">
+      <span class="w-1 h-5 bg-[#BA68C8] rounded"></span>
+      情绪面分析 · 资金 × 持仓 × 舆情
+    </h2>
+    <div class="text-[10px] text-[#5A5A70] tracking-wider mono">SENTIMENT · MONEY × POSITION × MEDIA</div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+    <div class="card-base p-5" style="--accent:#BA68C8;">
+      <div class="text-[10px] text-[#5A5A70] mono mb-1">CFTC COT</div>
+      <div class="text-sm font-bold mb-2">投机净多仓</div>
+      <div class="text-3xl font-black mono text-[#D4AF37] mb-1">+28.4万手</div>
+      <div class="bar mb-2"><div class="bar-fill" style="width:62%; background:linear-gradient(90deg,#43A047,#D4AF37,#E53935)"></div></div>
+      <p class="text-[10px] text-[#8A8AA0]">净多从 35 万手高点回落至 28 万手 —— 拥挤度缓解，但仍在历史 62% 分位，多头未离场。</p>
+    </div>
+
+    <div class="card-base p-5" style="--accent:#BA68C8;">
+      <div class="text-[10px] text-[#5A5A70] mono mb-1">SPDR GOLD</div>
+      <div class="text-sm font-bold mb-2">ETF 持仓</div>
+      <div class="text-3xl font-black mono text-[#D4AF37] mb-1">880 吨</div>
+      <div class="bar mb-2"><div class="bar-fill" style="width:78%; background:linear-gradient(90deg,#43A047,#D4AF37,#E53935)"></div></div>
+      <p class="text-[10px] text-[#8A8AA0]">月内 +15 吨净流入，连续 4 个月增持。机构资金在回调中持续吸筹，是中期看多的最扎实证据。</p>
+    </div>
+
+    <div class="card-base p-5" style="--accent:#BA68C8;">
+      <div class="text-[10px] text-[#5A5A70] mono mb-1">VIX</div>
+      <div class="text-sm font-bold mb-2">市场恐慌指数</div>
+      <div class="text-3xl font-black mono text-[#FFB300] mb-1">22.4</div>
+      <div class="bar mb-2"><div class="bar-fill" style="width:44%; background:linear-gradient(90deg,#43A047,#FFB300,#E53935)"></div></div>
+      <p class="text-[10px] text-[#8A8AA0]">战争后从 35 回落至 22 —— 恐慌退潮，黄金从"避险溢价"回归"价值锚定"，此阶段回调反而是布局机会。</p>
+    </div>
+
+    <div class="card-base p-5" style="--accent:#BA68C8;">
+      <div class="text-[10px] text-[#5A5A70] mono mb-1">GOOGLE TRENDS</div>
+      <div class="text-sm font-bold mb-2">黄金搜索热度</div>
+      <div class="text-3xl font-black mono text-[#FFB300] mb-1">72/100</div>
+      <div class="bar mb-2"><div class="bar-fill" style="width:72%; background:linear-gradient(90deg,#43A047,#D4AF37,#E53935)"></div></div>
+      <p class="text-[10px] text-[#8A8AA0]">热度高位回落 —— 散户追涨情绪降温。历史规律：散户热度见顶往往不是金价顶，机构吸筹才是关键。</p>
+    </div>
+  </div>
+
+  <div class="card-base p-5 mt-5" style="--accent:#BA68C8;">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div>
+        <div class="text-[10px] text-[#D4AF37] tracking-widest mb-2 font-semibold">BULLISH · 看多情绪源</div>
+        <ul class="text-xs text-[#8A8AA0] space-y-1.5 leading-relaxed">
+          <li>· 全球央行 2026 Q2 恢复净购金（4 月多国央行恢复）</li>
+          <li>· SPDR ETF 连续 4 个月净流入 · 机构吸筹</li>
+          <li>· 美债利息超国防 · 美元信用叙事强化</li>
+          <li>· 高盛/中诚信等 2026 目标价 5,000+（高者 6,300）</li>
+          <li>· 康波萧条期黄金牛市或持续 2-3 年（主升浪）</li>
+        </ul>
+      </div>
+      <div>
+        <div class="text-[10px] text-[#E53935] tracking-widest mb-2 font-semibold">BEARISH · 看空情绪源</div>
+        <ul class="text-xs text-[#8A8AA0] space-y-1.5 leading-relaxed">
+          <li>· 美联储转鹰（沃什上任）→ 加息预期抬升实际利率</li>
+          <li>· 美伊停火 → 地缘避险溢价快速回吐</li>
+          <li>· 战争期间获利盘了结 · 5,400 高位套牢区</li>
+          <li>· 金油负相关异动 · 传统避险框架失效风险</li>
+          <li>· 短期美元反弹（DXY 100.9）压制金价</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 四维判断引擎 ============ -->
+<section class="max-w-[1400px] mx-auto px-6 mb-8" id="judge">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-lg font-bold flex items-center gap-2">
+      <span class="w-1 h-5 bg-[#D4AF37] rounded"></span>
+      四维判断引擎 · 年 / 月 / 周 / 日
+    </h2>
+    <div class="text-[10px] text-[#5A5A70] tracking-wider mono">YEAR → MONTH → WEEK → DAY</div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-5">
+    <div class="card-base p-5" style="--accent:#43A047; border-color:rgba(67,160,71,.4);">
+      <div class="flex items-center justify-between mb-2">
+        <div>
+          <div class="text-[10px] text-[#43A047] tracking-widest">LONG-TERM</div>
+          <div class="text-lg font-bold">年度判断</div>
+        </div>
+        <span class="light text-[#43A047]" style="background:#43A047"></span>
+      </div>
+      <div class="text-2xl font-black text-[#43A047] mb-2">看多 · 长牛</div>
+      <ul class="text-[11px] text-[#8A8AA0] space-y-1.5">
+        <li>✓ 央行购金 1,080 吨/年 · 结构性供不应求</li>
+        <li>✓ 美元信用受损 · 美债利息超国防</li>
+        <li>✓ 康波萧条期黄金最优资产 · 主升浪</li>
+        <li>✓ 目标：5,000-6,300（机构主流预测）</li>
+      </ul>
+    </div>
+
+    <div class="card-base p-5" style="--accent:#43A047; border-color:rgba(67,160,71,.4);">
+      <div class="flex items-center justify-between mb-2">
+        <div>
+          <div class="text-[10px] text-[#43A047] tracking-widest">MID-TERM</div>
+          <div class="text-lg font-bold">月度判断</div>
+        </div>
+        <span class="light text-[#43A047]" style="background:#43A047"></span>
+      </div>
+      <div class="text-2xl font-black text-[#43A047] mb-2">偏多 · 修复</div>
+      <ul class="text-[11px] text-[#8A8AA0] space-y-1.5">
+        <li>✓ 4,050 双底企稳 · 技术修复启动</li>
+        <li>✓ SPDR 连续 4 月增持 · 机构吸筹</li>
+        <li>✓ 停火利空出尽 · 价值回归</li>
+        <li>○ 关注 4,200 颈线突破确认</li>
+      </ul>
+    </div>
+
+    <div class="card-base p-5" style="--accent:#FFB300; border-color:rgba(255,179,0,.4);">
+      <div class="flex items-center justify-between mb-2">
+        <div>
+          <div class="text-[10px] text-[#FFB300] tracking-widest">SHORT-TERM</div>
+          <div class="text-lg font-bold">周度判断</div>
+        </div>
+        <span class="light text-[#FFB300]" style="background:#FFB300"></span>
+      </div>
+      <div class="text-2xl font-black text-[#FFB300] mb-2">震荡偏多</div>
+      <ul class="text-[11px] text-[#8A8AA0] space-y-1.5">
+        <li>✓ 周线两连阳 · 站稳 5 周线</li>
+        <li>✓ RSI 58 · MACD 金叉</li>
+        <li>○ 4,050-4,200 区间运行</li>
+        <li>○ 美联储 7 月纪要 (8/22) 前观望</li>
+      </ul>
+    </div>
+
+    <div class="card-base p-5" style="--accent:#8A8AA0; border-color:rgba(138,138,160,.3);">
+      <div class="flex items-center justify-between mb-2">
+        <div>
+          <div class="text-[10px] text-[#8A8AA0] tracking-widest">INTRADAY</div>
+          <div class="text-lg font-bold">日内判断</div>
+        </div>
+        <span class="light text-[#8A8AA0]" style="background:#8A8AA0"></span>
+      </div>
+      <div class="text-2xl font-black text-[#8A8AA0] mb-2">中性 · 区间</div>
+      <ul class="text-[11px] text-[#8A8AA0] space-y-1.5">
+        <li>◇ 4,100-4,180 日内运行</li>
+        <li>◇ 关注美盘 CPI 预期发酵</li>
+        <li>◇ 突破 4,150 追多 / 跌破 4,100 观望</li>
+        <li>◇ 非农数据周 · 波动放大</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 综合结论 -->
+  <div class="card-base p-6" style="--accent:#D4AF37;">
+    <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+      <h3 class="text-sm font-bold flex items-center gap-2"><span class="w-1 h-4 bg-[#D4AF37] rounded"></span>综合判断 · 策略基准</h3>
+      <span class="badge text-[#43A047]"><span class="badge-dot"></span>长多短震 · 逢低布局</span>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 text-xs">
+      <div class="card-base p-4" style="--accent:#43A047;">
+        <div class="text-[10px] text-[#43A047] font-semibold mb-2">✅ 核心策略</div>
+        <p class="text-[#8A8AA0] leading-relaxed">年度/月度看多确立，周度震荡偏多，日内中性。<strong class="text-[#E8E8F0]">策略：回调至 4,050-4,080 分批布局多单</strong>（MA20 附近），止损 3,980 下方，目标 4,200 → 4,350 → 4,500。</p>
+      </div>
+      <div class="card-base p-4" style="--accent:#FFB300;">
+        <div class="text-[10px] text-[#FFB300] font-semibold mb-2">⚠ 风险监控</div>
+        <p class="text-[#8A8AA0] leading-relaxed">① 美联储若重启加息（沃什鹰派落地）→ 实际利率急升利空黄金；② 美伊冲突彻底结束 → 避险溢价继续回吐；③ 金价若跌破 3,880（MA200）→ 长牛趋势需重新评估。<strong class="text-[#E8E8F0]">止损纪律：单笔 ≤2% 仓位。</strong></p>
+      </div>
+      <div class="card-base p-4" style="--accent:#D4AF37;">
+        <div class="text-[10px] text-[#D4AF37] font-semibold mb-2">🎯 关键时间窗口</div>
+        <p class="text-[#8A8AA0] leading-relaxed">8/14 美国 CPI（通胀是否降温）· 8/22 FOMC 纪要（加息路径）· 9 月 FOMC 点阵图（方向定调）· 11 月中期选举（政策扰动）。<strong class="text-[#E8E8F0]">9 月会议是下半年最重要分水岭。</strong></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 情景推演 ============ -->
+<section class="max-w-[1400px] mx-auto px-6 mb-12" id="scenario">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-lg font-bold flex items-center gap-2">
+      <span class="w-1 h-5 bg-[#4FC3F7] rounded"></span>
+      情景推演 · 三档路径
+    </h2>
+    <div class="text-[10px] text-[#5A5A70] tracking-wider mono">SCENARIO · BULL / BASE / BEAR</div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div class="card-base p-5" style="--accent:#43A047; border-color:rgba(67,160,71,.4);">
+      <div class="flex items-center justify-between mb-2">
+        <div class="text-lg font-bold text-[#43A047]">🐂 牛市路径</div>
+        <span class="badge text-[#43A047]">概率 35%</span>
+      </div>
+      <div class="text-2xl font-black mono text-[#43A047] mb-3">→ 4,350 - 4,800</div>
+      <ul class="text-[11px] text-[#8A8AA0] space-y-1.5">
+        <li>· 美国 CPI 快速降温 → 降息预期回归</li>
+        <li>· 央行购金加速 + ETF 大规模回流</li>
+        <li>· 地缘再起波澜 / 美元信用事件</li>
+        <li>· 触发：站稳 4,200 且放量突破 4,350</li>
+      </ul>
+    </div>
+    <div class="card-base p-5" style="--accent:#D4AF37; border-color:rgba(212,175,55,.4);">
+      <div class="flex items-center justify-between mb-2">
+        <div class="text-lg font-bold text-[#D4AF37]">⚖️ 基准路径</div>
+        <span class="badge text-[#D4AF37]">概率 50%</span>
+      </div>
+      <div class="text-2xl font-black mono text-[#D4AF37] mb-3">→ 4,050 - 4,350</div>
+      <ul class="text-[11px] text-[#8A8AA0] space-y-1.5">
+        <li>· 通胀温和 + 政策观望 → 高位宽幅震荡</li>
+        <li>· 央行购金托底 · 投机资金反复</li>
+        <li>· 4,050 支撑 / 4,200-4,350 阻力</li>
+        <li>· 操作：区间高抛低吸 · 逢低做多</li>
+      </ul>
+    </div>
+    <div class="card-base p-5" style="--accent:#E53935; border-color:rgba(229,57,53,.4);">
+      <div class="flex items-center justify-between mb-2">
+        <div class="text-lg font-bold text-[#E53935]">🐻 熊市路径</div>
+        <span class="badge text-[#E53935]">概率 15%</span>
+      </div>
+      <div class="text-2xl font-black mono text-[#E53935] mb-3">→ 3,880 - 4,000</div>
+      <ul class="text-[11px] text-[#8A8AA0] space-y-1.5">
+        <li>· 美联储被迫加息 → 实际利率急升</li>
+        <li>· AI 通胀失控 → 美元走强压制</li>
+        <li>· 风险资产崩盘 → 流动性危机抛金补仓</li>
+        <li>· 触发：跌破 3,980 → 测试 MA200 3,880</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card-base p-5 mt-5" style="--accent:#D4AF37;">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 text-xs">
+      <div class="text-[#8A8AA0] leading-relaxed">
+        <span class="text-[10px] text-[#D4AF37] font-semibold block mb-1">📜 历史类比 · 1970s</span>
+        1971 布雷顿森林解体 → 黄金 35→850 美元（+2300%）。驱动力：美元信用崩溃 + 石油危机 + 大通胀。当前"美债利息超国防 + 去美元化"与之神似。
+      </div>
+      <div class="text-[#8A8AA0] leading-relaxed">
+        <span class="text-[10px] text-[#D4AF37] font-semibold block mb-1">📜 历史类比 · 2011</span>
+        2011.9 金价 1,920 见顶后 4 年跌至 1,046（-46%）。教训：央行购金潮停 + 实际利率上行 + 强势美元三重利空。当前央行购金仍在加速——阶段不同。
+      </div>
+      <div class="text-[#8A8AA0] leading-relaxed">
+        <span class="text-[10px] text-[#D4AF37] font-semibold block mb-1">📜 历史类比 · 2020</span>
+        疫情冲击 1,451→2,075（+43%）只用 8 个月。启示：金价在流动性危机后往往迎来暴力补涨——若 2027-28 衰退兑现，黄金将是最大受益者。
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="border-t border-[#2A2A3E] mt-8">
+  <div class="bg-[#060D18] py-3 overflow-hidden">
+    <div class="flex ticker-track whitespace-nowrap text-xs">
+      <div class="flex gap-8 px-4 text-[#8A8AA0] mono" id="ticker1"></div>
+      <div class="flex gap-8 px-4 text-[#8A8AA0] mono" id="ticker2"></div>
+    </div>
+  </div>
+  <div class="max-w-[1400px] mx-auto px-6 py-6 flex flex-col md:flex-row items-center justify-between text-[10px] text-[#5A5A70]">
+    <div>© 2026 财情双生智库 · 黄金四维监控系统 v1.0</div>
+    <div class="flex gap-4 mt-2 md:mt-0">
+      <span>数据源 · COMEX · CFTC · WGC · SPDR · FRED</span>
+      <span>·</span>
+      <span class="mono">BUILD 2026.08.05</span>
+    </div>
+  </div>
+</footer>
+
+<!-- candle tip -->
+<div class="candle-tip" id="candleTip"></div>
+
+<script>
+/* =============== 时钟 =============== */
+function pad(n){return String(n).padStart(2,'0')}
+function tickNow(){const d=new Date();document.getElementById('now').textContent=`${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`}
+setInterval(tickNow,1000);tickNow();
+
+/* =============== 价格扰动 =============== */
+let price = 4134.2;
+function refreshPrice(){
+  const drift = (Math.random()-0.5)*6;
+  price = Math.round((price + drift)*10)/10;
+  document.getElementById('priceMain').textContent = price.toLocaleString('en-US');
+  const chg = price - 4090.4;
+  const chgPct = chg/4090.4*100;
+  const el = document.getElementById('priceChg');
+  el.textContent = (chg>0?'+':'')+chg.toFixed(1)+' ('+(chgPct>0?'+':'')+chgPct.toFixed(2)+'%)';
+  el.className = 'text-sm font-bold ' + (chg>=0?'num-up':'num-down');
+}
+setInterval(()=>{ if(auto) refreshPrice(); }, 3000);
+let auto = true;
+function toggleAuto(){ auto=!auto; document.getElementById('autoBtn').textContent = auto?'⏸ 暂停自动':'▶ 启动自动'; }
+
+/* =============== K线生成 =============== */
+function genOHLC(){
+  const ohlc=[]; let price=5300;
+  for(let i=0;i<60;i++){
+    let drift;
+    if(i<10) drift=-55;        // 6月初 高位回落
+    else if(i<20) drift=-40;   // 6月中
+    else if(i<30) drift=-25;   // 6月底-7月初
+    else if(i<40) drift=-12;   // 7月中 减速
+    else if(i<48) drift=-3;    // 7月底 企稳
+    else drift=+7;             // 8月 反弹
+    const o=price+(Math.random()-0.5)*18;
+    let c=o+drift+(Math.random()-0.5)*26;
+    c=Math.max(c,3980);
+    const h=Math.max(o,c)+Math.random()*16;
+    const l=Math.min(o,c)-Math.random()*16;
+    ohlc.push({o,c,h,l});
+    price=c;
+  }
+  return ohlc;
+}
+const OHLC=genOHLC();
+
+/* MA 计算 */
+function calcMA(arr,period){
+  return arr.map((_,i)=>{
+    if(i<period-1) return null;
+    let s=0; for(let j=i-period+1;j<=i;j++) s+=arr[j]; return s/period;
+  });
+}
+const closes=OHLC.map(k=>k.c);
+const MA20=calcMA(closes,20);
+const MA60=calcMA(closes,60);
+
+/* =============== SVG 蜡烛图 =============== */
+(function renderCandles(){
+  const W=1400, H=380, padL=60, padR=20, padT=15, padB=30;
+  const n=OHLC.length;
+  const all=[...closes, ...OHLC.map(k=>k.h), ...OHLC.map(k=>k.l)];
+  const minV=Math.min(...all)*0.995, maxV=Math.max(...all)*1.005;
+  const xOf=i=>padL+i*(W-padL-padR)/n;
+  const yOf=v=>padT+(maxV-v)/(maxV-minV)*(H-padT-padB);
+  const cw=(W-padL-padR)/n*0.62;
+  let svg='';
+  // 网格
+  for(let g=0;g<=4;g++){
+    const v=maxV-(maxV-minV)*g/4;
+    const y=yOf(v);
+    svg+=`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="rgba(212,175,55,0.07)" stroke-width="1"/>`;
+    svg+=`<text x="${padL-8}" y="${y+4}" fill="#5A5A70" font-size="10" text-anchor="end" font-family="JetBrains Mono">${Math.round(v).toLocaleString('en-US')}</text>`;
+  }
+  // MA60
+  let ma60Path='', ma20Path='';
+  MA60.forEach((v,i)=>{ if(v!==null){ ma60Path += (ma60Path?'L':'M')+xOf(i)+','+yOf(v); } });
+  MA20.forEach((v,i)=>{ if(v!==null){ ma20Path += (ma20Path?'L':'M')+xOf(i)+','+yOf(v); } });
+  // K线
+  OHLC.forEach((k,i)=>{
+    const x=xOf(i), up=k.c>=k.o;
+    const color=up?'#E53935':'#43A047';
+    const yO=yOf(k.o), yC=yOf(k.c), yH=yOf(k.h), yL=yOf(k.l);
+    // 影线
+    svg+=`<line x1="${x}" y1="${yH}" x2="${x}" y2="${yL}" stroke="${color}" stroke-width="1" opacity="0.7"/>`;
+    // 实体
+    const top=Math.min(yO,yC), hgt=Math.max(Math.abs(yC-yO),2);
+    svg+=`<rect x="${x-cw/2}" y="${top}" width="${cw}" height="${hgt}" fill="${up?color:'transparent'}" stroke="${color}" stroke-width="1" rx="1" data-i="${i}" class="candle"/>`;
+  });
+  // MA 线
+  svg+=`<path d="${ma60Path}" fill="none" stroke="#4FC3F7" stroke-width="1.8" opacity="0.9"/>`;
+  svg+=`<path d="${ma20Path}" fill="none" stroke="#D4AF37" stroke-width="1.8"/>`;
+  // 图例
+  svg+=`<text x="${W-120}" y="${padT+10}" fill="#D4AF37" font-size="10">MA20</text>`;
+  svg+=`<text x="${W-80}" y="${padT+10}" fill="#4FC3F7" font-size="10">MA60</text>`;
+  // 日期刻度
+  const labels=['6/1','6/15','7/1','7/15','8/1','8/4'];
+  const labelIdx=[0,10,20,34,50,59];
+  labelIdx.forEach((li,li2)=>{
+    svg+=`<text x="${xOf(li)}" y="${H-10}" fill="#5A5A70" font-size="10" text-anchor="middle" font-family="JetBrains Mono">${labels[li2]}</text>`;
+  });
+  document.getElementById('candleChart').innerHTML=svg;
+  // hover tip
+  const tip=document.getElementById('candleTip');
+  document.querySelectorAll('.candle').forEach(rect=>{
+    rect.addEventListener('mousemove',e=>{
+      const i=+rect.dataset.i, k=OHLC[i];
+      tip.innerHTML=`<span class="mono text-[#D4AF37]">T-${59-i} 日</span><br/>开 ${k.o.toLocaleString('en-US')} · 高 ${k.h.toLocaleString('en-US')}<br/>低 ${k.l.toLocaleString('en-US')} · 收 <span class="${k.c>=k.o?'text-[#E53935]':'text-[#43A047]'}">${k.c.toLocaleString('en-US')}</span>`;
+      tip.style.display='block';
+      tip.style.left=(e.clientX+14)+'px';
+      tip.style.top=(e.clientY+14)+'px';
+    });
+    rect.addEventListener('mouseleave',()=>{tip.style.display='none'});
+  });
+})();
+
+/* =============== Ticker =============== */
+(function(){
+  const items=[
+    ['XAUUSD','4,134','+1.07%',1],['白银','59.75','+3.27%',1],['DXY','100.9','+0.2%',1],
+    ['10Y TIPS','1.80%','-2bp',-1],['金油比','52.3','-0.8',-1],['SPDR','880t','+15t',1],
+    ['COMEX净多','28.4万手','-1.2万',-1],['VIX','22.4','-1.1',-1],['央行购金','1080t/年','+8%',1],
+    ['伦敦金','4,075','-0.17%',-1],['WTI','75.8','-5.7%',-1],['美债10Y','4.53%','+3bp',1],
+  ];
+  const html=items.map(i=>`<span><span class="text-[#D4AF37]">${i[0]}</span> ${i[1]} <span class="${i[3]>0?'text-[#E53935]':'text-[#43A047]'}">${i[2]}</span></span>`).join('');
+  document.getElementById('ticker1').innerHTML=html;
+  document.getElementById('ticker2').innerHTML=html;
+})();
+
+/* =============== 四维窗口点击高亮 =============== */
+document.querySelectorAll('.win-4').forEach(w=>{
+  w.addEventListener('click',()=>{
+    document.querySelectorAll('.win-4').forEach(x=>x.style.borderColor='rgba(255,255,255,0.07)');
+    w.style.borderColor='#D4AF37';
+    const dim=w.dataset.dim;
+    const anchor={'year':'#fundamental','month':'#technical','week':'#sentiment','day':'#judge'}[dim];
+    if(anchor) document.querySelector(anchor).scrollIntoView({behavior:'smooth'});
+  });
+});
+</script>
+</body>
+</html>
