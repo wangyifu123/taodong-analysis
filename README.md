@@ -1,4 +1,6 @@
-{"name":"README.md","path":"README.md","sha":"daf1945fd413010d69f1a072029cdba1c162a2db","size":13315,"url":"https://api.github.com/repos/wecando-vip/macro-analysis/contents/README.md?ref=main","html_url":"https://github.com/wecando-vip/macro-analysis/blob/main/README.md","git_url":"https://api.github.com/repos/wecando-vip/macro-analysis/git/blobs/daf1945fd413010d69f1a072029cdba1c162a2db","download_url":"https://raw.githubusercontent.com/wecando-vip/macro-analysis/main/README.md","type":"file","content":"PGRpdiBhbGlnbj0iY2VudGVyIj4KCiMg6LSi5oOF5Y+M55Sf5pm65bqTIMK3\nIEVjb24tU2VudGltZW50IFR3aW4gVGhpbmsgVGFuawoKKirph5Hono0gw5cg\n5oOF57uqIMK3IOWvueeri+e7n+S4gCDCtyDkuIDnq5nlvI/otYTkuqflhrPn\nrZbns7vnu58qKgoKWyFbTGljZW5zZTogTUlUXShodHRwczovL2ltZy5zaGll\nbGRzLmlvL2JhZGdlL0xpY2Vuc2UtTUlULXllbGxvdy5zdmcpXShMSUNFTlNF\nKQohW1ZlcnNpb25dKGh0dHBzOi8vaW1nLnNoaWVsZHMuaW8vYmFkZ2UvdmVy\nc2lvbi12MS4wLWJsdWUpCiFbWmVybyBCdWlsZF0oaHR0cHM6Ly9pbWcuc2hp\nZWxkcy5pby9iYWRnZS96ZXJvLS1idWlsZC0xMDAlMjVfdmFuaWxsYS1icmln\naHRncmVlbikKIVtCaWxpbmd1YWxdKGh0dHBzOi8vaW1nLnNoaWVsZHMuaW8v\nYmFkZ2Uv5Lit5paHJTIwJTdDJTIwRU4tYmlsaW5ndWFsLTRGQzNGNykKIVtG\ncmVlIEFQSXNdKGh0dHBzOi8vaW1nLnNoaWVsZHMuaW8vYmFkZ2UvZGF0YS1m\ncmVlJTIwQVBJcy1vcmFuZ2UpCiFbR2l0SHViIFBhZ2VzXShodHRwczovL2lt\nZy5zaGllbGRzLmlvL2JhZGdlL2RlcGxveS1HaXRIdWIlMjBQYWdlcyUyMCU3\nQyUyME5naW54LXN1Y2Nlc3MpCgoqKui0oiDmg4Ug5Y+MIOeUnyDCtyDmmbog\n5oWnIOaciSDmuKkg5bqmKioKKiroi6Yg6Zq+IOWPmCDmmbog5oWnIMK3IOef\nmyDnm74g5Y+YIOWPjCDotaIgwrcg54OmIOaBvCDlj5gg5oiQIOmVvyoqCgo8\nL2Rpdj4KCi0tLQoK6LSi5oOF5Y+M55Sf5pm65bqT5piv5LiA5aWXKirkuKrk\nurrotYTkuqflhrPnrZblt6Xlhbfpm4YqKu+8iEZpbmFuY2lhbCDDlyBFbW90\naW9uYWwgVHdpbiBUaGluayBUYW5r77yJ77yM5bCG55CG5oCn6YeR6J6N5YiG\n5p6Q5LiO5biC5Zy65oOF57uq5Yik5pat5Y+M6L2o5ZCI5LiA77yM6KaG55uW\n5a6P6KeC55uR5o6n44CB5ZGo5pyf5a6a5L2N44CB6LWE6YeR5rWB5ZCR44CB\n6IKh5YC65rGH44CB6buE6YeR44CB55u055uY6LSn5biB5a+55YWt5aSn57u0\n5bqm77yM5biu5Yqp5L2g55yL5riF5biC5Zy644CB5qCh5YeG5Yaz562W44CC\nCgoqKue6r+mdmeaAgSDCtyDpm7bmnoTlu7ogwrcg6Zu25ZCO56uvKiog4oCU\n4oCUIOWNleaWh+S7tiBIVE1MIOWNs+WPr+i/kOihjO+8jOaVsOaNruWFqOmD\nqOadpeiHquWFjei0ueWFrOW8gCBBUEnvvIzmtY/op4jlmajnq6/lrp7ml7bm\ni4nlj5bjgIIKCj4g8J+MkCAqKuWcqOe6v+S9k+mqjCoq77yaW2h0dHA6Ly8x\nMTguMjUuMTk3Ljc1OjMwNTAvXShodHRwOi8vMTE4LjI1LjE5Ny43NTozMDUw\nLynvvIjkuK3mlofniYjpu5jorqTlhaXlj6PvvIkKPiDwn4e68J+HuCAqKkVu\nZ2xpc2gqKu+8mltodHRwOi8vMTE4LjI1LjE5Ny43NTozMDUwL2luZGV4LWVu\nLmh0bWxdKGh0dHA6Ly8xMTguMjUuMTk3Ljc1OjMwNTAvaW5kZXgtZW4uaHRt\nbCkKCi0tLQoKIyMg4pyoIOeJueaAp+S6rueCuQoKfCDnibnmgKcgfCDor7Tm\nmI4gfAp8LS0tLS0tfC0tLS0tLXwKfCDwn4yNICoqNyDlpKflrZDns7vnu58q\nKiB8IOWuj+inguebkeaOpyAvIOe+juael+aXtumSnyAvIOWRqOmHkea2m+WR\nqOacnyAvIOi1hOmHkea1geWQkSAvIOiCoeWAuuaxhyAvIOm7hOmHkSAvIOeb\ntOebmOi0p+W4geWvuSB8Cnwg8J+noCAqKui0ouaDheaWueazleiuuioqIHwg\n5LqU6Zi25q615qGG5p6277ya6Zeu6aKY5a6a5LmJIOKGkiDnu5PmnoTliIbo\np6Mg4oaSIOWRqOacn+WumuS9jSDihpIg5pWw5o2u5a6e6K+BIOKGkiDor4Hk\nvKrmo4DpqozvvIjlj6/or4HkvKrmgKcgPiDlj6/op6Pph4rmgKfvvIl8Cnwg\n8J+HqPCfh7Pwn4e68J+HuCAqKuS4reiLseWPjOivrSoqIHwg5Lit6Iux5paH\n54us56uL6aG16Z2i5YiG56a777yIYGFwcHMvYCArIGBhcHBzLWVuL2DvvInv\nvIzpobbpg6jjgIzkuK0gXHwgRU7jgI3or63oqIDlr7nkupLpgJrvvIzkuK3m\nlofkuLrpu5jorqTlhaXlj6MgfAp8IPCfk6EgKirlhY3otLnlrp7ml7bmlbDm\nja4qKiB8IOaxh+eOhyAvIOmHkeS7tyAvIDgg5Zu96IKh5oyHIC8g6LSn5biB\n5a+5IDkwIOaXpeWOhuWPsiDigJTigJQg5YWo5YWN6LS5IEFQSeOAgeaXoOmc\ngCBrZXnjgIFDT1JTIOWPi+WlvSB8Cnwg8J+TiiAqKuWkmue7tOWIpOaWreW8\nleaTjioqIHwg5pyIIC8g5ZGoIC8g5pelIC8g5pe25Zub5ZGo5pyf5bWM5aWX\n5a6a5L2N77yM5Z+65pys6Z2iICsg5oqA5pyv6Z2iICsg5oOF57uq6Z2iICsg\n6YeP5YyW6Z2i5Zub57u054us56uL5YiG5p6QIHwKfCDwn5uhICoq6K+B5Lyq\n5p2h5Lu2KiogfCDmr4/kuKrliKTmlq3pg73nu5nlh7rmmI7noa7nmoTjgIzl\npLHmlYjmnaHku7bjgI3vvIzmi5Lnu53kuovlkI7op6Pph4rvvIzor5rlrp7p\nnaLlr7nkuI3noa7lrprmgKcgfAp8IOKaoSAqKumbtuaehOW7uumDqOe9sioq\nIHwg57qvIEhUTUwgKyBDU1MgKyBWYW5pbGxhIEpT77yMR2l0SHViIFBhZ2Vz\nIC8gTmdpbnggLyDku7vmhI/pnZnmgIHmnI3liqHlmajnm7TmjqXot5EgfAoK\nLS0tCgojIyDwn46vIDcg5aSn5a2Q57O757ufCgp8ICMgfCDns7vnu58gfCDn\nm67lvZUgfCDnlKjpgJQgfCDnroDmmI7kvb/nlKjlnLrmma8gfAp8LS0tfC0t\nLS0tLXwtLS0tLS18LS0tLS0tfC0tLS0tLS0tLS0tLS18CnwgMDEgfCAqKuWu\nj+inguebkeaOp+ezu+e7nyoqIHwgYGFwcHMvMDEtbWFjcm8tc3VydmVpbGxh\nbmNlL2AgfCA1IOe7tOW6puWFqOeQg+WOi+WKm+S7quihqCB8IOW8gOebmOWJ\njeeci+OAjOe7vOWQiOWOi+WKm+aMh+aVsOOAjSvjgIzluILlnLrkvKDmn5Pj\ngI3ihpIg5Yik5pat5LuK5pel6aOO6Zmp5YGP5aW9IHwKfCAwMiB8ICoq576O\n5p6X5pe26ZKfKiogfCBgYXBwcy8wMi1tZXJyaWxsLWNsb2NrL2AgfCA4IOWb\nveWQjOatpeWRqOacn+WumuS9jSB8IOWLvumAiSAzIOWbvSDihpIg55yL5LiJ\n5Zu95pe26ZKf6LGh6ZmQICsgMTBZIOWIqeW3riDihpIg5om+5aWX5Yip56qX\n5Y+jIHwKfCAwMyB8ICoq5ZGo6YeR5rab5LiJ5Zu95ZGo5pyfKiogfCBgYXBw\ncy8wMy16aG91amludGFvLWN5Y2xlL2AgfCDlurfms6IgNTAtNjAg5bm06ZW/\n5rOiIHwg5q+P5pyI55yL44CM5qC45b+D57uT6K6644CN4oaSIOagoeWHhuWu\nj+inguaImOeVpSDihpIg5aSn57G76LWE5Lqn5LmF5pyfIHwKfCAwNCB8ICoq\n6LWE6YeR5rWB5ZCR55uR5rWLKiog4q2QIHwgYGFwcHMvMDQtZnVuZC1mbG93\nL2AgfCA4IOWbvei1hOmHkemTviArIOWunuaXtuS4ieS7tuWllyB8IOW/heec\ni+ezu+e7nyDihpIg6aG26YOoIDQg5rqQ54q25oCBIOKGkiDlrp7ml7booYzm\ng4Ug4oaSIOWkruihjOi1hOS6p+i0n+WAuuihqCB8CnwgMDUgfCAqKuiCoeWA\nuuaxh+ebkea1iyoqIHwgYGFwcHMvMDUtc3RvY2stYm9uZC1meC9gIHwgOCDl\nm70gMyDluILlnLrkuInnu7Totovlir8gfCDli77pgIkgNSDlm70g4oaSIOec\ni+OAjOW5tC/mnIgv5ZGo44CN5LiJ57u05L+h5Y+3IOKGkiDmib7lh7rlvLrl\nir/kuIrooYwgfAp8IDA2IHwgKirpu4Tph5EgWEFVVVNEKiogfCBgYXBwcy8w\nNi1nb2xkLXhhdXVzZC9gIHwg5Zub57u05Y2V5ZOB56eN5rex5o6iIHwg5pel\n5YaF55yL44CM5pel57q/44CNKyDonKHng5vlm74g4oaSIOS4reacn+eci+OA\njOmHkemTtuavlOOAjSsg6LCD5p2D6YeNIHwKfCAwNyB8ICoq55u055uY6LSn\n5biB5a+5KiogfCBgYXBwcy8wNy1meC1wYWlycy9gIHwgNiDlpKfnm7Tnm5jl\nm5vnu7TliIbmnpDvvIjotKLmg4Xmlrnms5XorrrvvIkgfCDkuqTmmJPliY3n\nnIvmnIgv5ZGoL+aXpS/ml7blm5vnu7Tkv6Hlj7cg4oaSIOWkmue7tOW6puWF\nseaMr+WBmuWNlSDihpIg6K6+6K+B5Lyq5p2h5Lu25q2i5o2fIHwKCj4g8J+S\noSDnrKwgMDcg57O757uf44CM55u055uY6LSn5biB5a+544CN5pivKirotKLm\ng4Xmlrnms5XorrrnmoTlrozmlbTlrp7ot7UqKu+8mjYg5a+555u055uY77yI\nRVVSL1VTROOAgVVTRC9KUFnjgIFHQlAvVVNE44CBVVNEL0NIRuOAgUFVRC9V\nU0TjgIFVU0QvQ0FE77yJ5Y+v5aSN6YCJ77yM5YaF572u5aSn5qih5Z6L56CU\n56m25b+r54Wn5YWc5bqV77yMQVBJIOaMguaOieaXtumhtemdouS+neeEtuac\nieadg+WogeeglOeptuWGheWuueOAggoKIyMjIPCfk5Ag6LSi5oOF5pa55rOV\n6K6677yIRmluYW5jZS1FbW90aW9uIE1ldGhvZG9sb2d577yJCgrlsIbph5Ho\nno3liIbmnpDvvIjotKLvvInkuI7luILlnLrlv4PnkIYv5oOF57uq5Yik5pat\n77yI5oOF77yJ5Y+M6L2o5ZCI5LiA55qE5YiG5p6Q5qGG5p6277yaCgpgYGAK\n4pGgIOmXrumimOWumuS5iSAg4oaSIOi/mee7hOi0p+W4geWvueW9k+WJjeWc\nqOS6pOaYk+S7gOS5iO+8n++8iOWfuuacrOmdoumpseWKqO+8n+WKqOmHj+W7\ntue7re+8n+Wll+aBr++8n++8iQrikaEg57uT5p6E5YiG6KejICDihpIg5Z+6\n5pys6Z2iIC8g5oqA5pyv6Z2iIC8g5oOF57uq6Z2iIC8g6YeP5YyW6Z2iIOWb\nm+S4queLrOeri+WIhuaekOe7tOW6pgrikaIg5ZGo5pyf5a6a5L2NICDihpIg\n5pyI77yINjDml6UrMzDliqjph4/vvIkvIOWRqO+8iDIw5pelKzEw5Yqo6YeP\n77yJLyDml6XvvIhNQTUvMjArUlNJK01BQ0TvvIkvIOaXtu+8iDXml6Xliqjp\nh4/vvIkK4pGjIOaVsOaNruWunuivgSAg4oaSIOWFjei0uSBBUEkg55yf5a6e\n5pWw5o2u77yIb3Blbi5lci1hcGkuY29tIOWunuaXtiArIGZyYW5rZnVydGVy\nLmRldiA5MCDml6Xljoblj7LvvIkK4pGkIOivgeS8quajgOmqjCAg4oaSIOav\nj+Wvuee7meWHuiAyLTMg5Liq44CM5Yik5pat5aSx5pWI5p2h5Lu244CN77yI\n5Y+v6K+B5Lyq5oCnID4g5Y+v6Kej6YeK5oCn77yJCmBgYAoKPiDmlrnms5Xo\nrrrmoLjlv4PvvJoqKuWPr+ivgeS8quaApyA+IOWPr+ino+mHiuaApyoqIOKA\nlOKAlCDmr4/kuKrliKTmlq3pg73lv4Xpobvnu5nlh7rmmI7noa7nmoTjgIzl\npLHmlYjmnaHku7bjgI3vvIzlroHlj6/or5rlrp7mib/orqTkuI3noa7lrprm\ngKfvvIzkuZ/kuI3mkJ7kuovlkI7op6Pph4rjgIIKCi0tLQoKIyMg8J+TuCDn\nlYzpnaLpooTop4gKCnwg6Zeo5oi35Lit5paH54mIIHwg55u055uY6LSn5biB\n5a+5IMK3IOi0ouaDheaWueazleiuuiB8CnwtLS0tLS0tLS0tLS18LS0tLS0t\nLS0tLS0tLS0tLS0tLS0tLS0tfAp8ICFb6Zeo5oi3XShfYXNzZXRzL3NjcmVl\nbnNob3RzL3BvcnRhbC10b3AucG5nKSB8ICFb55u055uY6LSn5biB5a+5XShf\nYXNzZXRzL3NjcmVlbnNob3RzL2Z4LXYxNC10b3AucG5nKSB8Cgp8IOi1hOmH\nkea1geWQkSDCtyDlrp7ml7bkuInku7blpZcgfCDpl6jmiLfoi7HmlofniYgg\nfAp8LS0tLS0tLS0tLS0tLS0tLS0tLS0tLXwtLS0tLS0tLS0tLXwKfCAhW+i1\nhOmHkea1geWQkV0oX2Fzc2V0cy9zY3JlZW5zaG90cy9mbG93LWVuLnBuZykg\nfCAhW+mXqOaIt+iLseaWh10oX2Fzc2V0cy9zY3JlZW5zaG90cy9wb3J0YWwt\nZW4ucG5nKSB8CgotLS0KCiMjIPCfp60g5Lit6Iux5Y+M6K+t5p625p6ECgrk\nuK3mlofniYjkuLoqKum7mOiupOWFpeWPoyoq77yM5Lit6Iux5paHKirni6zn\nq4vpobXpnaLliIbnprsqKu+8iOmdniBKUyDliIfmjaLvvIxTRU8g5Y+L5aW9\n44CB54is6Jmr5Y+v57Si5byV77yJ77yaCgpgYGAK6Zeo5oi35Lit5paHIGlu\nZGV4Lmh0bWwg4pSA4pSARU7ilIDilIDihpIg6Zeo5oi36Iux5paHIGluZGV4\nLWVuLmh0bWwK6Zeo5oi36Iux5paHIGluZGV4LWVuLmh0bWwg4pSA4pSA5Lit\n4pSA4pSA4oaSIOmXqOaIt+S4reaWhyBpbmRleC5odG1sCmFwcHMvWFjvvIjk\nuK3vvInilIDilIBFTuKUgOKUgOKGkiBhcHBzLWVuL1hY77yI6Iux77yJICAg\nICAgYXBwcy1lbi9YWO+8iOiLse+8ieKUgOKUgOS4reKUgOKUgOKGkiBhcHBz\nL1hY77yI5Lit77yJCmBgYAoKLSDlk4HniYzlkI3nu5/kuIDvvJoqKui0ouaD\nheWPjOeUn+aZuuW6kyDCtyBFY29uLVNlbnRpbWVudCBUd2luIFRoaW5rIFRh\nbmsqKu+8iOS4reiLseW5tuaOku+8iQotIOiLseaWh+eJiCBgPGh0bWwgbGFu\nZz0iZW4iPmAgKyDni6znq4sgbWV0YSBkZXNjcmlwdGlvbgotIDcg5aWX5a2Q\n57O757uf5YWo6YOo5oul5pyJ5Lit6Iux5Lik5Liq54mI5pys77yIYGFwcHMv\nYCArIGBhcHBzLWVuL2DvvIkKCi0tLQoKIyMg8J+agCDlv6vpgJ/lvIDlp4sK\nCmBgYGJhc2gKIyAxLiDlhYvpmobpobnnm64KZ2l0IGNsb25lIGh0dHBzOi8v\nZ2l0aHViLmNvbS9ZT1VSX1VTRVJOQU1FL21hY3JvLWFuYWx5c2lzLmdpdApj\nZCBtYWNyby1hbmFseXNpcwoKIyAyLiDlkK/liqjmnKzlnLDmnI3liqHlmajv\nvIjku7vpgInlhbbkuIDvvIkKcHl0aG9uIC1tIGh0dHAuc2VydmVyIDgwODAg\nICAgICMgUHl0aG9uCm5weCBzZXJ2ZSAuICAgICAgICAgICAgICAgICAgICAj\nIE5vZGUuanMKCiMgMy4g5rWP6KeI5Zmo6K6/6ZeuCm9wZW4gaHR0cDovLzEy\nNy4wLjAuMTo4MDgwLwpgYGAKCj4g5Lmf5Y+v5Lul55u05o6l5Y+M5Ye75omT\n5byAIGBpbmRleC5odG1sYO+8iOaJgOaciemhtemdouS4uuWNleaWh+S7tiBI\nVE1M77yM5rWP6KeI5Zmo5Z2H5pSv5oyB77yM5peg6ZyA5Lu75L2V5p6E5bu6\n5q2l6aqk77yJ44CCCgotLS0KCiMjIPCfk4Eg55uu5b2V57uT5p6ECgpgYGAK\nbWFjcm8tYW5hbHlzaXMvCuKUnOKUgOKUgCBMSUNFTlNFICAgICAgICAgICAg\nICAgICAgICAgICAgICAgIOKGkCBNSVQg6K645Y+v6K+BCuKUnOKUgOKUgCBS\nRUFETUUubWQgICAgICAgICAgICAgICAgICAgICAgICAgIOKGkCDmnKzmlofk\nu7YK4pSc4pSA4pSAIFJFQURNRS1lbi5tZCAgICAgICAgICAgICAgICAgICAg\nICAg4oaQIEVuZ2xpc2ggcmVhZG1l77yI6Iux5paH54mI77yJCuKUnOKUgOKU\ngCAuZ2l0aWdub3JlICAgICAgICAgICAgICAgICAgICAgICAgIOKGkCBHaXQg\n5b+955Wl6KeE5YiZCuKUnOKUgOKUgCBpbmRleC5odG1sICAgICAgICAgICAg\nICAgICAgICAgICAgIOKGkCDwn4+gIOmhtuWxguWvvOiIqumhtSDCtyDkuK3m\nlofniYjvvIjpu5jorqTlhaXlj6PvvIkK4pSc4pSA4pSAIGluZGV4LWVuLmh0\nbWwgICAgICAgICAgICAgICAgICAgICAg4oaQIPCfjJAg6Zeo5oi36Iux5paH\n54mICuKUnOKUgOKUgCBfYXNzZXRzLyAgICAgICAgICAgICAgICAgICAgICAg\nICAgIOKGkCDlhbHkuqvotYTmupAK4pSCICAg4pSc4pSA4pSAIGxvZ28ucG5n\nICAgICAgICAgICAgICAgICAgICAgICDihpAg6LSi5oOF5Y+M55SfIGxvZ2/v\nvIjpgI/mmI7og4zmma/vvIkK4pSCICAg4pSU4pSA4pSAIHNjcmVlbnNob3Rz\nLyAgICAgICAgICAgICAgICAgICDihpAg55WM6Z2i5oiq5Zu+77yIUkVBRE1F\nIOW8leeUqO+8iQrilJzilIDilIAgYXBwcy8gICAgICAgICAgICAgICAgICAg\nICAgICAgICAgICDihpAgNyDlpZflrZDns7vnu58gwrcg5Lit5paH54mICuKU\ngiAgIOKUnOKUgOKUgCAwMS1tYWNyby1zdXJ2ZWlsbGFuY2UvaW5kZXguaHRt\nbArilIIgICDilJzilIDilIAgMDItbWVycmlsbC1jbG9jay9pbmRleC5odG1s\nCuKUgiAgIOKUnOKUgOKUgCAwMy16aG91amludGFvLWN5Y2xlL2luZGV4Lmh0\nbWwK4pSCICAg4pSc4pSA4pSAIDA0LWZ1bmQtZmxvdy8K4pSCICAg4pSCICAg\n4pSc4pSA4pSAIGluZGV4Lmh0bWwgICAgICAgICAgICAgICAgIOKGkCB2NS4w\n77yI5pyA5paw77yJCuKUgiAgIOKUgiAgIOKUlOKUgOKUgCBpbmRleC12MS5o\ndG1sICAgICAgICAgICAgICDihpAgdjEuMO+8iDMg5Zu95Y6f54mI77yJCuKU\ngiAgIOKUnOKUgOKUgCAwNS1zdG9jay1ib25kLWZ4L2luZGV4Lmh0bWwK4pSC\nICAg4pSc4pSA4pSAIDA2LWdvbGQteGF1dXNkLwrilIIgICDilIIgICDilJzi\nlIDilIAgaW5kZXguaHRtbCAgICAgICAgICAgICAgICAg4oaQIHYyLjDvvIjm\nnIDmlrDvvIkK4pSCICAg4pSCICAg4pSU4pSA4pSAIGluZGV4LXYxLmh0bWwg\nICAgICAgICAgICAgIOKGkCB2MS4w77yI5Z+656GA54mI77yJCuKUgiAgIOKU\nlOKUgOKUgCAwNy1meC1wYWlycy9pbmRleC5odG1sICAgICAgICAg4oaQIOeb\ntOebmOi0p+W4geWvuSDCtyDotKLmg4Xmlrnms5XorroK4pSU4pSA4pSAIGFw\ncHMtZW4vICAgICAgICAgICAgICAgICAgICAgICAgICAg4oaQIDcg5aWX5a2Q\n57O757ufIMK3IOiLseaWh+eJiO+8iOS4jiBhcHBzIOW5s+ihjO+8iQogICAg\n4pSc4pSA4pSAIDAxLW1hY3JvLXN1cnZlaWxsYW5jZS9pbmRleC5odG1sCiAg\nICDilJzilIDilIAgMDItbWVycmlsbC1jbG9jay9pbmRleC5odG1sCiAgICDi\nlJzilIDilIAgMDMtemhvdWppbnRhby1jeWNsZS9pbmRleC5odG1sCiAgICDi\nlJzilIDilIAgMDQtZnVuZC1mbG93L2luZGV4Lmh0bWwKICAgIOKUnOKUgOKU\ngCAwNS1zdG9jay1ib25kLWZ4L2luZGV4Lmh0bWwKICAgIOKUnOKUgOKUgCAw\nNi1nb2xkLXhhdXVzZC9pbmRleC5odG1sCiAgICDilJTilIDilIAgMDctZngt\ncGFpcnMvaW5kZXguaHRtbApgYGAKCi0tLQoKIyMg4o+xIOaVsOaNrua6kOS4\njuabtOaWsOmikeeOhwoKfCDlsYLnuqcgfCDmlbDmja4gfCDmm7TmlrDpopHn\njocgfCDmnaXmupAgfAp8LS0tLS0tfC0tLS0tLXwtLS0tLS0tLS18LS0tLS0t\nfAp8IPCflIQgKirlrp7ml7blsYIqKiB8IOaxh+eOhyDCtyA4IOWbvSB8IOav\nj+aXpSBVVEMgMDA6MDIgfCBbb3Blbi5lci1hcGkuY29tXShodHRwczovL29w\nZW4uZXItYXBpLmNvbSkgfAp8IHwg6buE6YeRIFhBVVVTRCB8IOenkue6pyB8\nIFthcGkuZ29sZC1hcGkuY29tXShodHRwczovL2dvbGQtYXBpLmNvbSkgfAp8\nIHwgQeiCoSAvIOagh+aZrjUwMCB8IOebmOS4reWunuaXtiB8IFtxdC5ndGlt\nZy5jbl0oaHR0cHM6Ly9xdC5ndGltZy5jbikgfAp8IHwg5pel57uPIC8gREFY\nIC8gRlRTRSAvIEtPU1BJIHwg55uY5Lit5a6e5pe2IHwgW3B1c2gyZGVsYXku\nZWFzdG1vbmV5LmNvbV0oaHR0cHM6Ly9wdXNoMmRlbGF5LmVhc3Rtb25leS5j\nb20pIHwKfCB8IOebtOebmOi0p+W4geWvue+8iOWunuaXtu+8iSB8IOavj+aX\npSBVVEMgMDA6MDIgfCBvcGVuLmVyLWFwaS5jb20gfAp8IHwg55u055uY6LSn\n5biB5a+577yIOTAg5pel5Y6G5Y+y77yJIHwg5bel5L2c5pel5pS255uYIHwg\nW2FwaS5mcmFua2Z1cnRlci5kZXZdKGh0dHBzOi8vZnJhbmtmdXJ0ZXIuZGV2\nKSB8Cnwg8J+ThSAqKuWumOaWueWPkeW4gyoqIHwgTTIgLyDnpL7ono0gLyDl\npK7ooaggLyBDUEkgfCDmnIgv5ZGo6aKRIHwg5ZCE5Zu95aSu6KGMIHwKfCDw\nn5OKICoq5Lyw566X5bGCKiogfCDogqHnpagv5oi/5Lqn5biC5YC8IHwg5bm0\n5bqm5b+r54WnIHwg5Lqk5piT5omAL+acuuaehOS8sOeulyB8CnwgfCBURURQ\nSVggLyBNT0VYIOiCoeaMhyB8IOaXoOWFjei0uea6kCB8IOKaoO+4jyDmqKHl\nnovmjqjnrpfvvIjmoIfms6jvvIl8Cnwg8J+noCAqKueglOeptuWxgioqIHwg\n55u055uY6LSn5biB5a+556CU56m25b+r54WnIHwg5YaF572u5p2D5aiB5Y+C\n6ICDIHwg572R57uc5YWs5byA5L+h5oGvICsg5aSa5Zug5a2Q5o6o55CGIHwK\nCj4g8J+TjCDmr4/kuKrpobXpnaLpobbpg6jpg73mnIkqKuaVsOaNrua6kOeK\ntuaAgeW+veeroCoq77yI5a6e5pe2IC8g5a6Y5pa55Y+R5biDIC8g5qih5Z6L\n5o6o566X77yJ77yM5bqV6YOo5pyJ5a6M5pW044CM5pWw5o2u5rqQ5LiO5pu0\n5paw6aKR546H5a+554Wn6KGo44CN77yM5LiA55y855yL5riF5pWw5o2u5paw\n5pen44CCCgotLS0KCiMjIPCfjJAg6YOo572yCgojIyMg5pa55byP5LiA77ya\nR2l0SHViIFBhZ2Vz77yI5o6o6I2Q5byA5rqQ5Y+R5biD77yJCgpgYGBiYXNo\nCmNkIG1hY3JvLWFuYWx5c2lzCmdpdCBpbml0CmdpdCBhZGQgLgpnaXQgY29t\nbWl0IC1tICJmZWF0OiDotKLmg4Xlj4znlJ/mmbrlupMg5a6P6KeC5YiG5p6Q\nIHYxLjAgwrcgNyDlpZflrZDns7vnu5/mlbTlkIjvvIjkuK3oi7Hlj4zor63v\nvIkiCmdpdCBicmFuY2ggLU0gbWFpbgpnaXQgcmVtb3RlIGFkZCBvcmlnaW4g\naHR0cHM6Ly9naXRodWIuY29tL1lPVVJfVVNFUk5BTUUvbWFjcm8tYW5hbHlz\naXMuZ2l0CmdpdCBwdXNoIC11IG9yaWdpbiBtYWluCmBgYAoKMS4gR2l0SHVi\nIOS7k+W6kyDihpIgKipTZXR0aW5ncyoqIOKGkiAqKlBhZ2VzKioKMi4gU291\ncmNlOiAqKkRlcGxveSBmcm9tIGEgYnJhbmNoKiog4oaSIEJyYW5jaDogKipt\nYWluKiogLyAqKihyb290KSoqCjMuIOS/neWtmOWQjuiuv+mXru+8mmBodHRw\nczovL1lPVVJfVVNFUk5BTUUuZ2l0aHViLmlvL21hY3JvLWFuYWx5c2lzL2AK\nCiMjIyDmlrnlvI/kuozvvJpOZ2lueCAvIOWuneWhlOmdouadv++8iOW9k+WJ\njee6v+S4iu+8iQoK6aG555uu5bey6YOo572y5LqO6IW+6K6v5LqR77yIVWJ1\nbnR1IDIyLjA0ICsg5a6d5aGUIG5naW5477yJ77yM55uR5ZCsIGAzMDUwYCDn\nq6/lj6PvvJoKCmBgYG5naW54CnNlcnZlciB7CiAgICBsaXN0ZW4gMzA1MDsK\nICAgIHNlcnZlcl9uYW1lIDExOC4yNS4xOTcuNzU7CiAgICByb290IC93d3cv\nd3d3cm9vdC8xMTguMjUuMTk3Ljc1XzMwNTA7CiAgICBpbmRleCBpbmRleC5o\ndG1sOwogICAgbG9jYXRpb24gLyB7CiAgICAgICAgdHJ5X2ZpbGVzICR1cmkg\nJHVyaS8gPTQwNDsKICAgIH0KICAgIGxvY2F0aW9uIH4qIFwuKHBuZ3xqcGd8\nc3ZnfGNzc3xqcykkIHsKICAgICAgICBleHBpcmVzIDMwZDsgICAjIOmdmeaA\ngei1hOa6kOe8k+WtmAogICAgfQogICAgbG9jYXRpb24gfiogKFJFQURNRXxM\nSUNFTlNFfFwuZ2l0aWdub3JlfFwuZW52KSB7CiAgICAgICAgcmV0dXJuIDQw\nNDsgICAgIyDmlY/mhJ/mlofku7bkv53miqQKICAgIH0KfQpgYGAKCi0tLQoK\nIyMg8J+OqCDorr7orqHns7vnu58KCi0gKirkuLvog4zmma8qKu+8mua3sea4\nium7kSBgIzBEMEQwRmAKLSAqKuasoeiDjOaZryoq77ya5pif5aSc6JOdIGAj\nMEExNjI4YAotICoq5Li75by66LCD6ImyKirvvJrngrnnnZvph5EgYCNENEFG\nMzdgCi0gKirmtqjoibLvvIhB6IKh5oOv5L6L77yJKirvvJrnuqIgYCNFNTM5\nMzVgIMK3ICoq6LeM6ImyKirvvJrnu78gYCM0M0EwNDdgCi0gKirlrZfkvZMq\nKu+8mk5vdG8gU2FucyBTQyAvIE5vdG8gU2VyaWYgU0MgLyBKZXRCcmFpbnMg\nTW9ubwoK5ZOB54mM5ZOy5a2m77yaKirotKLmg4Xlj4znlJ/vvIhGaW5hbmNl\nICsgRW1vdGlvbu+8iSoqIMK3IOmYtOmYs+W5s+ihoSDCtyDlr7nnq4vnu5/k\nuIAgwrcg5rKJ56iz5rex6YKDIMK3IOmHkeWFieeCueedm+OAggoKLS0tCgoj\nIyDwn5ugIOaKgOacr+agiAoKLSAqKuWJjeerryoq77ya57qvIEhUTUwgKyBD\nU1MgKyBWYW5pbGxhIEpT77yIKirpm7bmnoTlu7oqKu+8jOWNleaWh+S7tuae\ntuaehO+8iQotICoq5Zu+6KGoKirvvJpbQ2hhcnQuanNdKGh0dHBzOi8vd3d3\nLmNoYXJ0anMub3JnLynvvIhDRE7vvIkKLSAqKuaVsOaNrua6kCoq77ya5YWN\n6LS55YWs5byAIEFQSe+8iOaXoOmcgCBrZXnvvIkKICAtIOaxh+eOh++8mltv\ncGVuLmVyLWFwaS5jb21dKGh0dHBzOi8vb3Blbi5lci1hcGkuY29tKQogIC0g\n6YeR5Lu377yaW2FwaS5nb2xkLWFwaS5jb21dKGh0dHBzOi8vZ29sZC1hcGku\nY29tKQogIC0g6IKh5oyH77yaW3F0Lmd0aW1nLmNuXShodHRwczovL3F0Lmd0\naW1nLmNuKSArIFtwdXNoMmRlbGF5LmVhc3Rtb25leS5jb21dKGh0dHBzOi8v\ncHVzaDJkZWxheS5lYXN0bW9uZXkuY29tKQogIC0g6LSn5biB5a+55Y6G5Y+y\n77yaW2FwaS5mcmFua2Z1cnRlci5kZXZdKGh0dHBzOi8vZnJhbmtmdXJ0ZXIu\nZGV2KQotICoq6YOo572yKirvvJrku7vmhI/pnZnmgIHmnI3liqHlmajvvIhH\naXRIdWIgUGFnZXMgLyBOZ2lueCAvIENsb3VkU3R1ZGlvIC8gVmVyY2Vs77yJ\nCgotLS0KCiMjIPCfk4sg57O757uf54mI5pysCgp8IOezu+e7nyB8IOeJiOac\nrCB8IOeKtuaAgSB8CnwtLS0tLS18LS0tLS0tfC0tLS0tLXwKfCDlro/op4Ln\nm5Hmjqfns7vnu58gfCB2MS4wIHwg4pyFIOeos+WumiB8Cnwg576O5p6X5pe2\n6ZKf5a6P6KeC55uR5o6n57O757ufIHwgdjQuMCB8IOKchSDnqLPlrpogfAp8\nIOWRqOmHkea2m+S4ieWbveWRqOacn+WIhuaekOaKpeWRiiB8IHY1LjEgfCDi\nnIUg56iz5a6aIHwKfCDotYTph5HmtYHlkJHnm5HmtYvns7vnu58gfCB2NS4w\nIHwg4pyFIOacgOaWsCB8Cnwg6IKh5YC65rGH55uR5rWL57O757ufIHwgdjEu\nMCB8IOKchSDnqLPlrpogfAp8IOm7hOmHkSBYQVVVU0Qg55uR5o6n57O757uf\nIHwgdjIuMCB8IOKchSDnqLPlrpogfAp8IOebtOebmOi0p+W4geWvueWbm+e7\ntOWIhuaekCB8IHYxLjQgfCDinIUg5pyA5paw77yI6LSi5oOF5pa55rOV6K66\n77yJfAoKLS0tCgojIyDwn6SdIOi0oeeMrgoK5qyi6L+O6YCa6L+H5Lul5LiL\n5pa55byP5Y+C5LiO77yaCgotIPCfkJsgKirmiqXlkYrpl67popgqKu+8muaP\nkCBbSXNzdWVdKGh0dHBzOi8vZ2l0aHViLmNvbS9ZT1VSX1VTRVJOQU1FL21h\nY3JvLWFuYWx5c2lzL2lzc3Vlcykg5o+P6L+wIGJ1ZyDmiJblu7rorq4KLSDw\nn5qAICoq5o+Q5Lqk5Luj56CBKirvvJpGb3JrIOKGkiDkv67mlLkg4oaSIFB1\nbGwgUmVxdWVzdAotIPCfk5ogKirlrozlloTmlofmoaMqKu+8muihpeWFhee/\nu+ivkeOAgeS/ruato+mUmeWIq+Wtl+OAgeWinuWKoOeUqOazleekuuS+iwot\nIPCfk4ogKirmlrDmlbDmja7mupAqKu+8muaOpeWFpeabtOWkmuWFjei0uSBB\nUEnvvIhDT1JTIOWPi+WlveS8mOWFiO+8iQoKLS0tCgojIyDwn5OcIOWFjei0\no+WjsOaYjgoK5pys56uZ5omA5pyJ5pWw5o2u5LuF5L6bKirnoJTnqbblrabk\nuaAqKu+8jCoq5LiN5p6E5oiQ5oqV6LWE5bu66K6uKirjgILluILlnLrmnInp\no47pmanvvIzmipXotYTpnIDosKjmhY7jgILmlbDmja7mnaXmupDkuLrlhY3o\ntLnlhazlvIDmjqXlj6PvvIzlj6/og73lrZjlnKjlu7bov5/miJbor6/lt67v\nvJvmqKHlnovmjqjnrpfmlbDmja7lt7LmmI7noa7moIfms6jjgIIKCi0tLQoK\nIyMg8J+RpCDkvZzogIUKCioq6LSi5oOF5Y+M55Sf5pm65bqTIMK3IEVjb24t\nU2VudGltZW50IFR3aW4gVGhpbmsgVGFuayoqIMK3IOaYk+WSjOS4rQoKKuiL\npiDpmr4g5Y+YIOaZuiDmhacgwrcg55+bIOebviDlj5gg5Y+MIOi1oiDCtyDn\ng6Yg5oG8IOWPmCDmiJAg6ZW/IMK3IOiuqSDmmbog5oWnIOaciSDmuKkg5bqm\nKgoKLS0tCgojIyDwn5OEIOiuuOWPr+ivgQoK5pys6aG555uu6YeH55SoICoq\nTUlUIExpY2Vuc2UqKu+8iOivpuingSBbTElDRU5TRV0oTElDRU5TRSnvvInj\ngIIKCk1JVCDorrjlj6/or4HlhYHorrjku7vkvZXkurroh6rnlLHkvb/nlKjj\ngIHlpI3liLbjgIHkv67mlLnjgIHlkIjlubbjgIHlj5HluIPjgIHliIblj5Hj\ngIHlho3orrjlj6/lkowv5oiW6ZSA5ZSu5pys6L2v5Lu255qE5Ymv5pys77yM\n5YmN5o+Q5piv5L+d55WZ5Y6f5aeL54mI5p2D5aOw5piO5ZKM6K645Y+v5aOw\n5piO44CCCgojIyMg56ys5LiJ5pa56LWE5rqQCgp8IOi1hOa6kCB8IOeJiOad\ngy/orrjlj68gfAp8LS0tLS0tfC0tLS0tLS0tLS18CnwgQ2hhcnQuanPvvIhD\nRE4g5byV5YWl77yJIHwgTUlUIExpY2Vuc2UgfAp8IOi0ouaDheWPjOeUnyBs\nb2dvIHwgwqkgMjAyNiDotKLmg4Xlj4znlJ/mmbrlupPvvIzkv53nlZnmiYDm\nnInmnYPliKnvvIjkuI3pmo8gTUlUIOaOiOadg+W8gOaUvu+8iXwKfCDlhY3o\ntLnmlbDmja4gQVBJIHwg5ZCE6Ieq5pyN5Yqh5p2h5qy+77yIb3Blbi5lci1h\ncGkuY29tIC8gZ29sZC1hcGkuY29tIC8gcXQuZ3RpbWcuY24gLyBwdXNoMmRl\nbGF5LmVhc3Rtb25leS5jb20gLyBmcmFua2Z1cnRlci5kZXbvvIl8Cg==\n","encoding":"base64","_links":{"self":"https://api.github.com/repos/wecando-vip/macro-analysis/contents/README.md?ref=main","git":"https://api.github.com/repos/wecando-vip/macro-analysis/git/blobs/daf1945fd413010d69f1a072029cdba1c162a2db","html":"https://github.com/wecando-vip/macro-analysis/blob/main/README.md"}}
+<div align="center">
+
+# 财情双生智库 · Econ-Sentiment Twin Think Tank
 
 <div align="center">
 
@@ -7,3 +9,296 @@
 **🚀 在线访问（免部署 · 推送 main 自动更新）**：https://wecando-vip.github.io/macro-analysis/
 
 </div>
+
+
+**金融 × 情绪 · 对立统一 · 一站式资产决策系统**
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+![Version](https://img.shields.io/badge/version-v1.0-blue)
+![Zero Build](https://img.shields.io/badge/zero--build-100%25_vanilla-brightgreen)
+![Bilingual](https://img.shields.io/badge/中文%20%7C%20EN-bilingual-4FC3F7)
+![Free APIs](https://img.shields.io/badge/data-free%20APIs-orange)
+![GitHub Pages](https://img.shields.io/badge/deploy-GitHub%20Pages%20%7C%20Nginx-success)
+
+**财 情 双 生 · 智 慧 有 温 度**
+**苦 难 变 智 慧 · 矛 盾 变 双 赢 · 烦 恼 变 成 长**
+
+</div>
+
+---
+
+财情双生智库是一套**个人资产决策工具集**（Financial × Emotional Twin Think Tank），将理性金融分析与市场情绪判断双轨合一，覆盖宏观监控、周期定位、资金流向、股债汇、黄金、直盘货币对六大维度，帮助你看清市场、校准决策。
+
+**纯静态 · 零构建 · 零后端** —— 单文件 HTML 即可运行，数据全部来自免费公开 API，浏览器端实时拉取。
+
+> 🌐 **在线体验**：[http://118.25.197.75:3050/](http://118.25.197.75:3050/)（中文版默认入口）
+> 🇺🇸 **English**：[http://118.25.197.75:3050/index-en.html](http://118.25.197.75:3050/index-en.html)
+
+---
+
+## ✨ 特性亮点
+
+| 特性 | 说明 |
+|------|------|
+| 🌍 **7 大子系统** | 宏观监控 / 美林时钟 / 周金涛周期 / 资金流向 / 股债汇 / 黄金 / 直盘货币对 |
+| 🧠 **财情方法论** | 五阶段框架：问题定义 → 结构分解 → 周期定位 → 数据实证 → 证伪检验（可证伪性 > 可解释性）|
+| 🇨🇳🇺🇸 **中英双语** | 中英文独立页面分离（`apps/` + `apps-en/`），顶部「中 \| EN」语言对互通，中文为默认入口 |
+| 📡 **免费实时数据** | 汇率 / 金价 / 8 国股指 / 货币对 90 日历史 —— 全免费 API、无需 key、CORS 友好 |
+| 📊 **多维判断引擎** | 月 / 周 / 日 / 时四周期嵌套定位，基本面 + 技术面 + 情绪面 + 量化面四维独立分析 |
+| 🛡 **证伪条件** | 每个判断都给出明确的「失效条件」，拒绝事后解释，诚实面对不确定性 |
+| ⚡ **零构建部署** | 纯 HTML + CSS + Vanilla JS，GitHub Pages / Nginx / 任意静态服务器直接跑 |
+
+---
+
+## 🎯 7 大子系统
+
+| # | 系统 | 目录 | 用途 | 简明使用场景 |
+|---|------|------|------|-------------|
+| 01 | **宏观监控系统** | `apps/01-macro-surveillance/` | 5 维度全球压力仪表 | 开盘前看「综合压力指数」+「市场传染」→ 判断今日风险偏好 |
+| 02 | **美林时钟** | `apps/02-merrill-clock/` | 8 国同步周期定位 | 勾选 3 国 → 看三国时钟象限 + 10Y 利差 → 找套利窗口 |
+| 03 | **周金涛三国周期** | `apps/03-zhoujintao-cycle/` | 康波 50-60 年长波 | 每月看「核心结论」→ 校准宏观战略 → 大类资产久期 |
+| 04 | **资金流向监测** ⭐ | `apps/04-fund-flow/` | 8 国资金链 + 实时三件套 | 必看系统 → 顶部 4 源状态 → 实时行情 → 央行资产负债表 |
+| 05 | **股债汇监测** | `apps/05-stock-bond-fx/` | 8 国 3 市场三维趋势 | 勾选 5 国 → 看「年/月/周」三维信号 → 找出强势上行 |
+| 06 | **黄金 XAUUSD** | `apps/06-gold-xauusd/` | 四维单品种深探 | 日内看「日线」+ 蜡烛图 → 中期看「金银比」+ 调权重 |
+| 07 | **直盘货币对** | `apps/07-fx-pairs/` | 6 大直盘四维分析（财情方法论） | 交易前看月/周/日/时四维信号 → 多维度共振做单 → 设证伪条件止损 |
+
+> 💡 第 07 系统「直盘货币对」是**财情方法论的完整实践**：6 对直盘（EUR/USD、USD/JPY、GBP/USD、USD/CHF、AUD/USD、USD/CAD）可复选，内置大模型研究快照兜底，API 挂掉时页面依然有权威研究内容。
+
+### 📐 财情方法论（Finance-Emotion Methodology）
+
+将金融分析（财）与市场心理/情绪判断（情）双轨合一的分析框架：
+
+```
+① 问题定义  → 这组货币对当前在交易什么？（基本面驱动？动量延续？套息？）
+② 结构分解  → 基本面 / 技术面 / 情绪面 / 量化面 四个独立分析维度
+③ 周期定位  → 月（60日+30动量）/ 周（20日+10动量）/ 日（MA5/20+RSI+MACD）/ 时（5日动量）
+④ 数据实证  → 免费 API 真实数据（open.er-api.com 实时 + frankfurter.dev 90 日历史）
+⑤ 证伪检验  → 每对给出 2-3 个「判断失效条件」（可证伪性 > 可解释性）
+```
+
+> 方法论核心：**可证伪性 > 可解释性** —— 每个判断都必须给出明确的「失效条件」，宁可诚实承认不确定性，也不搞事后解释。
+
+---
+
+## 📸 界面预览
+
+| 门户中文版 | 直盘货币对 · 财情方法论 |
+|------------|------------------------|
+| ![门户](_assets/screenshots/portal-top.png) | ![直盘货币对](_assets/screenshots/fx-v14-top.png) |
+
+| 资金流向 · 实时三件套 | 门户英文版 |
+|----------------------|-----------|
+| ![资金流向](_assets/screenshots/flow-en.png) | ![门户英文](_assets/screenshots/portal-en.png) |
+
+---
+
+## 🧭 中英双语架构
+
+中文版为**默认入口**，中英文**独立页面分离**（非 JS 切换，SEO 友好、爬虫可索引）：
+
+```
+门户中文 index.html ──EN──→ 门户英文 index-en.html
+门户英文 index-en.html ──中──→ 门户中文 index.html
+apps/XX（中）──EN──→ apps-en/XX（英）      apps-en/XX（英）──中──→ apps/XX（中）
+```
+
+- 品牌名统一：**财情双生智库 · Econ-Sentiment Twin Think Tank**（中英并排）
+- 英文版 `<html lang="en">` + 独立 meta description
+- 7 套子系统全部拥有中英两个版本（`apps/` + `apps-en/`）
+
+---
+
+## 🚀 快速开始
+
+```bash
+# 1. 克隆项目
+git clone https://github.com/YOUR_USERNAME/macro-analysis.git
+cd macro-analysis
+
+# 2. 启动本地服务器（任选其一）
+python -m http.server 8080     # Python
+npx serve .                    # Node.js
+
+# 3. 浏览器访问
+open http://127.0.0.1:8080/
+```
+
+> 也可以直接双击打开 `index.html`（所有页面为单文件 HTML，浏览器均支持，无需任何构建步骤）。
+
+---
+
+## 📁 目录结构
+
+```
+macro-analysis/
+├── LICENSE                            ← MIT 许可证
+├── README.md                          ← 本文件
+├── README-en.md                       ← English readme（英文版）
+├── .gitignore                         ← Git 忽略规则
+├── index.html                         ← 🏠 顶层导航页 · 中文版（默认入口）
+├── index-en.html                      ← 🌐 门户英文版
+├── _assets/                           ← 共享资源
+│   ├── logo.png                       ← 财情双生 logo（透明背景）
+│   └── screenshots/                   ← 界面截图（README 引用）
+├── apps/                              ← 7 套子系统 · 中文版
+│   ├── 01-macro-surveillance/index.html
+│   ├── 02-merrill-clock/index.html
+│   ├── 03-zhoujintao-cycle/index.html
+│   ├── 04-fund-flow/
+│   │   ├── index.html                 ← v5.0（最新）
+│   │   └── index-v1.html              ← v1.0（3 国原版）
+│   ├── 05-stock-bond-fx/index.html
+│   ├── 06-gold-xauusd/
+│   │   ├── index.html                 ← v2.0（最新）
+│   │   └── index-v1.html              ← v1.0（基础版）
+│   └── 07-fx-pairs/index.html         ← 直盘货币对 · 财情方法论
+└── apps-en/                           ← 7 套子系统 · 英文版（与 apps 平行）
+    ├── 01-macro-surveillance/index.html
+    ├── 02-merrill-clock/index.html
+    ├── 03-zhoujintao-cycle/index.html
+    ├── 04-fund-flow/index.html
+    ├── 05-stock-bond-fx/index.html
+    ├── 06-gold-xauusd/index.html
+    └── 07-fx-pairs/index.html
+```
+
+---
+
+## ⏱ 数据源与更新频率
+
+| 层级 | 数据 | 更新频率 | 来源 |
+|------|------|---------|------|
+| 🔄 **实时层** | 汇率 · 8 国 | 每日 UTC 00:02 | [open.er-api.com](https://open.er-api.com) |
+| | 黄金 XAUUSD | 秒级 | [api.gold-api.com](https://gold-api.com) |
+| | A股 / 标普500 | 盘中实时 | [qt.gtimg.cn](https://qt.gtimg.cn) |
+| | 日经 / DAX / FTSE / KOSPI | 盘中实时 | [push2delay.eastmoney.com](https://push2delay.eastmoney.com) |
+| | 直盘货币对（实时） | 每日 UTC 00:02 | open.er-api.com |
+| | 直盘货币对（90 日历史） | 工作日收盘 | [api.frankfurter.dev](https://frankfurter.dev) |
+| 📅 **官方发布** | M2 / 社融 / 央表 / CPI | 月/周频 | 各国央行 |
+| 📊 **估算层** | 股票/房产市值 | 年度快照 | 交易所/机构估算 |
+| | TEDPIX / MOEX 股指 | 无免费源 | ⚠️ 模型推算（标注）|
+| 🧠 **研究层** | 直盘货币对研究快照 | 内置权威参考 | 网络公开信息 + 多因子推理 |
+
+> 📌 每个页面顶部都有**数据源状态徽章**（实时 / 官方发布 / 模型推算），底部有完整「数据源与更新频率对照表」，一眼看清数据新旧。
+
+---
+
+## 🌐 部署
+
+### 方式一：GitHub Pages（推荐开源发布）
+
+```bash
+cd macro-analysis
+git init
+git add .
+git commit -m "feat: 财情双生智库 宏观分析 v1.0 · 7 套子系统整合（中英双语）"
+git branch -M main
+git remote add origin https://github.com/YOUR_USERNAME/macro-analysis.git
+git push -u origin main
+```
+
+1. GitHub 仓库 → **Settings** → **Pages**
+2. Source: **Deploy from a branch** → Branch: **main** / **(root)**
+3. 保存后访问：`https://YOUR_USERNAME.github.io/macro-analysis/`
+
+### 方式二：Nginx / 宝塔面板（当前线上）
+
+项目已部署于腾讯云（Ubuntu 22.04 + 宝塔 nginx），监听 `3050` 端口：
+
+```nginx
+server {
+    listen 3050;
+    server_name 118.25.197.75;
+    root /www/wwwroot/118.25.197.75_3050;
+    index index.html;
+    location / {
+        try_files $uri $uri/ =404;
+    }
+    location ~* \.(png|jpg|svg|css|js)$ {
+        expires 30d;   # 静态资源缓存
+    }
+    location ~* (README|LICENSE|\.gitignore|\.env) {
+        return 404;    # 敏感文件保护
+    }
+}
+```
+
+---
+
+## 🎨 设计系统
+
+- **主背景**：深渊黑 `#0D0D0F`
+- **次背景**：星夜蓝 `#0A1628`
+- **主强调色**：点睛金 `#D4AF37`
+- **涨色（A股惯例）**：红 `#E53935` · **跌色**：绿 `#43A047`
+- **字体**：Noto Sans SC / Noto Serif SC / JetBrains Mono
+
+品牌哲学：**财情双生（Finance + Emotion）** · 阴阳平衡 · 对立统一 · 沉稳深邃 · 金光点睛。
+
+---
+
+## 🛠 技术栈
+
+- **前端**：纯 HTML + CSS + Vanilla JS（**零构建**，单文件架构）
+- **图表**：[Chart.js](https://www.chartjs.org/)（CDN）
+- **数据源**：免费公开 API（无需 key）
+  - 汇率：[open.er-api.com](https://open.er-api.com)
+  - 金价：[api.gold-api.com](https://gold-api.com)
+  - 股指：[qt.gtimg.cn](https://qt.gtimg.cn) + [push2delay.eastmoney.com](https://push2delay.eastmoney.com)
+  - 货币对历史：[api.frankfurter.dev](https://frankfurter.dev)
+- **部署**：任意静态服务器（GitHub Pages / Nginx / CloudStudio / Vercel）
+
+---
+
+## 📋 系统版本
+
+| 系统 | 版本 | 状态 |
+|------|------|------|
+| 宏观监控系统 | v1.0 | ✅ 稳定 |
+| 美林时钟宏观监控系统 | v4.0 | ✅ 稳定 |
+| 周金涛三国周期分析报告 | v5.1 | ✅ 稳定 |
+| 资金流向监测系统 | v5.0 | ✅ 最新 |
+| 股债汇监测系统 | v1.0 | ✅ 稳定 |
+| 黄金 XAUUSD 监控系统 | v2.0 | ✅ 稳定 |
+| 直盘货币对四维分析 | v1.4 | ✅ 最新（财情方法论）|
+
+---
+
+## 🤝 贡献
+
+欢迎通过以下方式参与：
+
+- 🐛 **报告问题**：提 [Issue](https://github.com/YOUR_USERNAME/macro-analysis/issues) 描述 bug 或建议
+- 🚀 **提交代码**：Fork → 修改 → Pull Request
+- 📚 **完善文档**：补充翻译、修正错别字、增加用法示例
+- 📊 **新数据源**：接入更多免费 API（CORS 友好优先）
+
+---
+
+## 📜 免责声明
+
+本站所有数据仅供**研究学习**，**不构成投资建议**。市场有风险，投资需谨慎。数据来源为免费公开接口，可能存在延迟或误差；模型推算数据已明确标注。
+
+---
+
+## 👤 作者
+
+**财情双生智库 · Econ-Sentiment Twin Think Tank** · 易和中
+
+*苦 难 变 智 慧 · 矛 盾 变 双 赢 · 烦 恼 变 成 长 · 让 智 慧 有 温 度*
+
+---
+
+## 📄 许可证
+
+本项目采用 **MIT License**（详见 [LICENSE](LICENSE)）。
+
+MIT 许可证允许任何人自由使用、复制、修改、合并、发布、分发、再许可和/或销售本软件的副本，前提是保留原始版权声明和许可声明。
+
+### 第三方资源
+
+| 资源 | 版权/许可 |
+|------|----------|
+| Chart.js（CDN 引入） | MIT License |
+| 财情双生 logo | © 2026 财情双生智库，保留所有权利（不随 MIT 授权开放）|
+| 免费数据 API | 各自服务条款（open.er-api.com / gold-api.com / qt.gtimg.cn / push2delay.eastmoney.com / frankfurter.dev）|
